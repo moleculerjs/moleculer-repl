@@ -22,9 +22,6 @@
   },
   "author": "Ice Services",
   "license": "MIT",
-  "peerDependencies": {
-    "moleculer": "^0.7.6"
-  },
   "devDependencies": {
     "benchmarkify": "2.1.0",
     "coveralls": "2.13.1",

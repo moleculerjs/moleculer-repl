@@ -7,8 +7,6 @@
 
 "use strict";
 
-const Moleculer = require("moleculer");
-
 const fs = require("fs");
 const path = require("path");
 const os = require("os");
@@ -20,6 +18,10 @@ const { table, getBorderCharacters } = require("table");
 const vorpal = require("vorpal")();
 const clui = require("clui");
 const pretty = require("pretty-bytes");
+
+const CIRCUIT_CLOSE 		= "close";
+const CIRCUIT_HALF_OPEN 	= "half_open";
+const CIRCUIT_OPEN 			= "open";
 
 /* istanbul ignore next */
 const eventHandler = payload => {
@@ -179,9 +181,9 @@ function REPL(broker) {
 
 				let getStateLabel = (state) => {
 					switch(state) {
-					case Moleculer.CIRCUIT_CLOSE:		return chalk.bgGreen.white( "   OK   ");
-					case Moleculer.CIRCUIT_HALF_OPEN: 	return chalk.bgYellow.black(" TRYING ");
-					case Moleculer.CIRCUIT_OPEN: 		return chalk.bgRed.white(	" FAILED ");
+					case CIRCUIT_CLOSE:			return chalk.bgGreen.white( "   OK   ");
+					case CIRCUIT_HALF_OPEN: 	return chalk.bgYellow.black(" TRYING ");
+					case CIRCUIT_OPEN: 			return chalk.bgRed.white(	" FAILED ");
 					}
 				};
 

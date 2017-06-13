@@ -1,23 +1,11 @@
 "use strict";
 
 let { ServiceBroker } 	= require("moleculer");
-let MyService 			= require("../../index");
+let REPL 				= require("../../src");
 
 // Create broker
 let broker = new ServiceBroker({
 	logger: console
 });
 
-// Load my service
-broker.createService(MyService);
-
-// Start server
-broker.start().then(() => {
-
-	// Call action
-	broker
-		.call("repl.test", { name: "John Doe" })
-		.then(broker.logger.info)
-		.catch(broker.logger.error);
-
-});
+REPL(broker);

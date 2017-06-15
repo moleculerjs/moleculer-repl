@@ -13,6 +13,23 @@ npm install moleculer-repl --save
 
 ## Usage
 
+**Start broker in REPL mode**
+```js
+let broker = new ServiceBroker({ logger: console });
+
+// Start REPL
+broker.repl();
+```
+
+You will get a console:
+
+```bash
+mol $ 
+```
+
+## Documentation
+Please read our [documentation on Moleculer site](http://moleculer.services/docs/moleculer-web.html)
+
 
 # Contribution
 Please send pull requests improving the usage and fixing bugs, improving documentation and providing better examples, or providing some testing, because these things are important.

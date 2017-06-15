@@ -2,7 +2,7 @@
 
 # REPL module for Moleculer [![NPM version](https://img.shields.io/npm/v/moleculer-repl.svg)](https://www.npmjs.com/package/moleculer-repl)
 
-The `moleculer-repl` is an interactive console. Created with [vorpal](https://github.com/dthree/vorpal)
+The `moleculer-repl` is an interactive console. Created with [vorpal](https://github.com/dthree/vorpal).
 
 ## Features
 - list actions
@@ -36,7 +36,7 @@ mol $
 ```
 
 ## Documentation
-Please read our [documentation on Moleculer site](http://moleculer.services/docs/moleculer-web.html)
+Please read our [documentation on Moleculer site](http://moleculer.services/docs/moleculer-repl.html)
 
 
 # Contribution

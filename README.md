@@ -1,6 +1,6 @@
 ![Moleculer logo](http://moleculer.services/images/banner.png)
 
-REPL module for Moleculer [![NPM version](https://img.shields.io/npm/v/moleculer-repl.svg)](https://www.npmjs.com/package/moleculer-repl)
+# REPL module for Moleculer [![NPM version](https://img.shields.io/npm/v/moleculer-repl.svg)](https://www.npmjs.com/package/moleculer-repl)
 
 The `moleculer-repl` is an interactive console. Created with [vorpal](https://github.com/dthree/vorpal)
 

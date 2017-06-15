@@ -1,10 +1,16 @@
 ![Moleculer logo](http://moleculer.services/images/banner.png)
 
-# [WIP] moleculer-repl [![NPM version](https://img.shields.io/npm/v/moleculer-repl.svg)](https://www.npmjs.com/package/moleculer-repl)
-
-REPL module for Moleculer
+REPL module for Moleculer [![NPM version](https://img.shields.io/npm/v/moleculer-repl.svg)](https://www.npmjs.com/package/moleculer-repl)
 
 ## Features
+- list actions
+- list nodes
+- list services
+- call action
+- emit event
+- load services (from file or folder)
+- subscribe and unsubscribe events
+- show info from local node
 
 ## Install
 ```

@@ -388,7 +388,9 @@ function REPL(broker) {
 						printObject(val, level + 1);
 					}
 				});
-			};			
+			};		
+
+			const MOLECULER_VERSION = broker.constructor && broker.constructor.prototype && broker.constructor.prototype.MOLECULER_VERSION ? broker.constructor.prototype.MOLECULER_VERSION : "?";
 
 			console.log("");
 			broker.getNodeHealthInfo().then(health => {
@@ -409,6 +411,9 @@ function REPL(broker) {
 				print("OS", (os.platform()) + " (" + (os.type()) + ")");
 				print("IP", health.net.ip.join(", "));
 				print("Hostname", os.hostname());
+				console.log("");
+				print("Node", process.version);
+				print("Moleculer version", MOLECULER_VERSION);
 				console.log("");
 
 				printHeader("Broker settings");

@@ -84,7 +84,7 @@ function REPL(broker) {
 		.command("emit <eventName> [payload]", "Emit an event")
 		.action((args, done) => {
 			console.log(chalk.yellow.bold(`>> Emit '${args.eventName}' with payload:`), args.payload);
-			broker.emit(args.eventName, args.payload);
+			broker.emit(args.eventName, args.payload ? JSON.parse(args.payload) : undefined);
 			done();
 		});
 

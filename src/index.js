@@ -7,25 +7,26 @@
 
 "use strict";
 
-const fs = require("fs");
-const path = require("path");
-const os = require("os");
-const v8 = require("v8");
-const _ = require("lodash");
-const chalk = require("chalk");
-const ms = require("ms");
-const { table, getBorderCharacters } = require("table");
-const vorpal = require("vorpal")();
-const clui = require("clui");
-const pretty = require("pretty-bytes");
+const fs 								= require("fs");
+const path 								= require("path");
+const util 								= require("util");
+const os 								= require("os");
+const v8 								= require("v8");
+const _ 								= require("lodash");
+const chalk 							= require("chalk");
+const ms 								= require("ms");
+const { table, getBorderCharacters } 	= require("table");
+const vorpal 							= require("vorpal")();
+const clui 								= require("clui");
+const pretty 							= require("pretty-bytes");
 
-const CIRCUIT_CLOSE 		= "close";
-const CIRCUIT_HALF_OPEN 	= "half_open";
-const CIRCUIT_OPEN 			= "open";
+const CIRCUIT_CLOSE 					= "close";
+const CIRCUIT_HALF_OPEN 				= "half_open";
+const CIRCUIT_OPEN 						= "open";
 
 /* istanbul ignore next */
 const eventHandler = payload => {
-	console.log(chalk.magenta(">> Incoming event!"), payload);
+	console.log(chalk.magenta(">> Incoming event!"), util.inspect(payload, { showHidden: false, depth: 4, colors: true }));
 };
 
 /**
@@ -50,12 +51,12 @@ function REPL(broker) {
 			broker.call(args.actionName, JSON.parse(args.params || "{}"))
 				.then(res => {
 					console.log(chalk.yellow.bold(">> Response:"));
-					console.log(res);
+					console.log(util.inspect(res, { showHidden: false, depth: 4, colors: true }));
 				})
 				.catch(err => {
 					console.error(chalk.red.bold(">> ERROR:", err.message));
 					console.error(chalk.red.bold(err.stack));
-					console.error("Data: ", err.data);
+					console.error("Data: ", util.inspect(err.data, { showHidden: false, depth: 4, colors: true }));
 				})
 				.finally(done);
 		});
@@ -69,12 +70,12 @@ function REPL(broker) {
 			broker.call(args.actionName, JSON.parse(args.params || "{}"), { nodeID })
 				.then(res => {
 					console.log(chalk.yellow.bold(">> Response:"));
-					console.log(res);
+					console.log(util.inspect(res, { showHidden: false, depth: 4, colors: true }));
 				})
 				.catch(err => {
 					console.error(chalk.red.bold(">> ERROR:", err.message));
 					console.error(chalk.red.bold(err.stack));
-					console.error("Data: ", err.data);
+					console.error("Data: ", util.inspect(err.data, { showHidden: false, depth: 4, colors: true }));
 				})
 				.finally(done);
 		});
@@ -191,7 +192,7 @@ function REPL(broker) {
 					item.endpoints.forEach(endpoint => {
 						data.push([
 							"",
-							endpoint.nodeID || chalk.gray("<local>"),
+							endpoint.nodeID == broker.nodeID ? chalk.gray("<local>") : endpoint.nodeID,
 							getStateLabel(endpoint.state),
 							"",
 							""
@@ -245,7 +246,7 @@ function REPL(broker) {
 			});
 
 			list.forEach(item => {
-				const hasLocal = item.nodes.indexOf(null) !== -1;
+				const hasLocal = item.nodes.indexOf(broker.nodeID) !== -1;
 				const nodeCount = item.nodes.length;
 				
 				data.push([
@@ -283,7 +284,7 @@ function REPL(broker) {
 			const nodes = [];
 			broker.transit.nodes.forEach(node => nodes.push(node));
 			const localNode = broker.transit.getNodeInfo();
-			localNode.id = null;
+			localNode.id = broker.nodeID;
 			localNode.available = true;
 			nodes.unshift(localNode);
 
@@ -309,7 +310,7 @@ function REPL(broker) {
 				}
 
 				data.push([
-					node.id || chalk.gray("<local>"),
+					node.id == broker.nodeID ? chalk.gray(node.id + " (*)") : node.id,
 					Object.keys(node.services).length,
 					node.versions && node.versions.moleculer ? node.versions.moleculer : "?",
 					ip,
@@ -416,9 +417,14 @@ function REPL(broker) {
 				print("Moleculer version", MOLECULER_VERSION);
 				console.log("");
 
-				printHeader("Broker settings");
+				let strategy = broker.serviceRegistry.opts.strategy;
+				printHeader("Broker information");
+				print("Namespace", broker.namespace || chalk.gray("<None>"));
+				print("Node ID", broker.nodeID);
 				print("Services", broker.services.length);
 				print("Actions", broker.serviceRegistry.actionCount());
+				console.log("");
+				print("Strategy", strategy && strategy.constructor ? strategy.constructor.name : chalk.gray("<None>"));
 				print("Cacher", broker.cacher ? broker.cacher.constructor.name : chalk.gray("<None>"));
 
 				if (broker.transit) {
@@ -447,7 +453,7 @@ function REPL(broker) {
 				}
 				console.log("");
 
-				printHeader("Broker settings");
+				printHeader("Broker options");
 				printObject(broker.options);
 				console.log("");
 

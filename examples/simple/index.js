@@ -5,7 +5,18 @@ let REPL 				= require("../../src");
 
 // Create broker
 let broker = new ServiceBroker({
+	nodeID: "repl-" + process.pid,
+	transporter: "NATS",
 	logger: console
 });
 
-REPL(broker);
+broker.createService({
+	name: "test",
+	actions: {
+		hello() {
+			return "Hello";
+		}
+	}
+});
+
+broker.start().then(() => REPL(broker));

@@ -145,7 +145,7 @@ function REPL(broker) {
 		.option("-i, --skipinternal", "Skip internal services")
 		.option("-d, --details", "Print endpoints")
 		.action((args, done) => {
-			const actions = broker.serviceRegistry.getActionList({ onlyLocal: args.options.local, skipInternal: args.options.skipinternal, withEndpoints: args.options.details });
+			const actions = broker.registry.actions.list({ onlyLocal: args.options.local, skipInternal: args.options.skipinternal, withEndpoints: args.options.details });
 
 			const data = [
 				[
@@ -220,13 +220,14 @@ function REPL(broker) {
 		.option("-l, --local", "Only local services")
 		.option("-i, --skipinternal", "Skip internal services")
 		.action((args, done) => {
-			const services = broker.serviceRegistry.getServiceList({ onlyLocal: args.options.local, skipInternal: args.options.skipinternal, withActions: true });
+			const services = broker.registry.services.list({ onlyLocal: args.options.local, skipInternal: args.options.skipinternal, withActions: true, withEvents: true });
 
 			const data = [
 				[
 					chalk.bold("Service"),
 					chalk.bold("Version"),
 					chalk.bold("Actions"),
+					chalk.bold("Events"),
 					chalk.bold("Nodes")
 				]
 			];
@@ -241,6 +242,7 @@ function REPL(broker) {
 					item = _.pick(svc, ["name", "version"]);
 					item.nodes = [svc.nodeID];
 					item.actionCount = Object.keys(svc.actions).length;
+					item.eventCount = Object.keys(svc.events).length;
 					list.push(item);
 				}
 			});
@@ -253,6 +255,7 @@ function REPL(broker) {
 					item.name,
 					item.version || "-",
 					item.actionCount,
+					item.eventCount,
 					(hasLocal ? "(*) " : "") + nodeCount
 				]);
 
@@ -263,7 +266,8 @@ function REPL(broker) {
 				columns: {
 					1: { alignment: "right" },
 					2: { alignment: "right" },
-					3: { alignment: "right" }
+					3: { alignment: "right" },
+					4: { alignment: "right" }
 				}
 			};
 			
@@ -281,13 +285,7 @@ function REPL(broker) {
 				return done();
 			}
 			
-			const nodes = [];
-			broker.transit.nodes.forEach(node => nodes.push(node));
-			const localNode = broker.transit.getNodeInfo();
-			localNode.id = broker.nodeID;
-			localNode.available = true;
-			nodes.unshift(localNode);
-
+			const nodes = broker.registry.nodes.list(true);
 
 			// action, nodeID, cached, CB state, description?, params?
 			const data = [];
@@ -295,9 +293,10 @@ function REPL(broker) {
 				chalk.bold("Node ID"),
 				chalk.bold("Services"),
 				chalk.bold("Version"),
+				chalk.bold("Type"),
 				chalk.bold("IP"),
 				chalk.bold("State"),
-				chalk.bold("Uptime")
+				chalk.bold("CPU")
 			]);
 
 			nodes.forEach(node => {
@@ -311,19 +310,21 @@ function REPL(broker) {
 
 				data.push([
 					node.id == broker.nodeID ? chalk.gray(node.id + " (*)") : node.id,
-					Object.keys(node.services).length,
-					node.versions && node.versions.moleculer ? node.versions.moleculer : "?",
+					node.services ? Object.keys(node.services).length : 0,
+					node.client.version,
+					node.client.type,
 					ip,
 					node.available ? chalk.bgGreen.black(" ONLINE "):chalk.bgRed.white.bold(" OFFLINE "),
-					node.uptime ? ms(node.uptime * 1000) : "?"
+					node.cpu != null ? node.cpu + "%" : "?"
 				]);
 
-				if (args.options.details && Object.keys(node.services).length > 0) {
+				if (args.options.details && node.services && Object.keys(node.services).length > 0) {
 					_.forIn(node.services, service => {
 						data.push([
 							"",
 							service.name,
 							service.version || "-",
+							"",
 							"",
 							"",
 							""
@@ -391,8 +392,6 @@ function REPL(broker) {
 				});
 			};		
 
-			const MOLECULER_VERSION = broker.constructor && broker.constructor.prototype && broker.constructor.prototype.MOLECULER_VERSION ? broker.constructor.prototype.MOLECULER_VERSION : "?";
-
 			console.log("");
 			broker.getNodeHealthInfo().then(health => {
 				const Gauge = clui.Gauge;
@@ -414,7 +413,7 @@ function REPL(broker) {
 				print("Hostname", os.hostname());
 				console.log("");
 				print("Node", process.version);
-				print("Moleculer version", MOLECULER_VERSION);
+				print("Moleculer version", broker.MOLECULER_VERSION);
 				console.log("");
 
 				let strategy = broker.serviceRegistry.opts.strategy;

@@ -393,72 +393,71 @@ function REPL(broker) {
 			};		
 
 			console.log("");
-			broker.getNodeHealthInfo().then(health => {
-				const Gauge = clui.Gauge;
-				const total = health.mem.total;
-				const free = health.mem.free;
-				const used = total - free;
-				const human = pretty(free);
+			const health = broker.getHealthStatus();
+			const Gauge = clui.Gauge;
+			const total = health.mem.total;
+			const free = health.mem.free;
+			const used = total - free;
+			const human = pretty(free);
 
-				const heapStat = v8.getHeapStatistics();
-				const heapUsed = heapStat.used_heap_size; 
-				const maxHeap = heapStat.heap_size_limit;
+			const heapStat = v8.getHeapStatistics();
+			const heapUsed = heapStat.used_heap_size; 
+			const maxHeap = heapStat.heap_size_limit;
 
-				printHeader("Common information");
-				print("CPU", "Arch: " + (os.arch()) + ", Cores: " + (os.cpus().length));
-				print("Memory", Gauge(used, total, 20, total * 0.8, human + " free"));
-				print("Heap", Gauge(heapUsed, maxHeap, 20, maxHeap * 0.5, pretty(heapUsed)));
-				print("OS", (os.platform()) + " (" + (os.type()) + ")");
-				print("IP", health.net.ip.join(", "));
-				print("Hostname", os.hostname());
+			printHeader("Common information");
+			print("CPU", "Arch: " + (os.arch()) + ", Cores: " + (os.cpus().length));
+			print("Memory", Gauge(used, total, 20, total * 0.8, human + " free"));
+			print("Heap", Gauge(heapUsed, maxHeap, 20, maxHeap * 0.5, pretty(heapUsed)));
+			print("OS", (os.platform()) + " (" + (os.type()) + ")");
+			print("IP", health.net.ip.join(", "));
+			print("Hostname", os.hostname());
+			console.log("");
+			print("Node", process.version);
+			print("Moleculer version", broker.MOLECULER_VERSION);
+			console.log("");
+
+			let strategy = broker.options.registry.strategy;
+			printHeader("Broker information");
+			print("Namespace", broker.namespace || chalk.gray("<None>"));
+			print("Node ID", broker.nodeID);
+			print("Services", broker.services.length);
+			//print("Actions", broker.registry.actions.count());// TODO
+			console.log("");
+			print("Strategy", strategy ? strategy.name : chalk.gray("<None>"));
+			print("Cacher", broker.cacher ? broker.cacher.constructor.name : chalk.gray("<None>"));
+
+			if (broker.transit) {
+				// print("Nodes", broker.transit.nodes.size + 1); // TODO
+
 				console.log("");
-				print("Node", process.version);
-				print("Moleculer version", broker.MOLECULER_VERSION);
-				console.log("");
+				printHeader("Transport information");
+				print("Serializer", broker.serializer ? broker.serializer.constructor.name : chalk.gray("<None>"));
+				print("Pending requests", broker.transit.pendingRequests.size);
 
-				let strategy = broker.serviceRegistry.opts.strategy;
-				printHeader("Broker information");
-				print("Namespace", broker.namespace || chalk.gray("<None>"));
-				print("Node ID", broker.nodeID);
-				print("Services", broker.services.length);
-				print("Actions", broker.serviceRegistry.actionCount());
-				console.log("");
-				print("Strategy", strategy && strategy.constructor ? strategy.constructor.name : chalk.gray("<None>"));
-				print("Cacher", broker.cacher ? broker.cacher.constructor.name : chalk.gray("<None>"));
+				if (broker.transit.tx) {
+					print("Transporter", broker.transit.tx ? broker.transit.tx.constructor.name : chalk.gray("<None>"));
 
-				if (broker.transit) {
-					print("Nodes", broker.transit.nodes.size + 1); // + 1 itself
+					print("Packets");
+					print("    Sent", broker.transit.stat.packets.sent);
+					print("    Received", broker.transit.stat.packets.received);
 
 					console.log("");
-					printHeader("Transport information");
-					print("Serializer", broker.serializer ? broker.serializer.constructor.name : chalk.gray("<None>"));
-					print("Pending requests", broker.transit.pendingRequests.size);
 
-					if (broker.transit.tx) {
-						print("Transporter", broker.transit.tx ? broker.transit.tx.constructor.name : chalk.gray("<None>"));
-
-						print("Packets");
-						print("    Sent", broker.transit.stat.packets.sent);
-						print("    Received", broker.transit.stat.packets.received);
-
-						console.log("");
-
-						printHeader("Transporter settings");
-						if (_.isString(broker.transit.tx.opts))
-							print("URL", broker.transit.tx.opts);
-						else
-							printObject(broker.transit.tx.opts);
-					}
+					printHeader("Transporter settings");
+					if (_.isString(broker.transit.tx.opts))
+						print("URL", broker.transit.tx.opts);
+					else
+						printObject(broker.transit.tx.opts);
 				}
-				console.log("");
+			}
+			console.log("");
 
-				printHeader("Broker options");
-				printObject(broker.options);
-				console.log("");
+			printHeader("Broker options");
+			printObject(broker.options);
+			console.log("");
 
-				console.log("");
-				done();
-			}).catch(err => console.error(err));
+			console.log("");
+			done();
 		});	
 
 	// Start REPL

@@ -141,11 +141,11 @@ function REPL(broker) {
 	// List actions
 	vorpal
 		.command("actions", "List of actions")
-		.option("-l, --local", "Only local services")
-		.option("-i, --skipinternal", "Skip internal services")
+		.option("-l, --local", "Only local actions")
+		.option("-i, --skipinternal", "Skip internal actions")
 		.option("-d, --details", "Print endpoints")
 		.action((args, done) => {
-			const actions = broker.registry.actions.list({ onlyLocal: args.options.local, skipInternal: args.options.skipinternal, withEndpoints: args.options.details });
+			const actions = broker.registry.getActionList({ onlyLocal: args.options.local, skipInternal: args.options.skipinternal, withEndpoints: args.options.details });
 
 			const data = [
 				[
@@ -182,6 +182,7 @@ function REPL(broker) {
 
 				let getStateLabel = (state) => {
 					switch(state) {
+					case true:
 					case CIRCUIT_CLOSE:			return chalk.bgGreen.white( "   OK   ");
 					case CIRCUIT_HALF_OPEN: 	return chalk.bgYellow.black(" TRYING ");
 					case CIRCUIT_OPEN: 			return chalk.bgRed.white(	" FAILED ");
@@ -214,13 +215,65 @@ function REPL(broker) {
 			done();
 		});	
 
+	// List events
+	vorpal
+		.command("events", "List of events")
+		.option("-l, --local", "Only local events")
+		.option("-i, --skipinternal", "Skip internal events")
+		.option("-d, --details", "Print endpoints")
+		.action((args, done) => {
+			const events = broker.registry.getEventList({ onlyLocal: args.options.local, skipInternal: args.options.skipinternal, withEndpoints: args.options.details });
+
+			const data = [
+				[
+					chalk.bold("Event"),
+					chalk.bold("Nodes")
+				]
+			];
+
+			events.forEach(item => {
+				const event = item.event;
+				
+				if (event) {
+					data.push([
+						event.name,
+						(item.hasLocal ? "(*) " : "") + item.count
+					]);
+				} else {
+					data.push([
+						item.name,
+						item.count
+					]);
+				}
+
+				if (args.options.details && item.endpoints) {
+					item.endpoints.forEach(endpoint => {
+						data.push([
+							"",
+							endpoint.nodeID == broker.nodeID ? chalk.gray("<local>") : endpoint.nodeID,
+						]);						
+					});
+				}
+			});
+
+			const tableConf = {
+				border: _.mapValues(getBorderCharacters("honeywell"), char => chalk.gray(char)),
+				columns: {
+					1: { alignment: "right" }
+				}
+			};
+			
+			console.log(table(data, tableConf));
+			done();
+		});	
+
 	// List services
 	vorpal
 		.command("services", "List of services")
 		.option("-l, --local", "Only local services")
 		.option("-i, --skipinternal", "Skip internal services")
 		.action((args, done) => {
-			const services = broker.registry.services.list({ onlyLocal: args.options.local, skipInternal: args.options.skipinternal, withActions: true, withEvents: true });
+			const services = broker.registry.getServiceList({ onlyLocal: args.options.local, skipInternal: args.options.skipinternal, withActions: true, withEvents: true });
 
 			const data = [
 				[
@@ -280,12 +333,7 @@ function REPL(broker) {
 		.command("nodes", "List of nodes")
 		.option("-d, --details")
 		.action((args, done) => {
-			if (!broker.transit) {
-				console.error("There is no transporter!");
-				return done();
-			}
-			
-			const nodes = broker.registry.nodes.list(true);
+			const nodes = broker.registry.getNodeList(true);
 
 			// action, nodeID, cached, CB state, description?, params?
 			const data = [];
@@ -293,7 +341,7 @@ function REPL(broker) {
 				chalk.bold("Node ID"),
 				chalk.bold("Services"),
 				chalk.bold("Version"),
-				chalk.bold("Type"),
+				chalk.bold("Client"),
 				chalk.bold("IP"),
 				chalk.bold("State"),
 				chalk.bold("CPU")
@@ -421,13 +469,14 @@ function REPL(broker) {
 			print("Namespace", broker.namespace || chalk.gray("<None>"));
 			print("Node ID", broker.nodeID);
 			print("Services", broker.services.length);
-			//print("Actions", broker.registry.actions.count());// TODO
+			print("Actions", broker.registry.getActionList({ onlyLocal: true }).length);
+			print("Events", broker.registry.getEventList({ onlyLocal: true }).length);
 			console.log("");
 			print("Strategy", strategy ? strategy.name : chalk.gray("<None>"));
 			print("Cacher", broker.cacher ? broker.cacher.constructor.name : chalk.gray("<None>"));
 
 			if (broker.transit) {
-				// print("Nodes", broker.transit.nodes.size + 1); // TODO
+				print("Nodes", broker.registry.nodes.list(false).length);
 
 				console.log("");
 				printHeader("Transport information");

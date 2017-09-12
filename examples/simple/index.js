@@ -11,11 +11,15 @@ let broker = new ServiceBroker({
 });
 
 broker.createService({
-	name: "test",
+	name: "greeter",
 	actions: {
 		hello() {
 			return "Hello";
 		}
+	},
+	events: {
+		"user.created"() {},
+		"$local-event"() {}
 	}
 });
 

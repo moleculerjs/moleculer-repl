@@ -14,7 +14,6 @@ const os 								= require("os");
 const v8 								= require("v8");
 const _ 								= require("lodash");
 const chalk 							= require("chalk");
-const ms 								= require("ms");
 const { table, getBorderCharacters } 	= require("table");
 const vorpal 							= require("vorpal")();
 const clui 								= require("clui");
@@ -25,9 +24,10 @@ const CIRCUIT_HALF_OPEN 				= "half_open";
 const CIRCUIT_OPEN 						= "open";
 
 /* istanbul ignore next */
+/*
 const eventHandler = payload => {
 	console.log(chalk.magenta(">> Incoming event!"), util.inspect(payload, { showHidden: false, depth: 4, colors: true }));
-};
+};*/
 
 function convertArgs(args) {
 	_.forIn(args, (value, key) => {

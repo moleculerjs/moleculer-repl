@@ -29,6 +29,16 @@ const eventHandler = payload => {
 	console.log(chalk.magenta(">> Incoming event!"), util.inspect(payload, { showHidden: false, depth: 4, colors: true }));
 };
 
+function convertArgs(args) {
+	_.forIn(args, (value, key) => {
+		if (value === "true")
+			args[key] = true;
+		if (value === "false")
+			args[key] = false;
+	});
+	return args;
+}
+
 /**
  * Start REPL mode
  * 
@@ -45,10 +55,17 @@ function REPL(broker) {
 
 	// Register broker.call
 	vorpal
-		.command("call <actionName> [params]", "Call an action")
+		.command("call <actionName>", "Call an action")
+		.autocomplete({
+			data() {
+				return _.uniq(broker.registry.getActionList({}).map(item => item.action.name));
+			}
+		})
+		.allowUnknownOptions()
 		.action((args, done) => {
-			console.log(chalk.yellow.bold(`>> Call '${args.actionName}' with params:`), args.params);
-			broker.call(args.actionName, JSON.parse(args.params || "{}"))
+			convertArgs(args.options);
+			console.log(chalk.yellow.bold(`>> Call '${args.actionName}' with params:`), args.options);
+			broker.call(args.actionName, args.options)
 				.then(res => {
 					console.log(chalk.yellow.bold(">> Response:"));
 					console.log(util.inspect(res, { showHidden: false, depth: 4, colors: true }));
@@ -63,11 +80,13 @@ function REPL(broker) {
 
 	// Register direct broker.call
 	vorpal
-		.command("dcall <nodeID> <actionName> [params]", "Direct call an action ")
+		.command("dcall <nodeID> <actionName>", "Direct call an action ")
+		.allowUnknownOptions()
 		.action((args, done) => {
+			convertArgs(args.options);
 			const nodeID = args.nodeID;
-			console.log(chalk.yellow.bold(`>> Call '${args.actionName}' on '${nodeID}' with params:`), args.params);
-			broker.call(args.actionName, JSON.parse(args.params || "{}"), { nodeID })
+			console.log(chalk.yellow.bold(`>> Call '${args.actionName}' on '${nodeID}' with params:`), args.options);
+			broker.call(args.actionName, args.options, { nodeID })
 				.then(res => {
 					console.log(chalk.yellow.bold(">> Response:"));
 					console.log(util.inspect(res, { showHidden: false, depth: 4, colors: true }));
@@ -82,10 +101,12 @@ function REPL(broker) {
 
 	// Register broker.emit
 	vorpal
-		.command("emit <eventName> [payload]", "Emit an event")
+		.command("emit <eventName>", "Emit an event")
+		.allowUnknownOptions()
 		.action((args, done) => {
-			console.log(chalk.yellow.bold(`>> Emit '${args.eventName}' with payload:`), args.payload);
-			broker.emit(args.eventName, args.payload ? JSON.parse(args.payload) : undefined);
+			convertArgs(args.options);
+			console.log(chalk.yellow.bold(`>> Emit '${args.eventName}' with payload:`), args.options);
+			broker.emit(args.eventName, args.options);
 			done();
 		});
 
@@ -120,6 +141,7 @@ function REPL(broker) {
 			done();
 		});	
 
+	/*
 	// Subscribe to event
 	vorpal
 		.command("subscribe <eventName>", "Subscribe to an event")
@@ -137,6 +159,7 @@ function REPL(broker) {
 			console.log(chalk.green(">> Unsubscribed successfully!"));
 			done();
 		});		
+	*/
 
 	// List actions
 	vorpal

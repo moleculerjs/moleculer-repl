@@ -13,8 +13,8 @@ let broker = new ServiceBroker({
 broker.createService({
 	name: "greeter",
 	actions: {
-		hello() {
-			return "Hello";
+		hello(ctx) {
+			return "Hello " + ctx.params.name;
 		}
 	},
 	events: {

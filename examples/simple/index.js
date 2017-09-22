@@ -18,8 +18,12 @@ broker.createService({
 		}
 	},
 	events: {
-		"user.created"() {},
-		"$local-event"() {}
+		"user.created"(payload) {
+			this.logger.info("User created even received!", payload);
+		},
+		"$local-event"(payload) {
+			this.logger.info("Local event received!", payload);
+		}
 	}
 });
 

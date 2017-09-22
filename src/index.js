@@ -30,13 +30,18 @@ const eventHandler = payload => {
 };*/
 
 function convertArgs(args) {
+	let res = {};
 	_.forIn(args, (value, key) => {
-		if (value === "true")
-			args[key] = true;
-		if (value === "false")
-			args[key] = false;
+		if (typeof(value) == "object")
+			res[key] = convertArgs(value);
+		else if (value === "true")
+			res[key] = true;
+		else if (value === "false")
+			res[key] = false;
+		else
+			res[key] = value;
 	});
-	return args;
+	return res;
 }
 
 /**
@@ -63,9 +68,9 @@ function REPL(broker) {
 		})
 		.allowUnknownOptions()
 		.action((args, done) => {
-			convertArgs(args.options);
-			console.log(chalk.yellow.bold(`>> Call '${args.actionName}' with params:`), args.options);
-			broker.call(args.actionName, args.options)
+			const payload = convertArgs(args.options);
+			console.log(chalk.yellow.bold(`>> Call '${args.actionName}' with params:`), payload);
+			broker.call(args.actionName, payload)
 				.then(res => {
 					console.log(chalk.yellow.bold(">> Response:"));
 					console.log(util.inspect(res, { showHidden: false, depth: 4, colors: true }));
@@ -83,10 +88,10 @@ function REPL(broker) {
 		.command("dcall <nodeID> <actionName>", "Direct call an action ")
 		.allowUnknownOptions()
 		.action((args, done) => {
-			convertArgs(args.options);
+			const payload = convertArgs(args.options);
 			const nodeID = args.nodeID;
-			console.log(chalk.yellow.bold(`>> Call '${args.actionName}' on '${nodeID}' with params:`), args.options);
-			broker.call(args.actionName, args.options, { nodeID })
+			console.log(chalk.yellow.bold(`>> Call '${args.actionName}' on '${nodeID}' with params:`), payload);
+			broker.call(args.actionName, payload, { nodeID })
 				.then(res => {
 					console.log(chalk.yellow.bold(">> Response:"));
 					console.log(util.inspect(res, { showHidden: false, depth: 4, colors: true }));
@@ -104,9 +109,31 @@ function REPL(broker) {
 		.command("emit <eventName>", "Emit an event")
 		.allowUnknownOptions()
 		.action((args, done) => {
-			convertArgs(args.options);
-			console.log(chalk.yellow.bold(`>> Emit '${args.eventName}' with payload:`), args.options);
-			broker.emit(args.eventName, args.options);
+			const payload = convertArgs(args.options);
+			console.log(chalk.yellow.bold(`>> Emit '${args.eventName}' with payload:`), payload);
+			broker.emit(args.eventName, payload);
+			done();
+		});
+
+	// Register broker.broadcast
+	vorpal
+		.command("broadcast <eventName>", "Broadcast an event")
+		.allowUnknownOptions()
+		.action((args, done) => {
+			const payload = convertArgs(args.options);
+			console.log(chalk.yellow.bold(`>> Broadcast '${args.eventName}' with payload:`), payload);
+			broker.broadcast(args.eventName, payload);
+			done();
+		});
+
+	// Register broker.broadcast
+	vorpal
+		.command("broadcastLocal <eventName>", "Broadcast an event to local services")
+		.allowUnknownOptions()
+		.action((args, done) => {
+			const payload = convertArgs(args.options);
+			console.log(chalk.yellow.bold(`>> Broadcast '${args.eventName}' locally with payload:`), payload);
+			broker.broadcastLocal(args.eventName, payload);
 			done();
 		});
 
@@ -140,26 +167,6 @@ function REPL(broker) {
 			}
 			done();
 		});	
-
-	/*
-	// Subscribe to event
-	vorpal
-		.command("subscribe <eventName>", "Subscribe to an event")
-		.action((args, done) => {
-			broker.on(args.eventName, eventHandler);
-			console.log(chalk.green(">> Subscribed successfully!"));
-			done();
-		});		
-
-	// Unsubscribe to event
-	vorpal
-		.command("unsubscribe <eventName>", "Unsubscribe from an event")
-		.action((args, done) => {
-			broker.off(args.eventName, eventHandler);
-			console.log(chalk.green(">> Unsubscribed successfully!"));
-			done();
-		});		
-	*/
 
 	// List actions
 	vorpal

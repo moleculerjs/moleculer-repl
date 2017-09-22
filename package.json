@@ -25,12 +25,12 @@
   "devDependencies": {
     "benchmarkify": "2.1.0",
     "coveralls": "2.13.1",
-    "eslint": "4.6.1",
+    "eslint": "4.7.2",
     "jest": "20.0.4",
     "jest-cli": "20.0.4",
     "lolex": "2.1.2",
     "moleculer": "0.11.0",
-    "nodemon": "1.12.0",
+    "nodemon": "1.12.1",
     "npm-check": "5.4.5"
   },
   "jest": {

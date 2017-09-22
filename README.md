@@ -35,6 +35,8 @@ You will get a console:
 mol $ 
 ```
 
+Write `help` to see available command.
+
 ## Documentation
 Please read our [documentation on Moleculer site](http://moleculer.services/docs/moleculer-repl.html)
 

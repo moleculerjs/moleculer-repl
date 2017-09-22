@@ -361,7 +361,8 @@ function REPL(broker) {
 	// List nodes
 	vorpal
 		.command("nodes", "List of nodes")
-		.option("-d, --details")
+		.option("-d, --details", "Detailed list")
+		.option("-a, --all", "List all (offline) nodes")
 		.action((args, done) => {
 			const nodes = broker.registry.getNodeList(true);
 
@@ -378,6 +379,8 @@ function REPL(broker) {
 			]);
 
 			nodes.forEach(node => {
+				if (!args.options.all && !node.available && Date.now() - node.lastHeartbeatTime > 60 * 1000) return;
+
 				let ip = "?";
 				if (node.ipList) {
 					if (node.ipList.length == 1) 

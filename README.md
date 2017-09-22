@@ -5,14 +5,13 @@
 The `moleculer-repl` is an interactive console. Created with [vorpal](https://github.com/dthree/vorpal).
 
 ## Features
-- list actions
 - list nodes
 - list services
+- list actions
 - call action
-- emit event
+- emit events
 - load services (from file or folder)
-- subscribe and unsubscribe events
-- show info from local node
+- show local informations & configuration
 
 ## Install
 ```
@@ -35,7 +34,7 @@ You will get a console:
 mol $ 
 ```
 
-Write `help` to see available command.
+Run `help` to see available commands.
 
 ## Documentation
 Please read our [documentation on Moleculer site](http://moleculer.services/docs/moleculer-repl.html)

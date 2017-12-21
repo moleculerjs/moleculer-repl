@@ -32,7 +32,9 @@ const eventHandler = payload => {
 function convertArgs(args) {
 	let res = {};
 	_.forIn(args, (value, key) => {
-		if (typeof(value) == "object")
+		if (Array.isArray(value))
+			res[key] = value;
+		else if (typeof(value) == "object")
 			res[key] = convertArgs(value);
 		else if (value === "true")
 			res[key] = true;

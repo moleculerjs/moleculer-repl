@@ -68,9 +68,16 @@ function REPL(broker) {
 				return _.uniq(broker.registry.getActionList({}).map(item => item.action.name));
 			}
 		})
+		//.option("--json", "JSON string payload")
 		.allowUnknownOptions()
 		.action((args, done) => {
-			const payload = convertArgs(args.options);
+			let payload;
+			//console.log(args);
+			if (typeof(args.options.json) == "string")
+				payload = JSON.parse(args.options.json);
+			else
+				payload = convertArgs(args.options);
+
 			console.log(chalk.yellow.bold(`>> Call '${args.actionName}' with params:`), payload);
 			broker.call(args.actionName, payload)
 				.then(res => {
@@ -87,10 +94,16 @@ function REPL(broker) {
 
 	// Register direct broker.call
 	vorpal
-		.command("dcall <nodeID> <actionName>", "Direct call an action ")
+		.command("dcall <nodeID> <actionName>", "Direct call an action")
 		.allowUnknownOptions()
 		.action((args, done) => {
-			const payload = convertArgs(args.options);
+			let payload;
+			//console.log(args);
+			if (typeof(args.options.json) == "string")
+				payload = JSON.parse(args.options.json);
+			else
+				payload = convertArgs(args.options);
+
 			const nodeID = args.nodeID;
 			console.log(chalk.yellow.bold(`>> Call '${args.actionName}' on '${nodeID}' with params:`), payload);
 			broker.call(args.actionName, payload, { nodeID })

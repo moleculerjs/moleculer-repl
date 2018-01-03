@@ -24,14 +24,14 @@
   "license": "MIT",
   "devDependencies": {
     "benchmarkify": "2.1.0",
-    "coveralls": "2.13.1",
-    "eslint": "4.7.2",
-    "jest": "20.0.4",
-    "jest-cli": "20.0.4",
-    "lolex": "2.1.2",
-    "moleculer": "0.11.0",
-    "nodemon": "1.12.1",
-    "npm-check": "5.4.5"
+    "coveralls": "3.0.0",
+    "eslint": "4.14.0",
+    "jest": "22.0.4",
+    "jest-cli": "22.0.4",
+    "lolex": "2.3.1",
+    "moleculer": "0.11.8",
+    "nodemon": "1.14.7",
+    "npm-check": "5.5.2"
   },
   "jest": {
     "testEnvironment": "node",
@@ -48,11 +48,11 @@
     "node": ">= 6.x.x"
   },
   "dependencies": {
-    "chalk": "2.1.0",
+    "chalk": "2.3.0",
     "clui": "0.3.6",
     "lodash": "4.17.4",
     "pretty-bytes": "4.0.2",
-    "table": "4.0.1",
+    "table": "4.0.2",
     "vorpal": "1.12.0"
   }
 }

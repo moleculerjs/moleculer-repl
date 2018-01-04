@@ -62,7 +62,7 @@ function REPL(broker) {
 
 	// Register broker.call
 	vorpal
-		.command("call <actionName>", "Call an action")
+		.command("call <actionName> [jsonParams]", "Call an action")
 		.autocomplete({
 			data() {
 				return _.uniq(broker.registry.getActionList({}).map(item => item.action.name));
@@ -72,9 +72,9 @@ function REPL(broker) {
 		.allowUnknownOptions()
 		.action((args, done) => {
 			let payload;
-			//console.log(args);
-			if (typeof(args.options.json) == "string")
-				payload = JSON.parse(args.options.json);
+			console.log(args);
+			if (typeof(args.jsonParams) == "string")
+				payload = JSON.parse(args.jsonParams);
 			else
 				payload = convertArgs(args.options);
 
@@ -94,13 +94,13 @@ function REPL(broker) {
 
 	// Register direct broker.call
 	vorpal
-		.command("dcall <nodeID> <actionName>", "Direct call an action")
+		.command("dcall <nodeID> <actionName> [jsonParams]", "Direct call an action")
 		.allowUnknownOptions()
 		.action((args, done) => {
 			let payload;
 			//console.log(args);
-			if (typeof(args.options.json) == "string")
-				payload = JSON.parse(args.options.json);
+			if (typeof(args.jsonParams) == "string")
+				payload = JSON.parse(args.jsonParams);
 			else
 				payload = convertArgs(args.options);
 

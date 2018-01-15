@@ -54,7 +54,11 @@ function convertArgs(args) {
 /* istanbul ignore next */
 function REPL(broker) {
 	vorpal.find("exit").remove() //vorpal vorpal-commons.js command, fails to run .stop() on exit
-	vorpal.on("vorpal_exit", () => { broker.stop().then(() => process.exit(0) }) //vorpal exit event (Ctrl-C)
+	vorpal.on("vorpal_exit", () => { 
+		broker.stop().then(() => { 
+			process.exit(0) 
+		}) 
+	}) //vorpal exit event (Ctrl-C)
 	vorpal
 		.command("q", "Exit application")
 		.alias("quit")

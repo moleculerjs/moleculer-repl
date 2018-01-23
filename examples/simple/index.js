@@ -6,7 +6,7 @@ let REPL 				= require("../../src");
 // Create broker
 let broker = new ServiceBroker({
 	nodeID: "repl-" + process.pid,
-	//transporter: "NATS",
+	transporter: "NATS",
 	logger: console
 });
 
@@ -20,6 +20,12 @@ broker.createService({
 	events: {
 		"user.created"(payload) {
 			this.logger.info("User created even received!", payload);
+		},
+		"order.created": {
+			group: "order",
+			handler(payload) {
+				this.logger.info("User created even received!", payload);
+			}
 		},
 		"$local-event"(payload) {
 			this.logger.info("Local event received!", payload);

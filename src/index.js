@@ -53,18 +53,119 @@ function convertArgs(args) {
  */
 /* istanbul ignore next */
 function REPL(broker) {
-	vorpal.find("exit").remove() //vorpal vorpal-commons.js command, fails to run .stop() on exit
+	vorpal.find("exit").remove(); //vorpal vorpal-commons.js command, fails to run .stop() on exit
+
 	vorpal.on("vorpal_exit", () => { 
-		broker.stop().then(() => { 
-			process.exit(0) 
-		}) 
-	}) //vorpal exit event (Ctrl-C)
+		broker.stop().then(() => process.exit(0)); 
+	}); //vorpal exit event (Ctrl-C)
+
 	vorpal
 		.command("q", "Exit application")
 		.alias("quit")
 		.alias("exit")
 		.action((args, done) => {
 			broker.stop().then(() => process.exit(0));
+			done();
+		});
+
+
+	// List actions
+	vorpal
+		.command("actions", "List of actions")
+		.option("-l, --local", "only local actions")
+		.option("-i, --skipinternal", "skip internal actions")
+		.option("-d, --details", "print endpoints")
+		//.option("-a, --all", "list all (offline) actions") // TODO
+		.action((args, done) => {
+			const actions = broker.registry.getActionList({ onlyLocal: args.options.local, skipInternal: args.options.skipinternal, withEndpoints: args.options.details });
+
+			const data = [
+				[
+					chalk.bold("Action"),
+					chalk.bold("Nodes"),
+					chalk.bold("State"),
+					chalk.bold("Cached"),
+					chalk.bold("Params")
+				]
+			];
+
+			actions.forEach(item => {
+				const action = item.action;
+				const state = item.available;
+				const params = action && action.params ? Object.keys(action.params).join(", ") : "";
+				
+				if (action) {
+					data.push([
+						action.name,
+						(item.hasLocal ? "(*) " : "") + item.count,
+						state ? chalk.bgGreen.white("   OK   "):chalk.bgRed.white.bold(" FAILED "),
+						action.cache ? chalk.green("Yes"):chalk.gray("No"),
+						params
+					]);
+				} else {
+					data.push([
+						item.name,
+						item.count,
+						chalk.bgRed.white.bold(" FAILED "),
+						"",
+						""
+					]);
+				}
+
+				let getStateLabel = (state) => {
+					switch(state) {
+					case true:
+					case CIRCUIT_CLOSE:			return chalk.bgGreen.white( "   OK   ");
+					case CIRCUIT_HALF_OPEN: 	return chalk.bgYellow.black(" TRYING ");
+					case CIRCUIT_OPEN: 			return chalk.bgRed.white(	" FAILED ");
+					}
+				};
+
+				if (args.options.details && item.endpoints) {
+					item.endpoints.forEach(endpoint => {
+						data.push([
+							"",
+							endpoint.nodeID == broker.nodeID ? chalk.gray("<local>") : endpoint.nodeID,
+							getStateLabel(endpoint.state),
+							"",
+							""
+						]);						
+					});
+				}
+			});
+
+			const tableConf = {
+				border: _.mapValues(getBorderCharacters("honeywell"), char => chalk.gray(char)),
+				columns: {
+					1: { alignment: "right" },
+					3: { alignment: "center" },
+					5: { width: 20, wrapWord: true }
+				}
+			};
+			
+			console.log(table(data, tableConf));
+			done();
+		});	
+
+	// Register broker.broadcast
+	vorpal
+		.command("broadcast <eventName>", "Broadcast an event")
+		.allowUnknownOptions()
+		.action((args, done) => {
+			const payload = convertArgs(args.options);
+			console.log(chalk.yellow.bold(`>> Broadcast '${args.eventName}' with payload:`), payload);
+			broker.broadcast(args.eventName, payload);
+			done();
+		});
+
+	// Register broker.broadcast
+	vorpal
+		.command("broadcastLocal <eventName>", "Broadcast an event locally")
+		.allowUnknownOptions()
+		.action((args, done) => {
+			const payload = convertArgs(args.options);
+			console.log(chalk.yellow.bold(`>> Broadcast '${args.eventName}' locally with payload:`), payload);
+			broker.broadcastLocal(args.eventName, payload);
 			done();
 		});
 
@@ -138,142 +239,21 @@ function REPL(broker) {
 			done();
 		});
 
-	// Register broker.broadcast
+	// Register broker.env
 	vorpal
-		.command("broadcast <eventName>", "Broadcast an event")
-		.allowUnknownOptions()
+		.command("env", "List of environment variables")
 		.action((args, done) => {
-			const payload = convertArgs(args.options);
-			console.log(chalk.yellow.bold(`>> Broadcast '${args.eventName}' with payload:`), payload);
-			broker.broadcast(args.eventName, payload);
+			console.log(util.inspect(process.env, { showHidden: false, depth: 4, colors: true }));
 			done();
 		});
-
-	// Register broker.broadcast
-	vorpal
-		.command("broadcastLocal <eventName>", "Broadcast an event to local services")
-		.allowUnknownOptions()
-		.action((args, done) => {
-			const payload = convertArgs(args.options);
-			console.log(chalk.yellow.bold(`>> Broadcast '${args.eventName}' locally with payload:`), payload);
-			broker.broadcastLocal(args.eventName, payload);
-			done();
-		});
-
-	// Register load service file
-	vorpal
-		.command("load <servicePath>", "Load a service from file")
-		.action((args, done) => {
-			let filePath = path.resolve(args.servicePath);
-			if (fs.existsSync(filePath)) {
-				console.log(chalk.yellow(`>> Load '${filePath}'...`));
-				let service = broker.loadService(filePath);
-				if (service)
-					console.log(chalk.green(">> Loaded successfully!"));
-			} else {
-				console.warn(chalk.red("The service file is not exists!", filePath));
-			}
-			done();
-		});	
-
-	// Register load service folder
-	vorpal
-		.command("loadFolder <serviceFolder> [fileMask]", "Load all service from folder")
-		.action((args, done) => {
-			let filePath = path.resolve(args.serviceFolder);
-			if (fs.existsSync(filePath)) {
-				console.log(chalk.yellow(`>> Load services from '${filePath}'...`));
-				const count = broker.loadServices(filePath, args.fileMask);
-				console.log(chalk.green(`>> Loaded ${count} services!`));
-			} else {
-				console.warn(chalk.red("The folder is not exists!", filePath));
-			}
-			done();
-		});	
-
-	// List actions
-	vorpal
-		.command("actions", "List of actions")
-		.option("-l, --local", "Only local actions")
-		.option("-i, --skipinternal", "Skip internal actions")
-		.option("-d, --details", "Print endpoints")
-		.action((args, done) => {
-			const actions = broker.registry.getActionList({ onlyLocal: args.options.local, skipInternal: args.options.skipinternal, withEndpoints: args.options.details });
-
-			const data = [
-				[
-					chalk.bold("Action"),
-					chalk.bold("Nodes"),
-					chalk.bold("State"),
-					chalk.bold("Cached"),
-					chalk.bold("Params")
-				]
-			];
-
-			actions.forEach(item => {
-				const action = item.action;
-				const state = item.available;
-				const params = action && action.params ? Object.keys(action.params).join(", ") : "";
-				
-				if (action) {
-					data.push([
-						action.name,
-						(item.hasLocal ? "(*) " : "") + item.count,
-						state ? chalk.bgGreen.white("   OK   "):chalk.bgRed.white.bold(" FAILED "),
-						action.cache ? chalk.green("Yes"):chalk.gray("No"),
-						params
-					]);
-				} else {
-					data.push([
-						item.name,
-						item.count,
-						chalk.bgRed.white.bold(" FAILED "),
-						"",
-						""
-					]);
-				}
-
-				let getStateLabel = (state) => {
-					switch(state) {
-					case true:
-					case CIRCUIT_CLOSE:			return chalk.bgGreen.white( "   OK   ");
-					case CIRCUIT_HALF_OPEN: 	return chalk.bgYellow.black(" TRYING ");
-					case CIRCUIT_OPEN: 			return chalk.bgRed.white(	" FAILED ");
-					}
-				};
-
-				if (args.options.details && item.endpoints) {
-					item.endpoints.forEach(endpoint => {
-						data.push([
-							"",
-							endpoint.nodeID == broker.nodeID ? chalk.gray("<local>") : endpoint.nodeID,
-							getStateLabel(endpoint.state),
-							"",
-							""
-						]);						
-					});
-				}
-			});
-
-			const tableConf = {
-				border: _.mapValues(getBorderCharacters("honeywell"), char => chalk.gray(char)),
-				columns: {
-					1: { alignment: "right" },
-					3: { alignment: "center" },
-					5: { width: 20, wrapWord: true }
-				}
-			};
-			
-			console.log(table(data, tableConf));
-			done();
-		});	
 
 	// List events
 	vorpal
-		.command("events", "List of events")
-		.option("-l, --local", "Only local events")
-		.option("-i, --skipinternal", "Skip internal events")
-		.option("-d, --details", "Print endpoints")
+		.command("events", "List of event listeners")
+		.option("-l, --local", "only local event listeners")
+		.option("-i, --skipinternal", "skip internal event listeners")
+		.option("-d, --details", "print endpoints")
+		//.option("-a, --all", "list all (offline) event listeners")
 		.action((args, done) => {
 			const events = broker.registry.getEventList({ onlyLocal: args.options.local, skipInternal: args.options.skipinternal, withEndpoints: args.options.details });
 
@@ -320,141 +300,9 @@ function REPL(broker) {
 			done();
 		});	
 
-	// List services
-	vorpal
-		.command("services", "List of services")
-		.option("-l, --local", "Only local services")
-		.option("-i, --skipinternal", "Skip internal services")
-		.action((args, done) => {
-			const services = broker.registry.getServiceList({ onlyLocal: args.options.local, skipInternal: args.options.skipinternal, withActions: true, withEvents: true });
-
-			const data = [
-				[
-					chalk.bold("Service"),
-					chalk.bold("Version"),
-					chalk.bold("Actions"),
-					chalk.bold("Events"),
-					chalk.bold("Nodes")
-				]
-			];
-
-			let list = [];
-
-			services.forEach(svc => {
-				let item = list.find(o => o.name == svc.name && o.version == svc.version);
-				if (item) {
-					item.nodes.push(svc.nodeID);
-				} else {
-					item = _.pick(svc, ["name", "version"]);
-					item.nodes = [svc.nodeID];
-					item.actionCount = Object.keys(svc.actions).length;
-					item.eventCount = Object.keys(svc.events).length;
-					list.push(item);
-				}
-			});
-
-			list.forEach(item => {
-				const hasLocal = item.nodes.indexOf(broker.nodeID) !== -1;
-				const nodeCount = item.nodes.length;
-				
-				data.push([
-					item.name,
-					item.version || "-",
-					item.actionCount,
-					item.eventCount,
-					(hasLocal ? "(*) " : "") + nodeCount
-				]);
-
-			});
-
-			const tableConf = {
-				border: _.mapValues(getBorderCharacters("honeywell"), char => chalk.gray(char)),
-				columns: {
-					1: { alignment: "right" },
-					2: { alignment: "right" },
-					3: { alignment: "right" },
-					4: { alignment: "right" }
-				}
-			};
-			
-			console.log(table(data, tableConf));
-			done();
-		});			
-
-	// List nodes
-	vorpal
-		.command("nodes", "List of nodes")
-		.option("-d, --details", "Detailed list")
-		.option("-a, --all", "List all (offline) nodes")
-		.action((args, done) => {
-			const nodes = broker.registry.getNodeList(true);
-
-			// action, nodeID, cached, CB state, description?, params?
-			const data = [];
-			data.push([
-				chalk.bold("Node ID"),
-				chalk.bold("Services"),
-				chalk.bold("Version"),
-				chalk.bold("Client"),
-				chalk.bold("IP"),
-				chalk.bold("State"),
-				chalk.bold("CPU")
-			]);
-
-			nodes.forEach(node => {
-				if (!args.options.all && !node.available && Date.now() - node.lastHeartbeatTime > 60 * 1000) return;
-
-				let ip = "?";
-				if (node.ipList) {
-					if (node.ipList.length == 1) 
-						ip = node.ipList[0];
-					else if (node.ipList.length > 1)
-						ip = node.ipList[0] + `  (+${node.ipList.length - 1})`;
-				}
-
-				data.push([
-					node.id == broker.nodeID ? chalk.gray(node.id + " (*)") : node.id,
-					node.services ? Object.keys(node.services).length : 0,
-					node.client.version,
-					node.client.type,
-					ip,
-					node.available ? chalk.bgGreen.black(" ONLINE "):chalk.bgRed.white.bold(" OFFLINE "),
-					node.cpu != null ? node.cpu + "%" : "?"
-				]);
-
-				if (args.options.details && node.services && Object.keys(node.services).length > 0) {
-					_.forIn(node.services, service => {
-						data.push([
-							"",
-							service.name,
-							service.version || "-",
-							"",
-							"",
-							"",
-							""
-						]);						
-					});
-				}				
-			});
-
-			const tableConf = {
-				border: _.mapValues(getBorderCharacters("honeywell"), (char) => {
-					return chalk.gray(char);
-				}),
-				columns: {
-					2: { alignment: "right" },
-					5: { alignment: "right" }
-				}
-			};
-			
-			console.log(table(data, tableConf));
-
-			done();
-		});			
-
 	// Broker info
 	vorpal
-		.command("info", "Information from broker")
+		.command("info", "Information about broker")
 		.action((args, done) => {
 
 			const printHeader = (name) => {
@@ -508,7 +356,7 @@ function REPL(broker) {
 			const heapUsed = heapStat.used_heap_size; 
 			const maxHeap = heapStat.heap_size_limit;
 
-			printHeader("Common information");
+			printHeader("General information");
 			print("CPU", "Arch: " + (os.arch()) + ", Cores: " + (os.cpus().length));
 			print("Memory", Gauge(used, total, 20, total * 0.8, human + " free"));
 			print("Heap", Gauge(heapUsed, maxHeap, 20, maxHeap * 0.5, pretty(heapUsed)));
@@ -565,6 +413,179 @@ function REPL(broker) {
 			done();
 		});	
 
+	// Register load service file
+	vorpal
+		.command("load <servicePath>", "Load a service from file")
+		.action((args, done) => {
+			let filePath = path.resolve(args.servicePath);
+			if (fs.existsSync(filePath)) {
+				console.log(chalk.yellow(`>> Load '${filePath}'...`));
+				let service = broker.loadService(filePath);
+				if (service)
+					console.log(chalk.green(">> Loaded successfully!"));
+			} else {
+				console.warn(chalk.red("The service file is not exists!", filePath));
+			}
+			done();
+		});	
+
+	// Register load service folder
+	vorpal
+		.command("loadFolder <serviceFolder> [fileMask]", "Load all services from folder")
+		.action((args, done) => {
+			let filePath = path.resolve(args.serviceFolder);
+			if (fs.existsSync(filePath)) {
+				console.log(chalk.yellow(`>> Load services from '${filePath}'...`));
+				const count = broker.loadServices(filePath, args.fileMask);
+				console.log(chalk.green(`>> Loaded ${count} services!`));
+			} else {
+				console.warn(chalk.red("The folder is not exists!", filePath));
+			}
+			done();
+		});	
+
+	// List nodes
+	vorpal
+		.command("nodes", "List of nodes")
+		.option("-d, --details", "detailed list")
+		.option("-a, --all", "list all (offline) nodes")
+		.action((args, done) => {
+			const nodes = broker.registry.getNodeList(true);
+
+			// action, nodeID, cached, CB state, description?, params?
+			const data = [];
+			data.push([
+				chalk.bold("Node ID"),
+				chalk.bold("Services"),
+				chalk.bold("Version"),
+				chalk.bold("Client"),
+				chalk.bold("IP"),
+				chalk.bold("State"),
+				chalk.bold("CPU")
+			]);
+
+			nodes.forEach(node => {
+				if (!args.options.all && !node.available) return;
+
+				let ip = "?";
+				if (node.ipList) {
+					if (node.ipList.length == 1) 
+						ip = node.ipList[0];
+					else if (node.ipList.length > 1)
+						ip = node.ipList[0] + `  (+${node.ipList.length - 1})`;
+				}
+
+				let cpu = "?";
+				if (node.cpu != null) {
+					const width = 20;
+					const c = Math.round(node.cpu / (100 / width));
+					cpu = ["["].concat(Array(c).fill("■"), Array(width - c).fill("."), ["] ", node.cpu.toFixed(0), "%"]).join("");
+				}
+
+				data.push([
+					node.id == broker.nodeID ? chalk.gray(node.id + " (*)") : node.id,
+					node.services ? Object.keys(node.services).length : 0,
+					node.client.version,
+					node.client.type,
+					ip,
+					node.available ? chalk.bgGreen.black(" ONLINE "):chalk.bgRed.white.bold(" OFFLINE "),
+					cpu
+				]);
+
+				if (args.options.details && node.services && Object.keys(node.services).length > 0) {
+					_.forIn(node.services, service => {
+						data.push([
+							"",
+							service.name,
+							service.version || "-",
+							"",
+							"",
+							"",
+							""
+						]);						
+					});
+				}				
+			});
+
+			const tableConf = {
+				border: _.mapValues(getBorderCharacters("honeywell"), (char) => {
+					return chalk.gray(char);
+				}),
+				columns: {
+					2: { alignment: "right" },
+					5: { alignment: "right" }
+				}
+			};
+			
+			console.log(table(data, tableConf));
+
+			done();
+		});			
+
+	// List services
+	vorpal
+		.command("services", "List of services")
+		.option("-l, --local", "only local services")
+		.option("-i, --skipinternal", "skip internal services")
+		//.option("-d, --details", "print endpoints")
+		//.option("-a, --all", "list all (offline) services")
+		.action((args, done) => {
+			const services = broker.registry.getServiceList({ onlyLocal: args.options.local, skipInternal: args.options.skipinternal, withActions: true, withEvents: true });
+
+			const data = [
+				[
+					chalk.bold("Service"),
+					chalk.bold("Version"),
+					chalk.bold("Actions"),
+					chalk.bold("Events"),
+					chalk.bold("Nodes")
+				]
+			];
+
+			let list = [];
+
+			services.forEach(svc => {
+				let item = list.find(o => o.name == svc.name && o.version == svc.version);
+				if (item) {
+					item.nodes.push(svc.nodeID);
+				} else {
+					item = _.pick(svc, ["name", "version"]);
+					item.nodes = [svc.nodeID];
+					item.actionCount = Object.keys(svc.actions).length;
+					item.eventCount = Object.keys(svc.events).length;
+					list.push(item);
+				}
+			});
+
+			list.forEach(item => {
+				const hasLocal = item.nodes.indexOf(broker.nodeID) !== -1;
+				const nodeCount = item.nodes.length;
+				
+				data.push([
+					item.name,
+					item.version || "-",
+					item.actionCount,
+					item.eventCount,
+					(hasLocal ? "(*) " : "") + nodeCount
+				]);
+
+			});
+
+			const tableConf = {
+				border: _.mapValues(getBorderCharacters("honeywell"), char => chalk.gray(char)),
+				columns: {
+					1: { alignment: "right" },
+					2: { alignment: "right" },
+					3: { alignment: "right" },
+					4: { alignment: "right" }
+				}
+			};
+			
+			console.log(table(data, tableConf));
+			done();
+		});			
+
+	
 	// Start REPL
 	vorpal
 		.delimiter("mol $")

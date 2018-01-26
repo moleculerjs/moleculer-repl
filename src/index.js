@@ -23,12 +23,6 @@ const CIRCUIT_CLOSE 					= "close";
 const CIRCUIT_HALF_OPEN 				= "half_open";
 const CIRCUIT_OPEN 						= "open";
 
-/* istanbul ignore next */
-/*
-const eventHandler = payload => {
-	console.log(chalk.magenta(">> Incoming event!"), util.inspect(payload, { showHidden: false, depth: 4, colors: true }));
-};*/
-
 function convertArgs(args) {
 	let res = {};
 	_.forIn(args, (value, key) => {
@@ -52,7 +46,7 @@ function convertArgs(args) {
  * @param {ServiceBroker} broker 
  */
 /* istanbul ignore next */
-function REPL(broker) {
+function REPL(broker, customCommands /* TODO */) {
 	vorpal.find("exit").remove(); //vorpal vorpal-commons.js command, fails to run .stop() on exit
 
 	vorpal.on("vorpal_exit", () => { 
@@ -75,9 +69,9 @@ function REPL(broker) {
 		.option("-l, --local", "only local actions")
 		.option("-i, --skipinternal", "skip internal actions")
 		.option("-d, --details", "print endpoints")
-		//.option("-a, --all", "list all (offline) actions") // TODO
+		.option("-a, --all", "list all (offline) actions")
 		.action((args, done) => {
-			const actions = broker.registry.getActionList({ onlyLocal: args.options.local, skipInternal: args.options.skipinternal, withEndpoints: args.options.details });
+			const actions = broker.registry.getActionList({ onlyLocal: args.options.local, onlyAvailable: !args.options.all, skipInternal: args.options.skipinternal, withEndpoints: args.options.details });
 
 			const data = [
 				[
@@ -88,6 +82,10 @@ function REPL(broker) {
 					chalk.bold("Params")
 				]
 			];
+
+			let hLines = [];
+
+			actions.sort((a, b) => a.name.localeCompare(b.name));
 
 			actions.forEach(item => {
 				const action = item.action;
@@ -116,7 +114,10 @@ function REPL(broker) {
 					switch(state) {
 					case true:
 					case CIRCUIT_CLOSE:			return chalk.bgGreen.white( "   OK   ");
+
 					case CIRCUIT_HALF_OPEN: 	return chalk.bgYellow.black(" TRYING ");
+
+					case false:
 					case CIRCUIT_OPEN: 			return chalk.bgRed.white(	" FAILED ");
 					}
 				};
@@ -131,6 +132,7 @@ function REPL(broker) {
 							""
 						]);						
 					});
+					hLines.push(data.length);
 				}
 			});
 
@@ -140,7 +142,8 @@ function REPL(broker) {
 					1: { alignment: "right" },
 					3: { alignment: "center" },
 					5: { width: 20, wrapWord: true }
-				}
+				},
+				drawHorizontalLine: (index, count) => index == 0 || index == 1 || index == count || hLines.indexOf(index) !== -1
 			};
 			
 			console.log(table(data, tableConf));
@@ -253,16 +256,22 @@ function REPL(broker) {
 		.option("-l, --local", "only local event listeners")
 		.option("-i, --skipinternal", "skip internal event listeners")
 		.option("-d, --details", "print endpoints")
-		//.option("-a, --all", "list all (offline) event listeners")
+		.option("-a, --all", "list all (offline) event listeners")
 		.action((args, done) => {
-			const events = broker.registry.getEventList({ onlyLocal: args.options.local, skipInternal: args.options.skipinternal, withEndpoints: args.options.details });
-
+			const events = broker.registry.getEventList({ onlyLocal: args.options.local, onlyAvailable: !args.options.all, skipInternal: args.options.skipinternal, withEndpoints: args.options.details });
+			broker.logger.info(events);
 			const data = [
 				[
 					chalk.bold("Event"),
+					chalk.bold("Group"),
+					chalk.bold("State"),
 					chalk.bold("Nodes")
 				]
 			];
+
+			events.sort((a, b) => a.name.localeCompare(b.name));
+
+			let hLines = [];
 
 			events.forEach(item => {
 				const event = item.event;
@@ -270,11 +279,15 @@ function REPL(broker) {
 				if (event) {
 					data.push([
 						event.name,
+						item.group,
+						item.available ? chalk.bgGreen.white( "   OK   ") : chalk.bgRed.white.bold(" FAILED "),
 						(item.hasLocal ? "(*) " : "") + item.count
 					]);
 				} else {
 					data.push([
 						item.name,
+						item.group,
+						item.available ? chalk.bgGreen.white( "   OK   ") : chalk.bgRed.white.bold(" FAILED "),
 						item.count
 					]);
 				}
@@ -283,9 +296,12 @@ function REPL(broker) {
 					item.endpoints.forEach(endpoint => {
 						data.push([
 							"",
+							"",
+							endpoint.available ? chalk.bgGreen.white( "   OK   ") : chalk.bgRed.white.bold(" FAILED "),
 							endpoint.nodeID == broker.nodeID ? chalk.gray("<local>") : endpoint.nodeID,
 						]);						
 					});
+					hLines.push(data.length);
 				}
 			});
 
@@ -293,7 +309,8 @@ function REPL(broker) {
 				border: _.mapValues(getBorderCharacters("honeywell"), char => chalk.gray(char)),
 				columns: {
 					1: { alignment: "right" }
-				}
+				},
+				drawHorizontalLine: (index, count) => index == 0 || index == 1 || index == count || hLines.indexOf(index) !== -1
 			};
 			
 			console.log(table(data, tableConf));
@@ -464,6 +481,10 @@ function REPL(broker) {
 				chalk.bold("CPU")
 			]);
 
+			let hLines = [];
+
+			nodes.sort((a, b) => a.id.localeCompare(b.id));
+
 			nodes.forEach(node => {
 				if (!args.options.all && !node.available) return;
 
@@ -504,6 +525,7 @@ function REPL(broker) {
 							""
 						]);						
 					});
+					hLines.push(data.length);					
 				}				
 			});
 
@@ -514,7 +536,8 @@ function REPL(broker) {
 				columns: {
 					2: { alignment: "right" },
 					5: { alignment: "right" }
-				}
+				},
+				drawHorizontalLine: (index, count) => index == 0 || index == 1 || index == count || hLines.indexOf(index) !== -1			
 			};
 			
 			console.log(table(data, tableConf));
@@ -527,15 +550,16 @@ function REPL(broker) {
 		.command("services", "List of services")
 		.option("-l, --local", "only local services")
 		.option("-i, --skipinternal", "skip internal services")
-		//.option("-d, --details", "print endpoints")
-		//.option("-a, --all", "list all (offline) services")
+		.option("-d, --details", "print endpoints")
+		.option("-a, --all", "list all (offline) services")
 		.action((args, done) => {
-			const services = broker.registry.getServiceList({ onlyLocal: args.options.local, skipInternal: args.options.skipinternal, withActions: true, withEvents: true });
+			const services = broker.registry.getServiceList({ onlyLocal: args.options.local, onlyAvailable: !args.options.all, skipInternal: args.options.skipinternal, withActions: true, withEvents: true });
 
 			const data = [
 				[
 					chalk.bold("Service"),
 					chalk.bold("Version"),
+					chalk.bold("State"),
 					chalk.bold("Actions"),
 					chalk.bold("Events"),
 					chalk.bold("Nodes")
@@ -543,19 +567,25 @@ function REPL(broker) {
 			];
 
 			let list = [];
+			let hLines = [];
 
 			services.forEach(svc => {
 				let item = list.find(o => o.name == svc.name && o.version == svc.version);
 				if (item) {
-					item.nodes.push(svc.nodeID);
+					item.nodes.push({ nodeID: svc.nodeID, available: svc.available });
+					if (!item.available && svc.available)
+						item.available = svc.available;
 				} else {
 					item = _.pick(svc, ["name", "version"]);
-					item.nodes = [svc.nodeID];
+					item.nodes = [{ nodeID: svc.nodeID, available: svc.available }];
 					item.actionCount = Object.keys(svc.actions).length;
 					item.eventCount = Object.keys(svc.events).length;
+					item.available = svc.available;
 					list.push(item);
 				}
 			});
+
+			list.sort((a, b) => a.name.localeCompare(b.name));
 
 			list.forEach(item => {
 				const hasLocal = item.nodes.indexOf(broker.nodeID) !== -1;
@@ -564,11 +594,26 @@ function REPL(broker) {
 				data.push([
 					item.name,
 					item.version || "-",
+					item.available ? chalk.bgGreen.white( "   OK   ") : chalk.bgRed.white.bold(" FAILED "),
 					item.actionCount,
 					item.eventCount,
 					(hasLocal ? "(*) " : "") + nodeCount
 				]);
 
+				if (args.options.details && item.nodes) {
+					item.nodes.forEach(({ nodeID, available }) => {
+						data.push([
+							"",
+							"",
+							available ? chalk.bgGreen.white( "   OK   ") : chalk.bgRed.white.bold(" FAILED "),
+							"",
+							"",
+							nodeID == broker.nodeID ? chalk.gray("<local>") : nodeID,
+						]);						
+					});
+					hLines.push(data.length);
+				}
+				
 			});
 
 			const tableConf = {
@@ -578,7 +623,8 @@ function REPL(broker) {
 					2: { alignment: "right" },
 					3: { alignment: "right" },
 					4: { alignment: "right" }
-				}
+				},
+				drawHorizontalLine: (index, count) => index == 0 || index == 1 || index == count || hLines.indexOf(index) !== -1				
 			};
 			
 			console.log(table(data, tableConf));

@@ -18,6 +18,7 @@ const { table, getBorderCharacters } 	= require("table");
 const vorpal 							= require("vorpal")();
 const clui 								= require("clui");
 const pretty 							= require("pretty-bytes");
+const humanize 							= require("tiny-human-time").short;
 
 const CIRCUIT_CLOSE 					= "close";
 const CIRCUIT_HALF_OPEN 				= "half_open";
@@ -37,6 +38,13 @@ function convertArgs(args) {
 		else
 			res[key] = value;
 	});
+	return res;
+}
+
+function formatNumber(value, decimals = 0, sign = false) {
+	let res = Number(value.toFixed(decimals)).toLocaleString();
+	if (sign && value > 0.0)
+		res = "+" + res;
 	return res;
 }
 
@@ -150,6 +158,99 @@ function REPL(broker, customCommands /* TODO */) {
 			done();
 		});	
 
+	// Register benchmark
+	vorpal
+		.command("bench <action> [jsonParams]", "Benchmark a service")
+		.option("--num <number>", "Number of iterates")
+		.option("--nodeID", "NodeID (direct call)")
+		.allowUnknownOptions()
+		.action((args, done) => {
+			let payload;
+			const iterate = args.options.num || 1000;
+			console.log(args);
+			if (typeof(args.jsonParams) == "string")
+				payload = JSON.parse(args.jsonParams);
+			else
+				payload = convertArgs(args.options);
+
+			const callingOpts = args.nodeID ? { nodeID: args.nodeID } : undefined;
+
+			let count = 0;
+			let resCount = 0;
+			let errorCount = 0;
+			let sumTime = 0;
+			let minTime;
+			let maxTime;
+
+			let startTotalTime = process.hrtime();
+
+			const printResult = function(duration) {
+				const errStr = errorCount > 0 ? chalk.red.bold(`${formatNumber(errorCount)} error(s)`) : chalk.grey("0 error");
+
+				console.log(chalk.green.bold("\nBenchmark result:\n"));
+				console.log(chalk.bold(`  ${resCount} requests in ${humanize(duration)}, ${errStr}`));
+				console.log("\n  Requests/sec:", chalk.bold(formatNumber(resCount / duration * 1000)));
+				console.log("\n  Latency:");
+				//console.log("    Avg:", _.padStart(humanize(duration / resCount), 10), "msec");
+				console.log("    Avg:", _.padStart(humanize(sumTime / resCount), 10), "msec");
+				console.log("    Min:", _.padStart(humanize(minTime), 10), "msec");
+				console.log("    Max:", _.padStart(humanize(maxTime), 10), "msec");
+				console.log();
+			};
+
+			const handleResponse = function(startTime, err) {
+				resCount++;
+
+				if (err) {
+					errorCount++;
+				}
+
+				const diff = process.hrtime(startTime);
+				const duration = (diff[0] + diff[1] / 1e9) * 1000;
+				sumTime += duration;
+				if (minTime == null || duration < minTime)
+					minTime = duration;
+				if (maxTime == null || duration > maxTime)
+					maxTime = duration;
+
+				if (resCount >= iterate) {
+					const diff = process.hrtime(startTotalTime);
+					const duration = (diff[0] + diff[1] / 1e9) * 1000;
+					printResult(duration);
+
+					return done();
+				}
+
+				if (count % 10 * 1000) {
+					// Fast cycle
+					doRequest();
+				} else {
+					// Slow cycle
+					setImmediate(() => doRequest());
+				}
+					
+			};
+
+			function doRequest() {
+				count++;
+				const startTime = process.hrtime();
+
+				return broker.call(args.action, payload, callingOpts).then(res => {
+					handleResponse(startTime);
+					return res;
+				}).catch(err => {
+					handleResponse(startTime, err);
+					//console.error(chalk.red.bold(">> ERROR:", err.message));
+					//console.error(chalk.red.bold(err.stack));
+					//console.error("Data: ", util.inspect(err.data, { showHidden: false, depth: 4, colors: true }));
+				});
+			}				
+
+			console.log(chalk.yellow.bold(`>> Call '${args.action}' x ${iterate} times with params:`), payload);
+			doRequest();
+		});
+
+
 	// Register broker.broadcast
 	vorpal
 		.command("broadcast <eventName>", "Broadcast an event")
@@ -184,7 +285,7 @@ function REPL(broker, customCommands /* TODO */) {
 		.allowUnknownOptions()
 		.action((args, done) => {
 			let payload;
-			console.log(args);
+			//console.log(args);
 			if (typeof(args.jsonParams) == "string")
 				payload = JSON.parse(args.jsonParams);
 			else

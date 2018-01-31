@@ -19,6 +19,7 @@ const vorpal 							= require("vorpal")();
 const clui 								= require("clui");
 const pretty 							= require("pretty-bytes");
 const humanize 							= require("tiny-human-time").short;
+const ora 								= require("ora");
 
 const CIRCUIT_CLOSE 					= "close";
 const CIRCUIT_HALF_OPEN 				= "half_open";
@@ -46,6 +47,23 @@ function formatNumber(value, decimals = 0, sign = false) {
 	if (sign && value > 0.0)
 		res = "+" + res;
 	return res;
+}
+
+function createSpinner(text) {
+	return ora({ 
+		text, 
+		spinner: { 
+			interval: 500, 
+			frames: [
+				".  ",
+				".. ",
+				"...",
+				" ..",
+				"  .",
+				"   "
+			]
+		}
+	});	
 }
 
 /**
@@ -162,18 +180,25 @@ function REPL(broker, customCommands /* TODO */) {
 	vorpal
 		.command("bench <action> [jsonParams]", "Benchmark a service")
 		.option("--num <number>", "Number of iterates")
-		.option("--nodeID", "NodeID (direct call)")
-		.allowUnknownOptions()
+		.option("--time <seconds>", "Time of bench")
+		.option("--nodeID <nodeID>", "NodeID (direct call)")
+		//.allowUnknownOptions()
 		.action((args, done) => {
 			let payload;
-			const iterate = args.options.num || 1000;
+			const iterate = args.options.num != null ? Number(args.options.num) : null;
+			let time = args.options.time != null ? Number(args.options.time) : null;
+			if (!iterate && !time)
+				time = 5;
+
+			const spinner = createSpinner("Running benchmark...");
+
 			console.log(args);
 			if (typeof(args.jsonParams) == "string")
 				payload = JSON.parse(args.jsonParams);
-			else
-				payload = convertArgs(args.options);
+			// else
+			// 	payload = convertArgs(args.options);
 
-			const callingOpts = args.nodeID ? { nodeID: args.nodeID } : undefined;
+			const callingOpts = args.options.nodeID ? { nodeID: args.options.nodeID } : undefined;
 
 			let count = 0;
 			let resCount = 0;
@@ -182,19 +207,21 @@ function REPL(broker, customCommands /* TODO */) {
 			let minTime;
 			let maxTime;
 
+			let timeout = false;
+
+			setTimeout(() => timeout = true, (time ? time : 60) * 1000);
 			let startTotalTime = process.hrtime();
 
 			const printResult = function(duration) {
-				const errStr = errorCount > 0 ? chalk.red.bold(`${formatNumber(errorCount)} error(s)`) : chalk.grey("0 error");
+				const errStr = errorCount > 0 ? chalk.red.bold(`${formatNumber(errorCount)} error(s) ${formatNumber(errorCount / resCount * 100)}%`) : chalk.grey("0 error");
 
 				console.log(chalk.green.bold("\nBenchmark result:\n"));
-				console.log(chalk.bold(`  ${resCount} requests in ${humanize(duration)}, ${errStr}`));
+				console.log(chalk.bold(`  ${formatNumber(resCount)} requests in ${humanize(duration)}, ${errStr}`));
 				console.log("\n  Requests/sec:", chalk.bold(formatNumber(resCount / duration * 1000)));
 				console.log("\n  Latency:");
-				//console.log("    Avg:", _.padStart(humanize(duration / resCount), 10), "msec");
-				console.log("    Avg:", _.padStart(humanize(sumTime / resCount), 10), "msec");
-				console.log("    Min:", _.padStart(humanize(minTime), 10), "msec");
-				console.log("    Max:", _.padStart(humanize(maxTime), 10), "msec");
+				console.log("    Avg:", chalk.bold(_.padStart(humanize(sumTime / resCount), 10)));
+				console.log("    Min:", chalk.bold(_.padStart(humanize(minTime), 10)));
+				console.log("    Max:", chalk.bold(_.padStart(humanize(maxTime), 10)));
 				console.log();
 			};
 
@@ -213,7 +240,9 @@ function REPL(broker, customCommands /* TODO */) {
 				if (maxTime == null || duration > maxTime)
 					maxTime = duration;
 
-				if (resCount >= iterate) {
+				if (timeout || (iterate && resCount >= iterate)) {
+					spinner.stop();
+
 					const diff = process.hrtime(startTotalTime);
 					const duration = (diff[0] + diff[1] / 1e9) * 1000;
 					printResult(duration);
@@ -246,7 +275,9 @@ function REPL(broker, customCommands /* TODO */) {
 				});
 			}				
 
-			console.log(chalk.yellow.bold(`>> Call '${args.action}' x ${iterate} times with params:`), payload);
+			console.log(chalk.yellow.bold(`>> Call '${args.action}'${args.options.nodeID ? " on '" + args.options.nodeID + "'" : ""} with params:`), payload);
+			spinner.start(iterate ? `Running x ${iterate} times...` : `Running ${time} second(s)...`);
+
 			doRequest();
 		});
 

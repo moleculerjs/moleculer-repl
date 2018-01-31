@@ -58,22 +58,23 @@ module.exports = function(vorpal, broker) {
 			const used = total - free;
 			const human = pretty(free);
 
-			/*const v8 = require("v8");
+			const v8 = require("v8");
 			const heapStat = v8.getHeapStatistics();
 			const heapUsed = heapStat.used_heap_size; 
-			const maxHeap = heapStat.heap_size_limit;
-			*/
+			const maxHeap = heapStat.heap_size_limit;			
 
 			printHeader("General information");
 			print("CPU", "Arch: " + (os.arch()) + ", Cores: " + (os.cpus().length));
 			print("Memory", Gauge(used, total, 20, total * 0.8, human + " free"));
-			//print("Heap", Gauge(heapUsed, maxHeap, 20, maxHeap * 0.5, pretty(heapUsed)));
+			print("Heap", Gauge(heapUsed, maxHeap, 20, maxHeap * 0.5, pretty(heapUsed)));
 			print("OS", (os.platform()) + " (" + (os.type()) + ")");
 			print("IP", health.net.ip.join(", "));
 			print("Hostname", os.hostname());
 			console.log("");
-			print("Node", process.version);
+			print("Node version", process.version);
 			print("Moleculer version", broker.MOLECULER_VERSION);
+			console.log("");
+			print("Current time", new Date().toString());
 			console.log("");
 
 			let strategy = broker.options.registry.strategy;

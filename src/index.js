@@ -7,6 +7,8 @@
 
 "use strict";
 
+require("v8"); // Load first. It won't work in `info.js`
+
 const vorpal 			= require("vorpal")();
 const registerCommands 	= require("./commands");
 

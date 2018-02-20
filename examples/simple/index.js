@@ -6,7 +6,7 @@ let REPL 				= require("../../src");
 // Create broker
 let broker = new ServiceBroker({
 	nodeID: "repl-" + process.pid,
-	transporter: "NATS",
+	transporter: "TCP",
 	logger: console,
 
 	// Custom REPL command

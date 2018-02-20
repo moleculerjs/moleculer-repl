@@ -14,7 +14,6 @@ module.exports = function(vorpal, broker) {
 		.option("-a, --all", "list all (offline) event listeners")
 		.action((args, done) => {
 			const events = broker.registry.getEventList({ onlyLocal: args.options.local, onlyAvailable: !args.options.all, skipInternal: args.options.skipinternal, withEndpoints: args.options.details });
-			broker.logger.info(events);
 			const data = [
 				[
 					chalk.bold("Event"),

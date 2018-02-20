@@ -73,6 +73,7 @@ module.exports = function(vorpal, broker) {
 			console.log("");
 			print("Node version", process.version);
 			print("Moleculer version", broker.MOLECULER_VERSION);
+			print("Protocol version", broker.PROTOCOL_VERSION);
 			console.log("");
 			print("Current time", new Date().toString());
 			console.log("");

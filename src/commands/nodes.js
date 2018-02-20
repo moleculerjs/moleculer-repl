@@ -1,6 +1,7 @@
 "use strict";
 
 const chalk 			= require("chalk");
+const util 				= require("util");
 const _ 				= require("lodash");
 const { table, getBorderCharacters } 	= require("table");
 
@@ -10,8 +11,15 @@ module.exports = function(vorpal, broker) {
 		.command("nodes", "List of nodes")
 		.option("-d, --details", "detailed list")
 		.option("-a, --all", "list all (offline) nodes")
+		.option("--raw", "print service registry to JSON")
 		.action((args, done) => {
 			const nodes = broker.registry.getNodeList(true);
+
+			if (args.options.raw) {
+				const nodes = broker.registry.getNodeRawList();
+				console.log(util.inspect(nodes, { showHidden: false, depth: 4, colors: true }));
+				return done();
+			}
 
 			// action, nodeID, cached, CB state, description?, params?
 			const data = [];
@@ -34,7 +42,7 @@ module.exports = function(vorpal, broker) {
 
 				let ip = "?";
 				if (node.ipList) {
-					if (node.ipList.length == 1) 
+					if (node.ipList.length == 1)
 						ip = node.ipList[0];
 					else if (node.ipList.length > 1)
 						ip = node.ipList[0] + `  (+${node.ipList.length - 1})`;
@@ -67,10 +75,10 @@ module.exports = function(vorpal, broker) {
 							"",
 							"",
 							""
-						]);						
+						]);
 					});
-					hLines.push(data.length);					
-				}				
+					hLines.push(data.length);
+				}
 			});
 
 			const tableConf = {
@@ -81,9 +89,9 @@ module.exports = function(vorpal, broker) {
 					2: { alignment: "right" },
 					5: { alignment: "right" }
 				},
-				drawHorizontalLine: (index, count) => index == 0 || index == 1 || index == count || hLines.indexOf(index) !== -1			
+				drawHorizontalLine: (index, count) => index == 0 || index == 1 || index == count || hLines.indexOf(index) !== -1
 			};
-			
+
 			console.log(table(data, tableConf));
 
 			done();

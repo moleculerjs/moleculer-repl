@@ -4,8 +4,7 @@
 
 ## Changes
 - support Moleculer v0.12.x
-- new command: `bench [options] <action> [jsonParams]     Benchmark a service`
-- new command: `env                                       List of environment variables`
+- new command: `bench [options] <action> [jsonParams]`: Benchmark services
+- new command: `env`: List of environment variables
+- new command: `clear`: Clear cacher
 - extendable with custom commands via ServiceBroker options (`replCommands`)
-
-First release.

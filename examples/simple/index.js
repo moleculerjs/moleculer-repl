@@ -8,6 +8,7 @@ let broker = new ServiceBroker({
 	nodeID: "repl-" + process.pid,
 	transporter: "TCP",
 	logger: console,
+	cacher: true,
 
 	// Custom REPL command
 	replCommands: [
@@ -36,8 +37,11 @@ let broker = new ServiceBroker({
 broker.createService({
 	name: "greeter",
 	actions: {
-		hello(ctx) {
-			return "Hello " + ctx.params.name;
+		hello: {
+			cache: true,
+			handler(ctx) {
+				return "Hello " + ctx.params.name;
+			}
 		}
 	},
 	events: {

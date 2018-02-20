@@ -42,6 +42,12 @@ broker.createService({
 			handler(ctx) {
 				return "Hello " + ctx.params.name;
 			}
+		},
+		welcome(ctx) {
+			return {
+				params: ctx.params,
+				welcomedAt: Date.now()
+			};
 		}
 	},
 	events: {

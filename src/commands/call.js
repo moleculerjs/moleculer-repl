@@ -1,9 +1,67 @@
 "use strict";
 
 const chalk 			= require("chalk");
+const fs 				= require("fs");
+const path				= require("path");
 const _ 				= require("lodash");
 const util 				= require("util");
 const { convertArgs } 	= require("../utils");
+
+function call(broker, args, done) {
+	let payload;
+	console.log(args);
+	if (typeof(args.jsonParams) == "string")
+		payload = JSON.parse(args.jsonParams);
+	else {
+		payload = convertArgs(args.options);
+		if (args.options.save)
+			delete payload.save;
+	}
+
+	// Load payload from file
+	if (args.options.load) {
+		let fName;
+		if (_.isString(args.options.load)) {
+			fName = path.resolve(args.options.load);
+		} else {
+			fName = path.resolve(`${args.actionName}.params.json`);
+		}
+		if (fs.existsSync(fName)) {
+			console.log(chalk.magenta(`>> Load params from '${fName}' file.`));
+			payload = JSON.parse(fs.readFileSync(fName, "utf8"));
+		} else {
+			console.log(chalk.red(">> File not found:", fName));
+		}
+	}
+
+	const nodeID = args.nodeID;
+	console.log(chalk.yellow.bold(`>> Call '${args.actionName}'${nodeID ? " on " + nodeID : ""} with params:`), payload);
+	broker.call(args.actionName, payload, { nodeID })
+		.then(res => {
+			console.log(chalk.yellow.bold(">> Response:"));
+			console.log(util.inspect(res, { showHidden: false, depth: 4, colors: true }));
+
+			// Save response to file
+			if (args.options.save && res != null)  {
+				let fName;
+				if (_.isString(args.options.save)) {
+					fName = path.resolve(args.options.save);
+				} else {
+					fName = path.join(".", `${args.actionName}.response`);
+					fName += _.isObject(res) ? ".json" : ".txt";
+				}
+
+				fs.writeFileSync(fName, _.isObject(res) ? JSON.stringify(res, null, 4) : res, "utf8");
+				console.log(chalk.magenta.bold(`>> Response has been saved to '${fName}' file.`));
+			}
+		})
+		.catch(err => {
+			console.error(chalk.red.bold(">> ERROR:", err.message));
+			console.error(chalk.red.bold(err.stack));
+			console.error("Data: ", util.inspect(err.data, { showHidden: false, depth: 4, colors: true }));
+		})
+		.finally(done);
+}
 
 module.exports = function(vorpal, broker) {
 	// Register broker.call
@@ -14,54 +72,16 @@ module.exports = function(vorpal, broker) {
 				return _.uniq(broker.registry.getActionList({}).map(item => item.action.name));
 			}
 		})
-		//.option("--json", "JSON string payload")
+		.option("--load [filename]", "Load params from file")
+		.option("--save [filename]", "Save response to file")
 		.allowUnknownOptions()
-		.action((args, done) => {
-			let payload;
-			//console.log(args);
-			if (typeof(args.jsonParams) == "string")
-				payload = JSON.parse(args.jsonParams);
-			else
-				payload = convertArgs(args.options);
-
-			console.log(chalk.yellow.bold(`>> Call '${args.actionName}' with params:`), payload);
-			broker.call(args.actionName, payload)
-				.then(res => {
-					console.log(chalk.yellow.bold(">> Response:"));
-					console.log(util.inspect(res, { showHidden: false, depth: 4, colors: true }));
-				})
-				.catch(err => {
-					console.error(chalk.red.bold(">> ERROR:", err.message));
-					console.error(chalk.red.bold(err.stack));
-					console.error("Data: ", util.inspect(err.data, { showHidden: false, depth: 4, colors: true }));
-				})
-				.finally(done);
-		});
+		.action((args, done) => call(broker, args, done));
 
 	// Register direct broker.call
 	vorpal
 		.command("dcall <nodeID> <actionName> [jsonParams]", "Direct call an action")
+		.option("--load [filename]", "Load params from file")
+		.option("--save [filename]", "Save response to file")
 		.allowUnknownOptions()
-		.action((args, done) => {
-			let payload;
-			//console.log(args);
-			if (typeof(args.jsonParams) == "string")
-				payload = JSON.parse(args.jsonParams);
-			else
-				payload = convertArgs(args.options);
-
-			const nodeID = args.nodeID;
-			console.log(chalk.yellow.bold(`>> Call '${args.actionName}' on '${nodeID}' with params:`), payload);
-			broker.call(args.actionName, payload, { nodeID })
-				.then(res => {
-					console.log(chalk.yellow.bold(">> Response:"));
-					console.log(util.inspect(res, { showHidden: false, depth: 4, colors: true }));
-				})
-				.catch(err => {
-					console.error(chalk.red.bold(">> ERROR:", err.message));
-					console.error(chalk.red.bold(err.stack));
-					console.error("Data: ", util.inspect(err.data, { showHidden: false, depth: 4, colors: true }));
-				})
-				.finally(done);
-		});
+		.action((args, done) => call(broker, args, done));		
 };

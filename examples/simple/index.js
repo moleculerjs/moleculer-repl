@@ -48,6 +48,9 @@ broker.createService({
 				params: ctx.params,
 				welcomedAt: Date.now()
 			};
+		},
+		silent(ctx) {
+			return;
 		}
 	},
 	events: {

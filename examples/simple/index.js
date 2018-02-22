@@ -31,7 +31,7 @@ let broker = new ServiceBroker({
 				return broker.call("greeter.hello", { name: args.name }).then(console.log);
 			}
 		}
-	]	
+	]
 });
 
 broker.createService({
@@ -62,6 +62,16 @@ broker.createService({
 		},
 		"$local-event"(payload) {
 			this.logger.info("Local event received!", payload);
+		}
+	}
+});
+
+
+broker.createService({
+	name: "math",
+	actions: {
+		add(ctx) {
+			return Number(ctx.params.a) + Number(ctx.params.b);
 		}
 	}
 });

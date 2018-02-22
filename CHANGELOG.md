@@ -7,6 +7,7 @@
 - new command: `bench [options] <action> [jsonParams]`: Benchmark services
 - new command: `env`: List of environment variables
 - new command: `clear`: Clear cacher
+- add autocomplete to `emit` and `bench` as well
 - extendable with custom commands via ServiceBroker options (`replCommands`)
 - new options in `call` & `dcall` commands:
     - `--load` - load params from a JSON file. The filename generated from action name. E.g. for `posts.find`˙action the filename is `<current_dir>/posts.find.params.json`

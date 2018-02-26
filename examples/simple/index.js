@@ -49,6 +49,9 @@ broker.createService({
 				params: ctx.params,
 				welcomedAt: Date.now()
 			};
+		},
+		silent(ctx) {
+			return;
 		}
 	},
 	events: {
@@ -63,6 +66,16 @@ broker.createService({
 		},
 		"$local-event"(payload) {
 			this.logger.info("Local event received!", payload);
+		}
+	}
+});
+
+
+broker.createService({
+	name: "math",
+	actions: {
+		add(ctx) {
+			return Number(ctx.params.a) + Number(ctx.params.b);
 		}
 	}
 });

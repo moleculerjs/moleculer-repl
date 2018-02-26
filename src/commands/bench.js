@@ -7,10 +7,10 @@ const _ 				= require("lodash");
 const { formatNumber } 	= require("../utils");
 
 function createSpinner(text) {
-	return ora({ 
-		text, 
-		spinner: { 
-			interval: 500, 
+	return ora({
+		text,
+		spinner: {
+			interval: 500,
 			frames: [
 				".  ",
 				".. ",
@@ -20,13 +20,18 @@ function createSpinner(text) {
 				"   "
 			]
 		}
-	});	
+	});
 }
 
 module.exports = function(vorpal, broker) {
 // Register benchmark
 	vorpal
 		.command("bench <action> [jsonParams]", "Benchmark a service")
+		.autocomplete({
+			data() {
+				return _.uniq(broker.registry.getActionList({}).map(item => item.action.name));
+			}
+		})
 		.option("--num <number>", "Number of iterates")
 		.option("--time <seconds>", "Time of bench")
 		.option("--nodeID <nodeID>", "NodeID (direct call)")
@@ -105,7 +110,7 @@ module.exports = function(vorpal, broker) {
 					// Slow cycle
 					setImmediate(() => doRequest());
 				}
-					
+
 			};
 
 			function doRequest() {
@@ -121,7 +126,7 @@ module.exports = function(vorpal, broker) {
 					//console.error(chalk.red.bold(err.stack));
 					//console.error("Data: ", util.inspect(err.data, { showHidden: false, depth: 4, colors: true }));
 				});
-			}				
+			}
 
 			console.log(chalk.yellow.bold(`>> Call '${args.action}'${args.options.nodeID ? " on '" + args.options.nodeID + "'" : ""} with params:`), payload);
 			spinner.start(iterate ? `Running x ${iterate} times...` : `Running ${time} second(s)...`);

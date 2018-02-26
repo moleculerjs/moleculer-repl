@@ -14,12 +14,12 @@ module.exports = function(vorpal, broker) {
 		.option("-d, --details", "detailed list")
 		.option("-a, --all", "list all (offline) nodes")
 		.option("--raw", "print service registry to JSON")
-		.option("--file <filename>", "save service registry to a JSON file")
+		.option("--save [filename]", "save service registry to a JSON file")
 		.action((args, done) => {
 			const nodes = broker.registry.getNodeList(true);
 
-			if (args.options.file) {
-				const fName = path.resolve(args.options.file);
+			if (args.options.save) {
+				const fName = path.resolve(_.isString(args.options.save) ? args.options.save : "nodes.json");
 				const nodes = broker.registry.getNodeRawList();
 				fs.writeFileSync(fName, JSON.stringify(nodes, null, 4), "utf8");
 				console.log(chalk.magenta.bold(`>> Node list has been saved to '${fName}' file.`));

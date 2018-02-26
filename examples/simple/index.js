@@ -27,11 +27,12 @@ let broker = new ServiceBroker({
 			//validate(args) {},
 			//help(args) {},
 			allowUnknownOptions: true,
-			action(args) {
-				return broker.call("greeter.hello", { name: args.name }).then(console.log);
+			action(broker, args/*, helpers*/) {
+				const name = args.options.uppercase ? args.name.toUpperCase() : args.name;
+				return broker.call("greeter.hello", { name }).then(console.log);
 			}
 		}
-	]	
+	]
 });
 
 broker.createService({

@@ -4,6 +4,7 @@
 
 ## Changes
 - support Moleculer v0.12.x
+- support custom REPL commands
 - new command: `bench [options] <action> [jsonParams]`: Benchmark services
 - new command: `env`: List of environment variables
 - new command: `clear`: Clear cacher

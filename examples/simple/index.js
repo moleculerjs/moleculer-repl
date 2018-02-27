@@ -74,8 +74,14 @@ broker.createService({
 broker.createService({
 	name: "math",
 	actions: {
-		add(ctx) {
-			return Number(ctx.params.a) + Number(ctx.params.b);
+		add: {
+			params: {
+				a: "number",
+				b: "number"
+			},
+			handler(ctx) {
+				return Number(ctx.params.a) + Number(ctx.params.b);
+			}
 		}
 	}
 });

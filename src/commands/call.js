@@ -6,6 +6,7 @@ const path				= require("path");
 const _ 				= require("lodash");
 const util 				= require("util");
 const { convertArgs } 	= require("../utils");
+const humanize 			= require("tiny-human-time").short;
 
 function call(broker, args, done) {
 	let payload;
@@ -34,10 +35,15 @@ function call(broker, args, done) {
 		}
 	}
 
+	const startTime = process.hrtime();
 	const nodeID = args.nodeID;
 	console.log(chalk.yellow.bold(`>> Call '${args.actionName}'${nodeID ? " on " + nodeID : ""} with params:`), payload);
 	broker.call(args.actionName, payload, { nodeID })
 		.then(res => {
+			const diff = process.hrtime(startTime);
+			const duration = (diff[0] + diff[1] / 1e9) * 1000;
+			console.log(chalk.cyan.bold(">> Execution time:", humanize(duration)));
+
 			console.log(chalk.yellow.bold(">> Response:"));
 			console.log(util.inspect(res, { showHidden: false, depth: 4, colors: true }));
 
@@ -83,5 +89,5 @@ module.exports = function(vorpal, broker) {
 		.option("--load [filename]", "Load params from file")
 		.option("--save [filename]", "Save response to file")
 		.allowUnknownOptions()
-		.action((args, done) => call(broker, args, done));		
+		.action((args, done) => call(broker, args, done));
 };

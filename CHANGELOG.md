@@ -8,6 +8,7 @@
 - new command: `bench [options] <action> [jsonParams]`: Benchmark services
 - new command: `env`: List of environment variables
 - new command: `clear`: Clear cacher
+- measure execution time in `call` & `dcall` commands
 - add autocomplete to `emit` and `bench` as well
 - extendable with custom commands via ServiceBroker options (`replCommands`)
 - new options in `call` & `dcall` commands:

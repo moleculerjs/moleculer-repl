@@ -8,10 +8,11 @@ The `moleculer-repl` is an interactive console. Created with [vorpal](https://gi
 - list nodes
 - list services
 - list actions
-- call action
+- call services
 - emit events
 - load services (from file or folder)
 - show local informations & configuration
+- benchmark services
 
 ## Install
 ```
@@ -47,6 +48,6 @@ Please send pull requests improving the usage and fixing bugs, improving documen
 The project is available under the [MIT license](https://tldrlegal.com/license/mit-license).
 
 # Contact
-Copyright (c) 2017 Ice Services
+Copyright (c) 2018 Ice Services
 
 [![@icebob](https://img.shields.io/badge/github-ice--services-green.svg)](https://github.com/ice-services) [![@icebob](https://img.shields.io/badge/twitter-Icebobcsi-blue.svg)](https://twitter.com/Icebobcsi)

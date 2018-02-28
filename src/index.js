@@ -1,7 +1,7 @@
 /*eslint-disable no-console*/
 /*
  * moleculer-repl
- * Copyright (c) 2017 Ice Services (https://github.com/ice-services/moleculer-repl)
+ * Copyright (c) 2017 MoleculerJS (https://github.com/moleculerjs/moleculer-repl)
  * MIT Licensed
  */
 

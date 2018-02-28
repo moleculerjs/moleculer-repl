@@ -48,6 +48,6 @@ Please send pull requests improving the usage and fixing bugs, improving documen
 The project is available under the [MIT license](https://tldrlegal.com/license/mit-license).
 
 # Contact
-Copyright (c) 2018 Ice Services
+Copyright (c) 2018 MoleculerJS
 
-[![@icebob](https://img.shields.io/badge/github-ice--services-green.svg)](https://github.com/ice-services) [![@icebob](https://img.shields.io/badge/twitter-Icebobcsi-blue.svg)](https://twitter.com/Icebobcsi)
+[![@icebob](https://img.shields.io/badge/github-ice--services-green.svg)](https://github.com/moleculerjs) [![@icebob](https://img.shields.io/badge/twitter-Icebobcsi-blue.svg)](https://twitter.com/Icebobcsi)

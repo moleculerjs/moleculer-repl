@@ -25,6 +25,8 @@ const registerCommands 	= require("./commands");
  */
 /* istanbul ignore next */
 function REPL(broker, customCommands) {
+	vorpal.isCommandArgKeyPairNormalized = false; // Switch off unix-like key value pair normalization
+	
 	vorpal.find("exit").remove(); //vorpal vorpal-commons.js command, fails to run .stop() on exit
 
 	vorpal.on("vorpal_exit", () => {

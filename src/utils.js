@@ -72,8 +72,9 @@ function match(text, pattern) {
 			pattern = "\\" + pattern;
 		}
 		pattern = pattern.replace(/\?/g, ".");
-		pattern = pattern.replace(/\*\*/g, ".+");
-		pattern = pattern.replace(/\*/g, "[^\\.]+");
+		pattern = pattern.replace(/\*\*/g, "§§§");
+		pattern = pattern.replace(/\*/g, "[^\\.]*");
+		pattern = pattern.replace(/§§§/g, ".*");
 
 		pattern = "^" + pattern + "$";
 

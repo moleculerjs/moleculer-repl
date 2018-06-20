@@ -6,13 +6,15 @@ const path				= require("path");
 const util 				= require("util");
 const _ 				= require("lodash");
 const { table, getBorderCharacters } 	= require("table");
+const { match } 		= require("../utils");
 
 module.exports = function(vorpal, broker) {
 	// List nodes
 	vorpal
 		.command("nodes", "List of nodes")
-		.option("-d, --details", "detailed list")
 		.option("-a, --all", "list all (offline) nodes")
+		.option("-d, --details", "detailed list")
+		.option("-f, --filter <match>", "filter nodes (e.g.: 'node-*')")
 		.option("--raw", "print service registry to JSON")
 		.option("--save [filename]", "save service registry to a JSON file")
 		.action((args, done) => {
@@ -50,6 +52,9 @@ module.exports = function(vorpal, broker) {
 
 			nodes.forEach(node => {
 				if (!args.options.all && !node.available) return;
+
+				if (args.options.filter && !match(node.id, args.options.filter))
+					return;
 
 				let ip = "?";
 				if (node.ipList) {

@@ -3,15 +3,17 @@
 const chalk 			= require("chalk");
 const _ 				= require("lodash");
 const { table, getBorderCharacters } 	= require("table");
+const { match } 		= require("../utils");
 
 module.exports = function(vorpal, broker) {
 	// List services
 	vorpal
 		.command("services", "List of services")
-		.option("-l, --local", "only local services")
-		.option("-i, --skipinternal", "skip internal services")
-		.option("-d, --details", "print endpoints")
 		.option("-a, --all", "list all (offline) services")
+		.option("-d, --details", "print endpoints")
+		.option("-f, --filter <match>", "filter services (e.g.: 'user*')")
+		.option("-i, --skipinternal", "skip internal services")
+		.option("-l, --local", "only local services")
 		.action((args, done) => {
 			const services = broker.registry.getServiceList({ onlyLocal: args.options.local, onlyAvailable: !args.options.all, skipInternal: args.options.skipinternal, withActions: true, withEvents: true });
 
@@ -50,7 +52,10 @@ module.exports = function(vorpal, broker) {
 			list.forEach(item => {
 				const hasLocal = item.nodes.indexOf(broker.nodeID) !== -1;
 				const nodeCount = item.nodes.length;
-				
+
+				if (args.options.filter && !match(item.name, args.options.filter))
+					return;
+
 				data.push([
 					item.name,
 					item.version || "-",
@@ -69,11 +74,11 @@ module.exports = function(vorpal, broker) {
 							"",
 							"",
 							nodeID == broker.nodeID ? chalk.gray("<local>") : nodeID,
-						]);						
+						]);
 					});
 					hLines.push(data.length);
 				}
-				
+
 			});
 
 			const tableConf = {
@@ -84,9 +89,9 @@ module.exports = function(vorpal, broker) {
 					3: { alignment: "right" },
 					4: { alignment: "right" }
 				},
-				drawHorizontalLine: (index, count) => index == 0 || index == 1 || index == count || hLines.indexOf(index) !== -1				
+				drawHorizontalLine: (index, count) => index == 0 || index == 1 || index == count || hLines.indexOf(index) !== -1
 			};
-			
+
 			console.log(table(data, tableConf));
 			done();
 		});

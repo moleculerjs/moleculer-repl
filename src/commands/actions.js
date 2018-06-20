@@ -4,16 +4,17 @@ const chalk 							= require("chalk");
 const _ 								= require("lodash");
 const { table, getBorderCharacters } 	= require("table");
 
-const { CIRCUIT_CLOSE, CIRCUIT_HALF_OPEN, CIRCUIT_OPEN } = require("../utils");
+const { match, CIRCUIT_CLOSE, CIRCUIT_HALF_OPEN, CIRCUIT_OPEN } = require("../utils");
 
 module.exports = function(vorpal, broker) {
 	// List actions
 	vorpal
 		.command("actions", "List of actions")
-		.option("-l, --local", "only local actions")
-		.option("-i, --skipinternal", "skip internal actions")
-		.option("-d, --details", "print endpoints")
 		.option("-a, --all", "list all (offline) actions")
+		.option("-d, --details", "print endpoints")
+		.option("-f, --filter <match>", "filter actions (e.g.: 'users.*')")
+		.option("-i, --skipinternal", "skip internal actions")
+		.option("-l, --local", "only local actions")
 		.action((args, done) => {
 			const actions = broker.registry.getActionList({ onlyLocal: args.options.local, onlyAvailable: !args.options.all, skipInternal: args.options.skipinternal, withEndpoints: args.options.details });
 
@@ -31,11 +32,23 @@ module.exports = function(vorpal, broker) {
 
 			actions.sort((a, b) => a.name.localeCompare(b.name));
 
+			let lastServiceName;
+
 			actions.forEach(item => {
 				const action = item.action;
 				const state = item.available;
 				const params = action && action.params ? Object.keys(action.params).join(", ") : "";
-				
+
+				if (args.options.filter && !match(item.name, args.options.filter))
+					return;
+
+				const serviceName = item.name.split(".")[0];
+
+				// Draw a separator line
+				if (lastServiceName && serviceName != lastServiceName)
+					hLines.push(data.length);
+				lastServiceName = serviceName;
+
 				if (action) {
 					data.push([
 						action.name,
@@ -58,9 +71,7 @@ module.exports = function(vorpal, broker) {
 					switch(state) {
 					case true:
 					case CIRCUIT_CLOSE:			return chalk.bgGreen.white( "   OK   ");
-
 					case CIRCUIT_HALF_OPEN: 	return chalk.bgYellow.black(" TRYING ");
-
 					case false:
 					case CIRCUIT_OPEN: 			return chalk.bgRed.white(	" FAILED ");
 					}
@@ -74,7 +85,7 @@ module.exports = function(vorpal, broker) {
 							getStateLabel(endpoint.state),
 							"",
 							""
-						]);						
+						]);
 					});
 					hLines.push(data.length);
 				}
@@ -89,7 +100,7 @@ module.exports = function(vorpal, broker) {
 				},
 				drawHorizontalLine: (index, count) => index == 0 || index == 1 || index == count || hLines.indexOf(index) !== -1
 			};
-			
+
 			console.log(table(data, tableConf));
 			done();
 		});

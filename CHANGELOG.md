@@ -1,4 +1,13 @@
 --------------------------------------------------
+<a name="0.5.0"></a>
+# 0.5.0 (2018-07-08)
+
+## Changes
+- support Moleculer v.0.13.x
+- filtering feature in `nodes`, `services`, `actions` & `events` command. (E.g.: `actions -f users.*`)
+- unix-like key value pair normalization is switched off.
+
+--------------------------------------------------
 <a name="0.4.0"></a>
 # 0.4.0 (2018-03-03)
 

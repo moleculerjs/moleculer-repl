@@ -2,6 +2,7 @@
 
 const chalk 			= require("chalk");
 const _ 				= require("lodash");
+const util 				= require("util");
 const clui 				= require("clui");
 const pretty 			= require("pretty-bytes");
 const os 				= require("os");
@@ -17,7 +18,7 @@ module.exports = function(vorpal, broker) {
 				console.log(chalk.yellow.bold(lines));
 				console.log(chalk.yellow.bold(title));
 				console.log(chalk.yellow.bold(lines));
-				console.log("");	
+				console.log("");
 			};
 
 			const print = (caption, value) => {
@@ -48,7 +49,7 @@ module.exports = function(vorpal, broker) {
 						printObject(val, level + 1);
 					}
 				});
-			};		
+			};
 
 			console.log("");
 			const health = broker.getHealthStatus();
@@ -60,8 +61,8 @@ module.exports = function(vorpal, broker) {
 
 			const v8 = require("v8");
 			const heapStat = v8.getHeapStatistics();
-			const heapUsed = heapStat.used_heap_size; 
-			const maxHeap = heapStat.heap_size_limit;			
+			const heapUsed = heapStat.used_heap_size;
+			const maxHeap = heapStat.heap_size_limit;
 
 			printHeader("General information");
 			print("CPU", "Arch: " + (os.arch()) + ", Cores: " + (os.cpus().length));
@@ -101,8 +102,8 @@ module.exports = function(vorpal, broker) {
 					print("Transporter", broker.transit.tx ? broker.transit.tx.constructor.name : chalk.gray("<None>"));
 
 					print("Packets");
-					print("    Sent", broker.transit.stat.packets.sent);
-					print("    Received", broker.transit.stat.packets.received);
+					print("    Sent", util.inspect(broker.transit.stat.packets.sent, { breakLength: Infinity }));
+					print("    Received", util.inspect(broker.transit.stat.packets.received, { breakLength: Infinity }));
 
 					console.log("");
 

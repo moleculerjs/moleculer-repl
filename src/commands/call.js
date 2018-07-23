@@ -14,8 +14,11 @@ function call(broker, args, done) {
 	if (typeof(args.jsonParams) == "string")
 		try {
 			payload = JSON.parse(args.jsonParams);
-		} catch(e) {
-			payload = args.jsonParams; // broker.call validator will handle this.
+		} catch(err) {
+			console.error(chalk.red.bold(">> ERROR:", err.message));
+			console.error(chalk.red.bold(err.stack));
+			done();
+			return;
 		}
 	else {
 		payload = convertArgs(args.options);

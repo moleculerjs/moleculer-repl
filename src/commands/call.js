@@ -12,7 +12,11 @@ function call(broker, args, done) {
 	let payload;
 	console.log(args);
 	if (typeof(args.jsonParams) == "string")
-		payload = JSON.parse(args.jsonParams);
+		try {
+			payload = JSON.parse(args.jsonParams);
+		} catch(e) {
+			payload = args.jsonParams; // broker.call validator will handle this.
+		}
 	else {
 		payload = convertArgs(args.options);
 		if (args.options.save)

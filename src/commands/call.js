@@ -12,7 +12,11 @@ function call(broker, args, done) {
 	let payload;
 	console.log(args);
 	if (typeof(args.jsonParams) == "string")
-		payload = JSON.parse(args.jsonParams);
+		try {
+			payload = JSON.parse(args.jsonParams);
+		} catch(e) {
+			console.log(chalk.red(">> Invalid JSON:", e.message));
+		}
 	else {
 		payload = convertArgs(args.options);
 		if (args.options.save)

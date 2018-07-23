@@ -16,6 +16,7 @@ function call(broker, args, done) {
 			payload = JSON.parse(args.jsonParams);
 		} catch(e) {
 			console.log(chalk.red(">> Invalid JSON:", e.message));
+			return
 		}
 	else {
 		payload = convertArgs(args.options);

@@ -18,7 +18,7 @@ module.exports = function(vorpal, broker) {
 		.option("--raw", "print service registry to JSON")
 		.option("--save [filename]", "save service registry to a JSON file")
 		.action((args, done) => {
-			const nodes = broker.registry.getNodeList(true);
+			const nodes = broker.registry.getNodeList({ onlyAvailable: false, withServices: true });
 
 			if (args.options.save) {
 				const fName = path.resolve(_.isString(args.options.save) ? args.options.save : "nodes.json");

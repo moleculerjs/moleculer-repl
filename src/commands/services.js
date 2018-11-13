@@ -58,7 +58,7 @@ module.exports = function(vorpal, broker) {
 
 				data.push([
 					item.name,
-					(item.version || item.version === 0) ? item.version : "-",
+					item.version != null ? item.version : "-",
 					item.available ? chalk.bgGreen.white( "   OK   ") : chalk.bgRed.white.bold(" FAILED "),
 					item.actionCount,
 					item.eventCount,

@@ -29,7 +29,7 @@ module.exports = function(vorpal, broker) {
 		.command("bench <action> [jsonParams]", "Benchmark a service")
 		.autocomplete({
 			data() {
-				return _.uniq(broker.registry.getActionList({}).map(item => item.action.name));
+				return _.uniq(_.compact(broker.registry.getActionList({}).map(item => item && item.action ? item.action.name: null)));
 			}
 		})
 		.option("--num <number>", "Number of iterates")

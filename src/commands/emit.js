@@ -10,7 +10,7 @@ module.exports = function(vorpal, broker) {
 		.command("emit <eventName>", "Emit an event")
 		.autocomplete({
 			data() {
-				return _.uniq(broker.registry.getEventList({}).map(item => item.event.name));
+				return _.uniq(_.compact(broker.registry.getEventList({}).map(item => item && item.event ? item.event.name: null)));
 			}
 		})
 		.allowUnknownOptions()

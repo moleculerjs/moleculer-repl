@@ -82,7 +82,7 @@ module.exports = function(vorpal, broker) {
 		.command("call <actionName> [jsonParams]", "Call an action")
 		.autocomplete({
 			data() {
-				return _.uniq(broker.registry.getActionList({}).map(item => item.action.name));
+				return _.uniq(_.compact(broker.registry.getActionList({}).map(item => item && item.action ? item.action.name: null)));
 			}
 		})
 		.option("--load [filename]", "Load params from file")

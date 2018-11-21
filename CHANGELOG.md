@@ -1,4 +1,14 @@
 --------------------------------------------------
+<a name="0.5.3"></a>
+# 0.5.3 (2018-11-21)
+
+## Changes
+- fix some bugs
+- show service version if it's `0`
+- fix autocomplete bugs
+- add `cls` command to clear console
+
+--------------------------------------------------
 <a name="0.5.2"></a>
 # 0.5.2 (2018-08-13)
 

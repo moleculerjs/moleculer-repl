@@ -86,4 +86,13 @@ broker.createService({
 	}
 });
 
+broker.createService({
+	name: "file",
+	actions: {
+		echo(ctx) {
+			return ctx.params;
+		}
+	}
+});
+
 broker.start().then(() => REPL(broker, broker.options.replCommands));

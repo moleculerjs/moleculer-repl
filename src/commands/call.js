@@ -7,6 +7,7 @@ const _ 				= require("lodash");
 const util 				= require("util");
 const { convertArgs } 	= require("../utils");
 const humanize 			= require("tiny-human-time").short;
+const isStream			= require("is-stream");
 
 function call(broker, args, done) {
 	let payload;
@@ -42,9 +43,25 @@ function call(broker, args, done) {
 		}
 	}
 
+	// Load payload from file as stream
+	if (args.options.stream) {
+		let fName;
+		if (_.isString(args.options.stream)) {
+			fName = path.resolve(args.options.stream);
+		} else {
+			fName = path.resolve(`${args.actionName}.stream`);
+		}
+		if (fs.existsSync(fName)) {
+			console.log(chalk.magenta(`>> Load stream from '${fName}' file.`));
+			payload = fs.createReadStream(fName, "utf8");
+		} else {
+			console.log(chalk.red(">> File not found:", fName));
+		}
+	}
+
 	const startTime = process.hrtime();
 	const nodeID = args.nodeID;
-	console.log(chalk.yellow.bold(`>> Call '${args.actionName}'${nodeID ? " on " + nodeID : ""} with params:`), payload);
+	console.log(chalk.yellow.bold(`>> Call '${args.actionName}'${nodeID ? " on " + nodeID : ""}`), isStream(payload) ? "with <Stream>." : "with params:", isStream(payload) ? "" : payload);
 	broker.call(args.actionName, payload, { nodeID })
 		.then(res => {
 			const diff = process.hrtime(startTime);
@@ -52,7 +69,11 @@ function call(broker, args, done) {
 			console.log(chalk.cyan.bold(">> Execution time:", humanize(duration)));
 
 			console.log(chalk.yellow.bold(">> Response:"));
-			console.log(util.inspect(res, { showHidden: false, depth: 4, colors: true }));
+			if (isStream(res)) {
+				console.log("<Stream>");
+			} else {
+				console.log(util.inspect(res, { showHidden: false, depth: 4, colors: true }));
+			}
 
 			// Save response to file
 			if (args.options.save && res != null)  {
@@ -61,10 +82,17 @@ function call(broker, args, done) {
 					fName = path.resolve(args.options.save);
 				} else {
 					fName = path.join(".", `${args.actionName}.response`);
-					fName += _.isObject(res) ? ".json" : ".txt";
+					if (isStream(res))
+						fName += ".stream";
+					else
+						fName += _.isObject(res) ? ".json" : ".txt";
 				}
 
-				fs.writeFileSync(fName, _.isObject(res) ? JSON.stringify(res, null, 4) : res, "utf8");
+				if (isStream(res)) {
+					res.pipe(fs.createWriteStream(fName));
+				} else {
+					fs.writeFileSync(fName, _.isObject(res) ? JSON.stringify(res, null, 4) : res, "utf8");
+				}
 				console.log(chalk.magenta.bold(`>> Response has been saved to '${fName}' file.`));
 			}
 		})
@@ -86,6 +114,7 @@ module.exports = function(vorpal, broker) {
 			}
 		})
 		.option("--load [filename]", "Load params from file")
+		.option("--stream [filename]", "Send a file as stream")
 		.option("--save [filename]", "Save response to file")
 		.allowUnknownOptions()
 		.action((args, done) => call(broker, args, done));
@@ -94,6 +123,7 @@ module.exports = function(vorpal, broker) {
 	vorpal
 		.command("dcall <nodeID> <actionName> [jsonParams]", "Direct call an action")
 		.option("--load [filename]", "Load params from file")
+		.option("--stream [filename]", "Send a file as stream")
 		.option("--save [filename]", "Save response to file")
 		.allowUnknownOptions()
 		.action((args, done) => call(broker, args, done));

@@ -8,6 +8,7 @@ The `moleculer-repl` is an interactive console. Created with [vorpal](https://gi
 - list nodes
 - list services
 - list actions
+- list events
 - call services
 - emit events
 - load services (from file or folder)

@@ -1,6 +1,6 @@
 --------------------------------------------------
 <a name="0.5.4"></a>
-# 0.5.4 (2018-xx-xx)
+# 0.5.4 (2018-12-18)
 
 ## Changes
 - add streaming support for `call` and `dcall` commands.

@@ -23,7 +23,7 @@
   "author": "MoleculerJS",
   "license": "MIT",
   "devDependencies": {
-    "benchmarkify": "2.1.0",
+    "benchmarkify": "2.1.1",
     "coveralls": "3.0.2",
     "eslint": "5.10.0",
     "jest": "23.6.0",

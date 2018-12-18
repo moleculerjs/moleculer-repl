@@ -4,6 +4,7 @@
 
 ## Changes
 - add streaming support for `call` and `dcall` commands.
+- update deps
 
 --------------------------------------------------
 <a name="0.5.3"></a>

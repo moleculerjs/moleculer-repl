@@ -95,4 +95,7 @@ broker.createService({
 	}
 });
 
-broker.start().then(() => REPL(broker, broker.options.replCommands));
+broker.start().then(() => REPL(broker, {
+	delimiter: "moleculer λ",
+	customCommands: broker.options.replCommands
+}));

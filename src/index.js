@@ -9,6 +9,7 @@
 
 require("v8"); // Load first. It won't work in `info.js`
 
+const _ 				= require("lodash");
 const vorpal 			= require("vorpal")();
 const { table, getBorderCharacters } 	= require("table");
 const chalk 			= require("chalk");
@@ -21,12 +22,20 @@ const registerCommands 	= require("./commands");
  * Start REPL mode
  *
  * @param {ServiceBroker} broker
- * @param {Array} customCommands
+ * @param {Object|Array} opts
  */
 /* istanbul ignore next */
-function REPL(broker, customCommands) {
+function REPL(broker, opts) {
+	if (Array.isArray(opts))
+		opts = { customCommands: opts };
+
+	opts = _.defaultsDeep(opts || {}, {
+		customCommands: null,
+		delimiter: "mol $"
+	});
+
 	vorpal.isCommandArgKeyPairNormalized = false; // Switch off unix-like key value pair normalization
-	
+
 	vorpal.find("exit").remove(); //vorpal vorpal-commons.js command, fails to run .stop() on exit
 
 	vorpal.on("vorpal_exit", () => {
@@ -46,8 +55,8 @@ function REPL(broker, customCommands) {
 	registerCommands(vorpal, broker);
 
 	// Register custom commands
-	if (Array.isArray(customCommands)) {
-		customCommands.forEach(def => {
+	if (Array.isArray(opts.customCommands)) {
+		opts.customCommands.forEach(def => {
 			let cmd = vorpal.command(def.command, def.description);
 			if (def.alias)
 				cmd.alias(def.alias);
@@ -83,7 +92,7 @@ function REPL(broker, customCommands) {
 
 	// Start REPL
 	vorpal
-		.delimiter("mol $")
+		.delimiter(opts.delimiter)
 		.show();
 
 }

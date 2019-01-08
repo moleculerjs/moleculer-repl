@@ -1,4 +1,18 @@
 --------------------------------------------------
+<a name="0.5.5"></a>
+# 0.5.5 (2019-01-08)
+
+## Changes
+- add repl options to change default delimiter (`mol $`). 
+    ```js
+    broker.repl({ 
+        delimiter: "moleculer λ", 
+        customCommands: [...]
+    });
+    ```
+- update deps
+
+--------------------------------------------------
 <a name="0.5.4"></a>
 # 0.5.4 (2018-12-18)
 

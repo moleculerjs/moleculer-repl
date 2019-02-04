@@ -11,6 +11,7 @@ const isStream			= require("is-stream");
 
 function call(broker, args, done) {
 	let payload;
+	let meta = {};
 	console.log(args);
 	if (typeof(args.jsonParams) == "string")
 		try {
@@ -27,6 +28,14 @@ function call(broker, args, done) {
 			delete payload.save;
 	}
 
+	if (typeof(args.meta) === "string") {
+		try {
+			meta = JSON.parse(args.meta);
+		} catch(err) {
+			console.error(chalk.red.bold("Can't parse [meta]"))
+		}
+	}
+	
 	// Load payload from file
 	if (args.options.load) {
 		let fName;
@@ -62,7 +71,7 @@ function call(broker, args, done) {
 	const startTime = process.hrtime();
 	const nodeID = args.nodeID;
 	console.log(chalk.yellow.bold(`>> Call '${args.actionName}'${nodeID ? " on " + nodeID : ""}`), isStream(payload) ? "with <Stream>." : "with params:", isStream(payload) ? "" : payload);
-	broker.call(args.actionName, payload, { nodeID })
+	broker.call(args.actionName, payload, { meta, nodeID })
 		.then(res => {
 			const diff = process.hrtime(startTime);
 			const duration = (diff[0] + diff[1] / 1e9) * 1000;
@@ -107,7 +116,7 @@ function call(broker, args, done) {
 module.exports = function(vorpal, broker) {
 	// Register broker.call
 	vorpal
-		.command("call <actionName> [jsonParams]", "Call an action")
+		.command("call <actionName> [jsonParams] [meta]", "Call an action")
 		.autocomplete({
 			data() {
 				return _.uniq(_.compact(broker.registry.getActionList({}).map(item => item && item.action ? item.action.name: null)));
@@ -121,7 +130,7 @@ module.exports = function(vorpal, broker) {
 
 	// Register direct broker.call
 	vorpal
-		.command("dcall <nodeID> <actionName> [jsonParams]", "Direct call an action")
+		.command("dcall <nodeID> <actionName> [jsonParams] [meta]", "Direct call an action")
 		.option("--load [filename]", "Load params from file")
 		.option("--stream [filename]", "Send a file as stream")
 		.option("--save [filename]", "Save response to file")

@@ -32,7 +32,7 @@ function call(broker, args, done) {
 		try {
 			meta = JSON.parse(args.meta);
 		} catch(err) {
-			console.error(chalk.red.bold("Can't parse [meta]"))
+			console.error(chalk.red.bold("Can't parse [meta]"));
 		}
 	}
 	

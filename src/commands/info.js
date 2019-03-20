@@ -110,9 +110,9 @@ module.exports = function(vorpal, broker) {
 					printHeader("Transporter settings");
 					if(!_.isNil(broker.transit.tx.opts)){	
 						if (_.isString(broker.transit.tx.opts))
-						print("URL", broker.transit.tx.opts);
+							print("URL", broker.transit.tx.opts);
 						else
-						printObject(broker.transit.tx.opts);
+							printObject(broker.transit.tx.opts);
 					}else{
 						print("Not Setting is set!");
 					}

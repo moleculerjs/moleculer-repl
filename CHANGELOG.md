@@ -1,6 +1,6 @@
 --------------------------------------------------
 <a name="0.5.7"></a>
-# 0.5.7 (2019-x-x)
+# 0.5.7 (2019-03-25)
 
 - added `destroy` method that allows to destroy a locally running service by providing `serviceName`
 

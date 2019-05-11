@@ -35,7 +35,7 @@ function call(broker, args, done) {
 			console.error(chalk.red.bold("Can't parse [meta]"));
 		}
 	}
-	
+
 	// Load payload from file
 	if (args.options.load) {
 		let fName;
@@ -62,7 +62,7 @@ function call(broker, args, done) {
 		}
 		if (fs.existsSync(fName)) {
 			console.log(chalk.magenta(`>> Load stream from '${fName}' file.`));
-			payload = fs.createReadStream(fName, "utf8");
+			payload = fs.createReadStream(fName);
 		} else {
 			console.log(chalk.red(">> File not found:", fName));
 		}

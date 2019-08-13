@@ -5,6 +5,7 @@ const chalk 			= require("chalk");
 module.exports = function(vorpal, broker) {
 	// Clear cache
 	vorpal
+		.removeIfExist("clear")
 		.command("clear [pattern]", "Clear cache entries")
 		.action((args, done) => {
 			if (broker.cacher) {

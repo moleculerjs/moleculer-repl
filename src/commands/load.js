@@ -7,6 +7,7 @@ const path 				= require("path");
 module.exports = function(vorpal, broker) {
 	// Register load service file
 	vorpal
+		.removeIfExist("load")
 		.command("load <servicePath>", "Load a service from file")
 		.action((args, done) => {
 			let filePath = path.resolve(args.servicePath);
@@ -19,10 +20,11 @@ module.exports = function(vorpal, broker) {
 				console.warn(chalk.red("The service file is not exists!", filePath));
 			}
 			done();
-		});	
+		});
 
 	// Register load service folder
 	vorpal
+		.removeIfExist("loadFolder")
 		.command("loadFolder <serviceFolder> [fileMask]", "Load all services from folder")
 		.action((args, done) => {
 			let filePath = path.resolve(args.serviceFolder);
@@ -34,5 +36,5 @@ module.exports = function(vorpal, broker) {
 				console.warn(chalk.red("The folder is not exists!", filePath));
 			}
 			done();
-		});	
+		});
 };

@@ -7,6 +7,7 @@ const { convertArgs } 	= require("../utils");
 module.exports = function(vorpal, broker) {
 	// Register broker.emit
 	vorpal
+		.removeIfExist("emit")
 		.command("emit <eventName>", "Emit an event")
 		.autocomplete({
 			data() {

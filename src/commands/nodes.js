@@ -11,6 +11,7 @@ const { match } 		= require("../utils");
 module.exports = function(vorpal, broker) {
 	// List nodes
 	vorpal
+		.removeIfExist("nodes")
 		.command("nodes", "List of nodes")
 		.option("-a, --all", "list all (offline) nodes")
 		.option("-d, --details", "detailed list")

@@ -5,6 +5,7 @@ const chalk 			= require("chalk");
 module.exports = function (vorpal, broker) {
 	// Register destroy service file
 	vorpal
+		.removeIfExist("destroy")
 		.command("destroy <serviceName> [version]", "Destroy a local service")
 		.autocomplete({
 			data: () => {

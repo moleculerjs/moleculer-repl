@@ -10,6 +10,7 @@ const os 				= require("os");
 module.exports = function(vorpal, broker) {
 	// Broker info
 	vorpal
+		.removeIfExist("info")
 		.command("info", "Information about broker")
 		.action((args, done) => {
 			const printHeader = (name) => {
@@ -108,7 +109,7 @@ module.exports = function(vorpal, broker) {
 					console.log("");
 
 					printHeader("Transporter settings");
-					if(!_.isNil(broker.transit.tx.opts)){	
+					if(!_.isNil(broker.transit.tx.opts)){
 						if (_.isString(broker.transit.tx.opts))
 							print("URL", broker.transit.tx.opts);
 						else

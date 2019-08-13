@@ -34,15 +34,24 @@ function REPL(broker, opts) {
 		delimiter: "mol $"
 	});
 
+	vorpal.removeIfExist = function(command) {
+		const cmd = vorpal.find(command);
+		if (cmd)
+			cmd.remove();
+
+		return vorpal;
+	};
+
 	vorpal.isCommandArgKeyPairNormalized = false; // Switch off unix-like key value pair normalization
 
-	vorpal.find("exit").remove(); //vorpal vorpal-commons.js command, fails to run .stop() on exit
+	vorpal.removeIfExist("exit"); //vorpal vorpal-commons.js command, fails to run .stop() on exit
 
 	vorpal.on("vorpal_exit", () => {
 		broker.stop().then(() => process.exit(0));
 	}); //vorpal exit event (Ctrl-C)
 
 	vorpal
+		.removeIfExist("q")
 		.command("q", "Exit application")
 		.alias("quit")
 		.alias("exit")
@@ -57,6 +66,7 @@ function REPL(broker, opts) {
 	// Register custom commands
 	if (Array.isArray(opts.customCommands)) {
 		opts.customCommands.forEach(def => {
+			vorpal.removeIfExist(def.command);
 			let cmd = vorpal.command(def.command, def.description);
 			if (def.alias)
 				cmd.alias(def.alias);

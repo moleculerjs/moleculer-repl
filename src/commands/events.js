@@ -8,6 +8,7 @@ const { match } 		= require("../utils");
 module.exports = function(vorpal, broker) {
 	// List events
 	vorpal
+		.removeIfExist("events")
 		.command("events", "List of event listeners")
 		.option("-a, --all", "list all (offline) event listeners")
 		.option("-d, --details", "print endpoints")

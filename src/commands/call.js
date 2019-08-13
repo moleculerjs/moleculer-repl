@@ -116,6 +116,7 @@ function call(broker, args, done) {
 module.exports = function(vorpal, broker) {
 	// Register broker.call
 	vorpal
+		.removeIfExist("call")
 		.command("call <actionName> [jsonParams] [meta]", "Call an action")
 		.autocomplete({
 			data() {
@@ -130,6 +131,7 @@ module.exports = function(vorpal, broker) {
 
 	// Register direct broker.call
 	vorpal
+		.removeIfExist("dcall")
 		.command("dcall <nodeID> <actionName> [jsonParams] [meta]", "Direct call an action")
 		.option("--load [filename]", "Load params from file")
 		.option("--stream [filename]", "Send a file as stream")

@@ -6,6 +6,7 @@ const { convertArgs } 	= require("../utils");
 module.exports = function(vorpal, broker) {
 	// Register broker.broadcast
 	vorpal
+		.removeIfExist("broadcast")
 		.command("broadcast <eventName>", "Broadcast an event")
 		.allowUnknownOptions()
 		.action((args, done) => {
@@ -17,6 +18,7 @@ module.exports = function(vorpal, broker) {
 
 	// Register broker.broadcast
 	vorpal
+		.removeIfExist("broadcastLocal")
 		.command("broadcastLocal <eventName>", "Broadcast an event locally")
 		.allowUnknownOptions()
 		.action((args, done) => {

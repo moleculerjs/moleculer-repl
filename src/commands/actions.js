@@ -9,6 +9,7 @@ const { match, CIRCUIT_CLOSE, CIRCUIT_HALF_OPEN, CIRCUIT_OPEN } = require("../ut
 module.exports = function(vorpal, broker) {
 	// List actions
 	vorpal
+		.removeIfExist("actions")
 		.command("actions", "List of actions")
 		.option("-a, --all", "list all (offline) actions")
 		.option("-d, --details", "print endpoints")

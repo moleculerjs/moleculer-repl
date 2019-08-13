@@ -26,6 +26,7 @@ function createSpinner(text) {
 module.exports = function(vorpal, broker) {
 // Register benchmark
 	vorpal
+		.removeIfExist("bench")
 		.command("bench <action> [jsonParams]", "Benchmark a service")
 		.autocomplete({
 			data() {

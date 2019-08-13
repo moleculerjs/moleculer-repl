@@ -8,6 +8,7 @@ const { match } 		= require("../utils");
 module.exports = function(vorpal, broker) {
 	// List services
 	vorpal
+		.removeIfExist("services")
 		.command("services", "List of services")
 		.option("-a, --all", "list all (offline) services")
 		.option("-d, --details", "print endpoints")

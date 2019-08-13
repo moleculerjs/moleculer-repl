@@ -70,6 +70,7 @@ function call(broker, args, done) {
 
 	const startTime = process.hrtime();
 	const nodeID = args.nodeID;
+	meta.$repl = true;
 	console.log(chalk.yellow.bold(`>> Call '${args.actionName}'${nodeID ? " on " + nodeID : ""}`), isStream(payload) ? "with <Stream>." : "with params:", isStream(payload) ? "" : payload);
 	broker.call(args.actionName, payload, { meta, nodeID })
 		.then(res => {

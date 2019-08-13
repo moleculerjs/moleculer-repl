@@ -52,6 +52,12 @@ broker.createService({
 		},
 		silent(ctx) {
 			return;
+		},
+		echo(ctx) {
+			return {
+				params: ctx.params,
+				meta: ctx.meta
+			};
 		}
 	},
 	events: {

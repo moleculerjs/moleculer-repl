@@ -27,7 +27,7 @@ module.exports = function(vorpal, broker) {
 // Register benchmark
 	vorpal
 		.removeIfExist("bench")
-		.command("bench <action> [jsonParams]", "Benchmark a service")
+		.command("bench <action> [jsonParams] [meta]", "Benchmark a service")
 		.autocomplete({
 			data() {
 				return _.uniq(_.compact(broker.registry.getActionList({}).map(item => item && item.action ? item.action.name: null)));
@@ -47,12 +47,30 @@ module.exports = function(vorpal, broker) {
 			const spinner = createSpinner("Running benchmark...");
 
 			//console.log(args);
-			if (typeof(args.jsonParams) == "string")
-				payload = JSON.parse(args.jsonParams);
-			// else
-			// 	payload = convertArgs(args.options);
+			if (typeof(args.jsonParams) == "string") {
+				try {
+					payload = JSON.parse(args.jsonParams);
+				} catch(err) {
+					console.error(chalk.red.bold(">> ERROR:", err.message, args.jsonParams));
+					console.error(chalk.red.bold(err.stack));
+					done();
+					return;
+				}
+			}
 
-			const callingOpts = args.options.nodeID ? { nodeID: args.options.nodeID } : undefined;
+			let meta;
+			if (typeof(args.meta) === "string") {
+				try {
+					meta = JSON.parse(args.meta);
+				} catch(err) {
+					console.error(chalk.red.bold("Can't parse [meta]"), args.meta);
+				}
+			}
+
+			const callingOpts = { meta };
+
+			if (args.options.nodeID)
+				callingOpts.nodeID = args.options.nodeID;
 
 			let count = 0;
 			let resCount = 0;

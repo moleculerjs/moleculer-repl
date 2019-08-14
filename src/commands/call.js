@@ -13,16 +13,16 @@ function call(broker, args, done) {
 	let payload;
 	let meta = {};
 	console.log(args);
-	if (typeof(args.jsonParams) == "string")
+	if (typeof(args.jsonParams) == "string") {
 		try {
 			payload = JSON.parse(args.jsonParams);
 		} catch(err) {
-			console.error(chalk.red.bold(">> ERROR:", err.message));
+			console.error(chalk.red.bold(">> ERROR:", err.message, args.jsonParams));
 			console.error(chalk.red.bold(err.stack));
 			done();
 			return;
 		}
-	else {
+	} else {
 		payload = convertArgs(args.options);
 		if (args.options.save)
 			delete payload.save;
@@ -32,7 +32,7 @@ function call(broker, args, done) {
 		try {
 			meta = JSON.parse(args.meta);
 		} catch(err) {
-			console.error(chalk.red.bold("Can't parse [meta]"));
+			console.error(chalk.red.bold("Can't parse [meta]"), args.meta);
 		}
 	}
 

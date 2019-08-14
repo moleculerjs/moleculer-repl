@@ -3,7 +3,8 @@
 # 0.6.0 (2019-xx-xx)
 
 ## Changes
-- added `$rest: true` into `ctx.meta` when using `call` or `dcall` commands.
+- add `$rest: true` into `ctx.meta` when using `call` or `dcall` commands.
+- add meta option to `bench` command. `bench <action> [jsonParams] [meta]`
 
 --------------------------------------------------
 <a name="0.5.7"></a>

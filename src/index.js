@@ -68,6 +68,10 @@ function REPL(broker, opts) {
 		opts.customCommands.forEach(def => {
 			vorpal.removeIfExist(def.command);
 			let cmd = vorpal.command(def.command, def.description);
+
+			if (def.autocomplete)
+				cmd.autocomplete(def.autocomplete);
+
 			if (def.alias)
 				cmd.alias(def.alias);
 

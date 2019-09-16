@@ -10,7 +10,8 @@
 require("v8"); // Load first. It won't work in `info.js`
 
 const _ 				= require("lodash");
-const vorpal 			= require("vorpal")();
+const Ucli 				= require("@ueqt/cli").Ucli;
+const vorpal 			= new Ucli();
 const { table, getBorderCharacters } 	= require("table");
 const chalk 			= require("chalk");
 const ora 				= require("ora");

@@ -1,10 +1,12 @@
 --------------------------------------------------
 <a name="0.6.0"></a>
-# 0.6.0 (2019-xx-xx)
+# 0.6.0 (2019-09-17)
 
 ## Changes
 - add `$rest: true` into `ctx.meta` when using `call` or `dcall` commands.
 - add meta option to `bench` command. `bench <action> [jsonParams] [meta]`
+- fixed vulnerability issues in the vorpal library.
+- supporting Moleculer v0.14
 
 --------------------------------------------------
 <a name="0.5.7"></a>

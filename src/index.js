@@ -16,7 +16,7 @@ const chalk 			= require("chalk");
 const ora 				= require("ora");
 const clui 				= require("clui");
 
-const registerCommands = require("./commands");
+const registerCommands 	= require("./commands");
 
 /**
  * Start REPL mode

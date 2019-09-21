@@ -9,14 +9,14 @@
 
 require("v8"); // Load first. It won't work in `info.js`
 
-const _ 				= require("lodash");
-const vorpal 			= require("@moleculer/vorpal")();
-const { table, getBorderCharacters } 	= require("table");
-const chalk 			= require("chalk");
-const ora 				= require("ora");
-const clui 				= require("clui");
+const _ = require("lodash");
+const vorpal = require("@moleculer/vorpal")();
+const { table, getBorderCharacters } = require("table");
+const chalk = require("chalk");
+const ora = require("ora");
+const clui = require("clui");
 
-const registerCommands 	= require("./commands");
+const registerCommands = require("./commands");
 
 /**
  * Start REPL mode
@@ -34,7 +34,7 @@ function REPL(broker, opts) {
 		delimiter: "mol $"
 	});
 
-	vorpal.removeIfExist = function(command) {
+	vorpal.removeIfExist = function (command) {
 		const cmd = vorpal.find(command);
 		if (cmd)
 			cmd.remove();
@@ -56,8 +56,10 @@ function REPL(broker, opts) {
 		.alias("quit")
 		.alias("exit")
 		.action((args, done) => {
-			broker.stop().then(() => process.exit(0));
-			done();
+			broker.stop().then(() => {
+				process.exit(0);
+				done();
+			});
 		});
 
 	// Register general commands

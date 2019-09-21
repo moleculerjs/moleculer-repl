@@ -9,12 +9,12 @@
 
 require("v8"); // Load first. It won't work in `info.js`
 
-const _ = require("lodash");
-const vorpal = require("@moleculer/vorpal")();
-const { table, getBorderCharacters } = require("table");
-const chalk = require("chalk");
-const ora = require("ora");
-const clui = require("clui");
+const _ 				= require("lodash");
+const vorpal 			= require("@moleculer/vorpal")();
+const { table, getBorderCharacters } 	= require("table");
+const chalk 			= require("chalk");
+const ora 				= require("ora");
+const clui 				= require("clui");
 
 const registerCommands = require("./commands");
 
@@ -34,7 +34,7 @@ function REPL(broker, opts) {
 		delimiter: "mol $"
 	});
 
-	vorpal.removeIfExist = function (command) {
+	vorpal.removeIfExist = function(command) {
 		const cmd = vorpal.find(command);
 		if (cmd)
 			cmd.remove();

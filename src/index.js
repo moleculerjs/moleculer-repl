@@ -56,8 +56,10 @@ function REPL(broker, opts) {
 		.alias("quit")
 		.alias("exit")
 		.action((args, done) => {
-			broker.stop().then(() => process.exit(0));
-			done();
+			broker.stop().then(() => {
+				process.exit(0);
+				done();
+			});
 		});
 
 	// Register general commands

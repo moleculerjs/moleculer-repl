@@ -9,6 +9,22 @@ let broker = new ServiceBroker({
 	transporter: "TCP",
 	logger: console,
 	cacher: true,
+	metrics: true,
+	tracing: false,
+
+	middlewares: [
+		"Bulkhead",
+		function MyFirstMiddleware() {
+			return {};
+		},
+		{
+			name: "MySecond"
+		}
+	],
+
+	errorHandler(err) {
+		throw err;
+	},
 
 	// Custom REPL command
 	replCommands: [

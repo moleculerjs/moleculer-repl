@@ -31,7 +31,7 @@ module.exports = function(vorpal, broker) {
 				Object.keys(obj).forEach(key => {
 					const val = obj[key];
 					if (_.isString(val)) {
-						print(pad + key, chalk.green("\"" + val + "\""));
+						print(pad + key, chalk.green(`"${val}"`));
 					}
 					else if (_.isNumber(val)) {
 						print(pad + key, chalk.cyan(val));
@@ -42,8 +42,18 @@ module.exports = function(vorpal, broker) {
 					else if (_.isBoolean(val)) {
 						print(pad + key, chalk.magenta(val));
 					}
+					else if (_.isFunction(val)) {
+						print(pad + key, chalk.blue(`[Function ${val.name}]`));
+					}
 					else if (_.isArray(val)) {
-						print(pad + key, chalk.blue("[" + val.join(", ") + "]"));
+						if (key == "middlewares") {
+							print(pad + key, val.map(v => {
+								if (_.isString(v)) return chalk.green(`"${v}"`);
+								if (_.isPlainObject(v) || _.isFunction) return chalk.green(`"${v.name}"`);
+							}).join(", "));
+						} else {
+							print(pad + key, chalk.blue("[" + val.join(", ") + "]"));
+						}
 					}
 					else if (_.isPlainObject(val) && level < 1) {
 						print(pad + key);
@@ -80,7 +90,7 @@ module.exports = function(vorpal, broker) {
 			print("Current time", new Date().toString());
 			console.log("");
 
-			let strategy = broker.options.registry.strategy;
+			let strategy = broker.registry.StrategyFactory;
 			printHeader("Broker information");
 			print("Namespace", broker.namespace || chalk.gray("<None>"));
 			print("Node ID", broker.nodeID);
@@ -101,10 +111,6 @@ module.exports = function(vorpal, broker) {
 
 				if (broker.transit.tx) {
 					print("Transporter", broker.transit.tx ? broker.transit.tx.constructor.name : chalk.gray("<None>"));
-
-					print("Packets");
-					print("    Sent", util.inspect(broker.transit.stat.packets.sent, { breakLength: Infinity }));
-					print("    Received", util.inspect(broker.transit.stat.packets.received, { breakLength: Infinity }));
 
 					console.log("");
 

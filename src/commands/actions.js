@@ -1,6 +1,6 @@
 "use strict";
 
-const chalk 							= require("chalk");
+const kleur 							= require("kleur");
 const _ 								= require("lodash");
 const { table, getBorderCharacters } 	= require("table");
 
@@ -21,11 +21,11 @@ module.exports = function(vorpal, broker) {
 
 			const data = [
 				[
-					chalk.bold("Action"),
-					chalk.bold("Nodes"),
-					chalk.bold("State"),
-					chalk.bold("Cached"),
-					chalk.bold("Params")
+					kleur.bold("Action"),
+					kleur.bold("Nodes"),
+					kleur.bold("State"),
+					kleur.bold("Cached"),
+					kleur.bold("Params")
 				]
 			];
 
@@ -54,15 +54,15 @@ module.exports = function(vorpal, broker) {
 					data.push([
 						action.name,
 						(item.hasLocal ? "(*) " : "") + item.count,
-						state ? chalk.bgGreen.white("   OK   "):chalk.bgRed.white.bold(" FAILED "),
-						action.cache ? chalk.green("Yes"):chalk.gray("No"),
+						state ? kleur.bgGreen().white("   OK   "):kleur.bgRed().white().bold(" FAILED "),
+						action.cache ? kleur.green("Yes"):kleur.gray("No"),
 						params
 					]);
 				} else {
 					data.push([
 						item.name,
 						item.count,
-						chalk.bgRed.white.bold(" FAILED "),
+						kleur.bgRed().white().bold(" FAILED "),
 						"",
 						""
 					]);
@@ -71,10 +71,10 @@ module.exports = function(vorpal, broker) {
 				let getStateLabel = (state) => {
 					switch(state) {
 					case true:
-					case CIRCUIT_CLOSE:			return chalk.bgGreen.white( "   OK   ");
-					case CIRCUIT_HALF_OPEN: 	return chalk.bgYellow.black(" TRYING ");
+					case CIRCUIT_CLOSE:			return kleur.bgGreen().white( "   OK   ");
+					case CIRCUIT_HALF_OPEN: 	return kleur.bgYellow().black(" TRYING ");
 					case false:
-					case CIRCUIT_OPEN: 			return chalk.bgRed.white(	" FAILED ");
+					case CIRCUIT_OPEN: 			return kleur.bgRed().white(	" FAILED ");
 					}
 				};
 
@@ -82,7 +82,7 @@ module.exports = function(vorpal, broker) {
 					item.endpoints.forEach(endpoint => {
 						data.push([
 							"",
-							endpoint.nodeID == broker.nodeID ? chalk.gray("<local>") : endpoint.nodeID,
+							endpoint.nodeID == broker.nodeID ? kleur.gray("<local>") : endpoint.nodeID,
 							getStateLabel(endpoint.state),
 							"",
 							""
@@ -93,7 +93,7 @@ module.exports = function(vorpal, broker) {
 			});
 
 			const tableConf = {
-				border: _.mapValues(getBorderCharacters("honeywell"), char => chalk.gray(char)),
+				border: _.mapValues(getBorderCharacters("honeywell"), char => kleur.gray(char)),
 				columns: {
 					1: { alignment: "right" },
 					3: { alignment: "center" },

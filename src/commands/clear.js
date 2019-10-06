@@ -1,6 +1,6 @@
 "use strict";
 
-const chalk 			= require("chalk");
+const kleur 			= require("kleur");
 
 module.exports = function(vorpal, broker) {
 	// Clear cache
@@ -10,13 +10,13 @@ module.exports = function(vorpal, broker) {
 		.action((args, done) => {
 			if (broker.cacher) {
 				broker.cacher.clean(args.pattern).then(() => {
-					console.log(chalk.yellow.bold(args.pattern ? "Cacher cleared entries by pattern." : "Cacher cleared all entries."));
+					console.log(kleur.yellow().bold(args.pattern ? "Cacher cleared entries by pattern." : "Cacher cleared all entries."));
 					done();
 				});
 				return;
 			}
 
-			console.log(chalk.red.bold("No cacher."));
+			console.log(kleur.red().bold("No cacher."));
 			done();
 		});
 };

@@ -1,6 +1,6 @@
 "use strict";
 
-const chalk 			= require("chalk");
+const kleur 			= require("kleur");
 const _ 				= require("lodash");
 const util 				= require("util");
 const clui 				= require("clui");
@@ -16,14 +16,14 @@ module.exports = function(vorpal, broker) {
 			const printHeader = (name) => {
 				const title = "  " + name + "  ";
 				const lines = "=".repeat(title.length);
-				console.log(chalk.yellow.bold(lines));
-				console.log(chalk.yellow.bold(title));
-				console.log(chalk.yellow.bold(lines));
+				console.log(kleur.yellow().bold(lines));
+				console.log(kleur.yellow().bold(title));
+				console.log(kleur.yellow().bold(lines));
 				console.log("");
 			};
 
 			const print = (caption, value) => {
-				console.log("   ", _.padEnd(caption, 25) + (value != null ? ": " + chalk.bold(value) : ""));
+				console.log("   ", _.padEnd(caption, 25) + (value != null ? ": " + kleur.bold(value) : ""));
 			};
 
 			const printObject = (obj, level = 0) => {
@@ -31,28 +31,28 @@ module.exports = function(vorpal, broker) {
 				Object.keys(obj).forEach(key => {
 					const val = obj[key];
 					if (_.isString(val)) {
-						print(pad + key, chalk.green(`"${val}"`));
+						print(pad + key, kleur.green(`"${val}"`));
 					}
 					else if (_.isNumber(val)) {
-						print(pad + key, chalk.cyan(val));
+						print(pad + key, kleur.cyan(val));
 					}
 					else if (_.isBoolean(val)) {
-						print(pad + key, chalk.magenta(val));
+						print(pad + key, kleur.magenta(val));
 					}
 					else if (_.isBoolean(val)) {
-						print(pad + key, chalk.magenta(val));
+						print(pad + key, kleur.magenta(val));
 					}
 					else if (_.isFunction(val)) {
-						print(pad + key, chalk.blue(`[Function ${val.name}]`));
+						print(pad + key, kleur.blue(`[Function ${val.name}]`));
 					}
 					else if (_.isArray(val)) {
 						if (key == "middlewares") {
 							print(pad + key, val.map(v => {
-								if (_.isString(v)) return chalk.green(`"${v}"`);
-								if (_.isPlainObject(v) || _.isFunction) return chalk.green(`"${v.name}"`);
+								if (_.isString(v)) return kleur.green(`"${v}"`);
+								if (_.isPlainObject(v) || _.isFunction) return kleur.green(`"${v.name}"`);
 							}).join(", "));
 						} else {
-							print(pad + key, chalk.blue("[" + val.join(", ") + "]"));
+							print(pad + key, kleur.blue("[" + val.join(", ") + "]"));
 						}
 					}
 					else if (_.isPlainObject(val) && level < 1) {
@@ -92,25 +92,25 @@ module.exports = function(vorpal, broker) {
 
 			let strategy = broker.registry.StrategyFactory;
 			printHeader("Broker information");
-			print("Namespace", broker.namespace || chalk.gray("<None>"));
+			print("Namespace", broker.namespace || kleur.gray("<None>"));
 			print("Node ID", broker.nodeID);
 			print("Services", broker.services.length);
 			print("Actions", broker.registry.getActionList({ onlyLocal: true }).length);
 			print("Events", broker.registry.getEventList({ onlyLocal: true }).length);
 			console.log("");
-			print("Strategy", strategy ? strategy.name : chalk.gray("<None>"));
-			print("Cacher", broker.cacher ? broker.cacher.constructor.name : chalk.gray("<None>"));
+			print("Strategy", strategy ? strategy.name : kleur.gray("<None>"));
+			print("Cacher", broker.cacher ? broker.cacher.constructor.name : kleur.gray("<None>"));
 
 			if (broker.transit) {
 				print("Nodes", broker.registry.nodes.list(false).length);
 
 				console.log("");
 				printHeader("Transport information");
-				print("Serializer", broker.serializer ? broker.serializer.constructor.name : chalk.gray("<None>"));
+				print("Serializer", broker.serializer ? broker.serializer.constructor.name : kleur.gray("<None>"));
 				print("Pending requests", broker.transit.pendingRequests.size);
 
 				if (broker.transit.tx) {
-					print("Transporter", broker.transit.tx ? broker.transit.tx.constructor.name : chalk.gray("<None>"));
+					print("Transporter", broker.transit.tx ? broker.transit.tx.constructor.name : kleur.gray("<None>"));
 
 					console.log("");
 

@@ -1,6 +1,6 @@
 "use strict";
 
-const chalk 			= require("chalk");
+const kleur 			= require("kleur");
 const fs 				= require("fs");
 const path				= require("path");
 const _ 				= require("lodash");
@@ -17,8 +17,8 @@ function call(broker, args, done) {
 		try {
 			payload = JSON.parse(args.jsonParams);
 		} catch(err) {
-			console.error(chalk.red.bold(">> ERROR:", err.message, args.jsonParams));
-			console.error(chalk.red.bold(err.stack));
+			console.error(kleur.red().bold(">> ERROR:", err.message, args.jsonParams));
+			console.error(kleur.red().bold(err.stack));
 			done();
 			return;
 		}
@@ -32,7 +32,7 @@ function call(broker, args, done) {
 		try {
 			meta = JSON.parse(args.meta);
 		} catch(err) {
-			console.error(chalk.red.bold("Can't parse [meta]"), args.meta);
+			console.error(kleur.red().bold("Can't parse [meta]"), args.meta);
 		}
 	}
 
@@ -45,10 +45,10 @@ function call(broker, args, done) {
 			fName = path.resolve(`${args.actionName}.params.json`);
 		}
 		if (fs.existsSync(fName)) {
-			console.log(chalk.magenta(`>> Load params from '${fName}' file.`));
+			console.log(kleur.magenta(`>> Load params from '${fName}' file.`));
 			payload = JSON.parse(fs.readFileSync(fName, "utf8"));
 		} else {
-			console.log(chalk.red(">> File not found:", fName));
+			console.log(kleur.red(">> File not found:", fName));
 		}
 	}
 
@@ -61,24 +61,24 @@ function call(broker, args, done) {
 			fName = path.resolve(`${args.actionName}.stream`);
 		}
 		if (fs.existsSync(fName)) {
-			console.log(chalk.magenta(`>> Load stream from '${fName}' file.`));
+			console.log(kleur.magenta(`>> Load stream from '${fName}' file.`));
 			payload = fs.createReadStream(fName);
 		} else {
-			console.log(chalk.red(">> File not found:", fName));
+			console.log(kleur.red(">> File not found:", fName));
 		}
 	}
 
 	const startTime = process.hrtime();
 	const nodeID = args.nodeID;
 	meta.$repl = true;
-	console.log(chalk.yellow.bold(`>> Call '${args.actionName}'${nodeID ? " on " + nodeID : ""}`), isStream(payload) ? "with <Stream>." : "with params:", isStream(payload) ? "" : payload);
+	console.log(kleur.yellow().bold(`>> Call '${args.actionName}'${nodeID ? " on " + nodeID : ""}`), isStream(payload) ? "with <Stream>." : "with params:", isStream(payload) ? "" : payload);
 	broker.call(args.actionName, payload, { meta, nodeID })
 		.then(res => {
 			const diff = process.hrtime(startTime);
 			const duration = (diff[0] + diff[1] / 1e9) * 1000;
-			console.log(chalk.cyan.bold(">> Execution time:", humanize(duration)));
+			console.log(kleur.cyan().bold(">> Execution time:", humanize(duration)));
 
-			console.log(chalk.yellow.bold(">> Response:"));
+			console.log(kleur.yellow().bold(">> Response:"));
 			if (isStream(res)) {
 				console.log("<Stream>");
 			} else {
@@ -103,12 +103,12 @@ function call(broker, args, done) {
 				} else {
 					fs.writeFileSync(fName, _.isObject(res) ? JSON.stringify(res, null, 4) : res, "utf8");
 				}
-				console.log(chalk.magenta.bold(`>> Response has been saved to '${fName}' file.`));
+				console.log(kleur.magenta().bold(`>> Response has been saved to '${fName}' file.`));
 			}
 		})
 		.catch(err => {
-			console.error(chalk.red.bold(">> ERROR:", err.message));
-			console.error(chalk.red.bold(err.stack));
+			console.error(kleur.red().bold(">> ERROR:", err.message));
+			console.error(kleur.red().bold(err.stack));
 			console.error("Data: ", util.inspect(err.data, { showHidden: false, depth: 4, colors: true }));
 		})
 		.finally(done);

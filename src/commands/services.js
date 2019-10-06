@@ -1,6 +1,6 @@
 "use strict";
 
-const chalk 			= require("chalk");
+const kleur 			= require("kleur");
 const _ 				= require("lodash");
 const { table, getBorderCharacters } 	= require("table");
 const { match } 		= require("../utils");
@@ -20,12 +20,12 @@ module.exports = function(vorpal, broker) {
 
 			const data = [
 				[
-					chalk.bold("Service"),
-					chalk.bold("Version"),
-					chalk.bold("State"),
-					chalk.bold("Actions"),
-					chalk.bold("Events"),
-					chalk.bold("Nodes")
+					kleur.bold("Service"),
+					kleur.bold("Version"),
+					kleur.bold("State"),
+					kleur.bold("Actions"),
+					kleur.bold("Events"),
+					kleur.bold("Nodes")
 				]
 			];
 
@@ -60,7 +60,7 @@ module.exports = function(vorpal, broker) {
 				data.push([
 					item.name,
 					item.version != null ? item.version : "-",
-					item.available ? chalk.bgGreen.white( "   OK   ") : chalk.bgRed.white.bold(" FAILED "),
+					item.available ? kleur.bgGreen().white( "   OK   ") : kleur.bgRed().white().bold(" FAILED "),
 					item.actionCount,
 					item.eventCount,
 					(hasLocal ? "(*) " : "") + nodeCount
@@ -71,10 +71,10 @@ module.exports = function(vorpal, broker) {
 						data.push([
 							"",
 							"",
-							available ? chalk.bgGreen.white( "   OK   ") : chalk.bgRed.white.bold(" FAILED "),
+							available ? kleur.bgGreen().white( "   OK   ") : kleur.bgRed().white().bold(" FAILED "),
 							"",
 							"",
-							nodeID == broker.nodeID ? chalk.gray("<local>") : nodeID,
+							nodeID == broker.nodeID ? kleur.gray("<local>") : nodeID,
 						]);
 					});
 					hLines.push(data.length);
@@ -83,7 +83,7 @@ module.exports = function(vorpal, broker) {
 			});
 
 			const tableConf = {
-				border: _.mapValues(getBorderCharacters("honeywell"), char => chalk.gray(char)),
+				border: _.mapValues(getBorderCharacters("honeywell"), char => kleur.gray(char)),
 				columns: {
 					1: { alignment: "right" },
 					2: { alignment: "right" },

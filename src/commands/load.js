@@ -1,6 +1,6 @@
 "use strict";
 
-const chalk 			= require("chalk");
+const kleur 			= require("kleur");
 const fs 				= require("fs");
 const path 				= require("path");
 
@@ -12,12 +12,12 @@ module.exports = function(vorpal, broker) {
 		.action((args, done) => {
 			let filePath = path.resolve(args.servicePath);
 			if (fs.existsSync(filePath)) {
-				console.log(chalk.yellow(`>> Load '${filePath}'...`));
+				console.log(kleur.yellow(`>> Load '${filePath}'...`));
 				let service = broker.loadService(filePath);
 				if (service)
-					console.log(chalk.green(">> Loaded successfully!"));
+					console.log(kleur.green(">> Loaded successfully!"));
 			} else {
-				console.warn(chalk.red("The service file is not exists!", filePath));
+				console.warn(kleur.red("The service file is not exists!", filePath));
 			}
 			done();
 		});
@@ -29,11 +29,11 @@ module.exports = function(vorpal, broker) {
 		.action((args, done) => {
 			let filePath = path.resolve(args.serviceFolder);
 			if (fs.existsSync(filePath)) {
-				console.log(chalk.yellow(`>> Load services from '${filePath}'...`));
+				console.log(kleur.yellow(`>> Load services from '${filePath}'...`));
 				const count = broker.loadServices(filePath, args.fileMask);
-				console.log(chalk.green(`>> Loaded ${count} services!`));
+				console.log(kleur.green(`>> Loaded ${count} services!`));
 			} else {
-				console.warn(chalk.red("The folder is not exists!", filePath));
+				console.warn(kleur.red("The folder is not exists!", filePath));
 			}
 			done();
 		});

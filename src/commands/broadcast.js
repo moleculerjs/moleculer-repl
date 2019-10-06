@@ -1,6 +1,6 @@
 "use strict";
 
-const chalk 			= require("chalk");
+const kleur 			= require("kleur");
 const { convertArgs } 	= require("../utils");
 
 module.exports = function(vorpal, broker) {
@@ -11,7 +11,7 @@ module.exports = function(vorpal, broker) {
 		.allowUnknownOptions()
 		.action((args, done) => {
 			const payload = convertArgs(args.options);
-			console.log(chalk.yellow.bold(`>> Broadcast '${args.eventName}' with payload:`), payload);
+			console.log(kleur.yellow().bold(`>> Broadcast '${args.eventName}' with payload:`), payload);
 			broker.broadcast(args.eventName, payload);
 			done();
 		});
@@ -23,7 +23,7 @@ module.exports = function(vorpal, broker) {
 		.allowUnknownOptions()
 		.action((args, done) => {
 			const payload = convertArgs(args.options);
-			console.log(chalk.yellow.bold(`>> Broadcast '${args.eventName}' locally with payload:`), payload);
+			console.log(kleur.yellow().bold(`>> Broadcast '${args.eventName}' locally with payload:`), payload);
 			broker.broadcastLocal(args.eventName, payload);
 			done();
 		});

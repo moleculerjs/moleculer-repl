@@ -49,10 +49,10 @@
   },
   "dependencies": {
     "@moleculer/vorpal": "^1.11.5",
-    "chalk": "^2.4.2",
     "clui": "^0.3.6",
     "glob": "^7.1.4",
     "is-stream": "^2.0.0",
+    "kleur": "^3.0.3",
     "lodash": "^4.17.15",
     "ora": "^3.4.0",
     "pretty-bytes": "^5.3.0",

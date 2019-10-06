@@ -1,6 +1,6 @@
 "use strict";
 
-const chalk 			= require("chalk");
+const kleur 			= require("kleur");
 const _ 				= require("lodash");
 const { table, getBorderCharacters } 	= require("table");
 const { match } 		= require("../utils");
@@ -19,10 +19,10 @@ module.exports = function(vorpal, broker) {
 			const events = broker.registry.getEventList({ onlyLocal: args.options.local, onlyAvailable: !args.options.all, skipInternal: args.options.skipinternal, withEndpoints: args.options.details });
 			const data = [
 				[
-					chalk.bold("Event"),
-					chalk.bold("Group"),
-					chalk.bold("State"),
-					chalk.bold("Nodes")
+					kleur.bold("Event"),
+					kleur.bold("Group"),
+					kleur.bold("State"),
+					kleur.bold("Nodes")
 				]
 			];
 
@@ -40,14 +40,14 @@ module.exports = function(vorpal, broker) {
 					data.push([
 						event.name,
 						item.group,
-						item.available ? chalk.bgGreen.white( "   OK   ") : chalk.bgRed.white.bold(" FAILED "),
+						item.available ? kleur.bgGreen().white( "   OK   ") : kleur.bgRed().white().bold(" FAILED "),
 						(item.hasLocal ? "(*) " : "") + item.count
 					]);
 				} else {
 					data.push([
 						item.name,
 						item.group,
-						item.available ? chalk.bgGreen.white( "   OK   ") : chalk.bgRed.white.bold(" FAILED "),
+						item.available ? kleur.bgGreen().white( "   OK   ") : kleur.bgRed().white().bold(" FAILED "),
 						item.count
 					]);
 				}
@@ -57,8 +57,8 @@ module.exports = function(vorpal, broker) {
 						data.push([
 							"",
 							"",
-							endpoint.available ? chalk.bgGreen.white( "   OK   ") : chalk.bgRed.white.bold(" FAILED "),
-							endpoint.nodeID == broker.nodeID ? chalk.gray("<local>") : endpoint.nodeID,
+							endpoint.available ? kleur.bgGreen().white( "   OK   ") : kleur.bgRed().white().bold(" FAILED "),
+							endpoint.nodeID == broker.nodeID ? kleur.gray("<local>") : endpoint.nodeID,
 						]);
 					});
 					hLines.push(data.length);
@@ -66,7 +66,7 @@ module.exports = function(vorpal, broker) {
 			});
 
 			const tableConf = {
-				border: _.mapValues(getBorderCharacters("honeywell"), char => chalk.gray(char)),
+				border: _.mapValues(getBorderCharacters("honeywell"), char => kleur.gray(char)),
 				columns: {
 					1: { alignment: "right" }
 				},

@@ -1,6 +1,6 @@
 "use strict";
 
-const chalk 			= require("chalk");
+const kleur 			= require("kleur");
 const humanize 			= require("tiny-human-time").short;
 const ora 				= require("ora");
 const _ 				= require("lodash");
@@ -51,8 +51,8 @@ module.exports = function(vorpal, broker) {
 				try {
 					payload = JSON.parse(args.jsonParams);
 				} catch(err) {
-					console.error(chalk.red.bold(">> ERROR:", err.message, args.jsonParams));
-					console.error(chalk.red.bold(err.stack));
+					console.error(kleur.red().bold(">> ERROR:", err.message, args.jsonParams));
+					console.error(kleur.red().bold(err.stack));
 					done();
 					return;
 				}
@@ -63,7 +63,7 @@ module.exports = function(vorpal, broker) {
 				try {
 					meta = JSON.parse(args.meta);
 				} catch(err) {
-					console.error(chalk.red.bold("Can't parse [meta]"), args.meta);
+					console.error(kleur.red().bold("Can't parse [meta]"), args.meta);
 				}
 			}
 
@@ -85,15 +85,15 @@ module.exports = function(vorpal, broker) {
 			let startTotalTime = process.hrtime();
 
 			const printResult = function(duration) {
-				const errStr = errorCount > 0 ? chalk.red.bold(`${formatNumber(errorCount)} error(s) ${formatNumber(errorCount / resCount * 100)}%`) : chalk.grey("0 error");
+				const errStr = errorCount > 0 ? kleur.red().bold(`${formatNumber(errorCount)} error(s) ${formatNumber(errorCount / resCount * 100)}%`) : kleur.grey("0 error");
 
-				console.log(chalk.green.bold("\nBenchmark result:\n"));
-				console.log(chalk.bold(`  ${formatNumber(resCount)} requests in ${humanize(duration)}, ${errStr}`));
-				console.log("\n  Requests/sec:", chalk.bold(formatNumber(resCount / duration * 1000)));
+				console.log(kleur.green().bold("\nBenchmark result:\n"));
+				console.log(kleur.bold(`  ${formatNumber(resCount)} requests in ${humanize(duration)}, ${errStr}`));
+				console.log("\n  Requests/sec:", kleur.bold(formatNumber(resCount / duration * 1000)));
 				console.log("\n  Latency:");
-				console.log("    Avg:", chalk.bold(_.padStart(humanize(sumTime / resCount), 10)));
-				console.log("    Min:", chalk.bold(_.padStart(humanize(minTime), 10)));
-				console.log("    Max:", chalk.bold(_.padStart(humanize(maxTime), 10)));
+				console.log("    Avg:", kleur.bold(_.padStart(humanize(sumTime / resCount), 10)));
+				console.log("    Min:", kleur.bold(_.padStart(humanize(minTime), 10)));
+				console.log("    Max:", kleur.bold(_.padStart(humanize(maxTime), 10)));
 				console.log();
 			};
 
@@ -141,13 +141,13 @@ module.exports = function(vorpal, broker) {
 					return res;
 				}).catch(err => {
 					handleResponse(startTime, err);
-					//console.error(chalk.red.bold(">> ERROR:", err.message));
-					//console.error(chalk.red.bold(err.stack));
+					//console.error(kleur.red().bold(">> ERROR:", err.message));
+					//console.error(kleur.red().bold(err.stack));
 					//console.error("Data: ", util.inspect(err.data, { showHidden: false, depth: 4, colors: true }));
 				});
 			}
 
-			console.log(chalk.yellow.bold(`>> Call '${args.action}'${args.options.nodeID ? " on '" + args.options.nodeID + "'" : ""} with params:`), payload);
+			console.log(kleur.yellow().bold(`>> Call '${args.action}'${args.options.nodeID ? " on '" + args.options.nodeID + "'" : ""} with params:`), payload);
 			spinner.start(iterate ? `Running x ${iterate} times...` : `Running ${time} second(s)...`);
 
 			doRequest();

@@ -1,6 +1,6 @@
 "use strict";
 
-const chalk 			= require("chalk");
+const kleur 			= require("kleur");
 
 module.exports = function (vorpal, broker) {
 	// Register destroy service file
@@ -27,18 +27,18 @@ module.exports = function (vorpal, broker) {
 			const service = broker.getLocalService(serviceName, version);
 
 			if (!service) {
-				console.warn(chalk.red(`Service "${serviceName}" doesn't exists!`));
+				console.warn(kleur.red(`Service "${serviceName}" doesn't exists!`));
 				done();
 				return;
 			}
 
 			const p = broker.destroyService(service);
-			console.log(chalk.yellow(`>> Destroying '${serviceName}'...`));
+			console.log(kleur.yellow(`>> Destroying '${serviceName}'...`));
 			p.then(res => {
-				console.log(chalk.green(">> Destroyed successfully!"));
+				console.log(kleur.green(">> Destroyed successfully!"));
 			}).catch(err => {
-				console.error(chalk.red(">> ERROR:", err.message));
-				console.error(chalk.red(err.stack));
+				console.error(kleur.red(">> ERROR:", err.message));
+				console.error(kleur.red(err.stack));
 			}).finally(done);
 		});
 };

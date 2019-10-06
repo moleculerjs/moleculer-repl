@@ -1,6 +1,6 @@
 "use strict";
 
-const chalk 			= require("chalk");
+const kleur 			= require("kleur");
 const fs 				= require("fs");
 const path				= require("path");
 const util 				= require("util");
@@ -25,7 +25,7 @@ module.exports = function(vorpal, broker) {
 				const fName = path.resolve(_.isString(args.options.save) ? args.options.save : "nodes.json");
 				const nodes = broker.registry.getNodeRawList();
 				fs.writeFileSync(fName, JSON.stringify(nodes, null, 4), "utf8");
-				console.log(chalk.magenta.bold(`>> Node list has been saved to '${fName}' file.`));
+				console.log(kleur.magenta().bold(`>> Node list has been saved to '${fName}' file.`));
 				return done();
 			}
 
@@ -38,13 +38,13 @@ module.exports = function(vorpal, broker) {
 			// action, nodeID, cached, CB state, description?, params?
 			const data = [];
 			data.push([
-				chalk.bold("Node ID"),
-				chalk.bold("Services"),
-				chalk.bold("Version"),
-				chalk.bold("Client"),
-				chalk.bold("IP"),
-				chalk.bold("State"),
-				chalk.bold("CPU")
+				kleur.bold("Node ID"),
+				kleur.bold("Services"),
+				kleur.bold("Version"),
+				kleur.bold("Client"),
+				kleur.bold("IP"),
+				kleur.bold("State"),
+				kleur.bold("CPU")
 			]);
 
 			let hLines = [];
@@ -73,12 +73,12 @@ module.exports = function(vorpal, broker) {
 				}
 
 				data.push([
-					node.id == broker.nodeID ? chalk.gray(node.id + " (*)") : node.id,
+					node.id == broker.nodeID ? kleur.gray(node.id + " (*)") : node.id,
 					node.services ? Object.keys(node.services).length : 0,
 					node.client.version,
 					node.client.type,
 					ip,
-					node.available ? chalk.bgGreen.black(" ONLINE "):chalk.bgRed.white.bold(" OFFLINE "),
+					node.available ? kleur.bgGreen().black(" ONLINE "):kleur.bgRed().white().bold(" OFFLINE "),
 					cpu
 				]);
 
@@ -100,7 +100,7 @@ module.exports = function(vorpal, broker) {
 
 			const tableConf = {
 				border: _.mapValues(getBorderCharacters("honeywell"), (char) => {
-					return chalk.gray(char);
+					return kleur.gray(char);
 				}),
 				columns: {
 					2: { alignment: "right" },

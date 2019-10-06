@@ -12,7 +12,7 @@ require("v8"); // Load first. It won't work in `info.js`
 const _ 				= require("lodash");
 const vorpal 			= require("@moleculer/vorpal")();
 const { table, getBorderCharacters } 	= require("table");
-const chalk 			= require("chalk");
+const kleur 			= require("kleur");
 const ora 				= require("ora");
 const clui 				= require("clui");
 
@@ -97,7 +97,7 @@ function REPL(broker, opts) {
 				cmd.allowUnknownOptions();
 
 			cmd.action(args => {
-				const helpers = { vorpal, table, chalk, ora, clui, getBorderCharacters };
+				const helpers = { vorpal, table, kleur, ora, clui, getBorderCharacters };
 				return def.action(broker, args, helpers);
 			});
 

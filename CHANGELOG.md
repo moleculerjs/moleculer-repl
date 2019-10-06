@@ -1,4 +1,13 @@
 --------------------------------------------------
+<a name="0.6.2"></a>
+# 0.6.2 (2019-10-xx)
+
+## Changes
+- change chalk to kleur.
+- fix middleware printing in `info` command.
+- new `metrics` command for Moleculer v0.14.
+
+--------------------------------------------------
 <a name="0.6.1"></a>
 # 0.6.1 (2019-09-21)
 

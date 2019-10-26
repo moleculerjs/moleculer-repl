@@ -1,6 +1,7 @@
 "use strict";
 
-const _ 		= require("lodash");
+const _ 			= require("lodash");
+const safeEval		= require("safe-eval");
 
 function convertArgs(args) {
 	let res = {};
@@ -17,6 +18,20 @@ function convertArgs(args) {
 			res[key] = value;
 	});
 	return res;
+}
+
+/**
+ * Conver json string to json with fallback to try convert js to json
+ *
+ * @param {String} jsonString
+ * @returns {Object}
+ */
+function jsonParser(jsonString) {
+	try {
+		return JSON.parse(jsonString);
+	} catch (e) {
+		return safeEval(`${jsonString}`);
+	}
 }
 
 const RegexCache = new Map();
@@ -96,6 +111,7 @@ module.exports = {
 
 	convertArgs,
 	match,
+	jsonParser,
 
 	CIRCUIT_CLOSE: "close",
 	CIRCUIT_HALF_OPEN: "half_open",

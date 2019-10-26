@@ -1,13 +1,13 @@
 "use strict";
 
-const kleur 			= require("kleur");
-const fs 				= require("fs");
-const path				= require("path");
-const _ 				= require("lodash");
-const util 				= require("util");
-const { convertArgs } 	= require("../utils");
-const humanize 			= require("tiny-human-time").short;
-const isStream			= require("is-stream");
+const kleur 						= require("kleur");
+const fs 							= require("fs");
+const path							= require("path");
+const _ 							= require("lodash");
+const util 							= require("util");
+const { convertArgs, jsonParser } 	= require("../utils");
+const humanize 						= require("tiny-human-time").short;
+const isStream						= require("is-stream");
 
 function call(broker, args, done) {
 	let payload;
@@ -15,7 +15,7 @@ function call(broker, args, done) {
 	console.log(args);
 	if (typeof(args.jsonParams) == "string") {
 		try {
-			payload = JSON.parse(args.jsonParams);
+			payload = jsonParser(args.jsonParams);
 		} catch(err) {
 			console.error(kleur.red().bold(">> ERROR:", err.message, args.jsonParams));
 			console.error(kleur.red().bold(err.stack));
@@ -30,7 +30,7 @@ function call(broker, args, done) {
 
 	if (typeof(args.meta) === "string") {
 		try {
-			meta = JSON.parse(args.meta);
+			meta = jsonParser(args.meta);
 		} catch(err) {
 			console.error(kleur.red().bold("Can't parse [meta]"), args.meta);
 		}

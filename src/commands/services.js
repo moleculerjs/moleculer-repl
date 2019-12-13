@@ -53,8 +53,9 @@ module.exports = function(vorpal, broker) {
 			list.forEach(item => {
 				const hasLocal = item.nodes.indexOf(broker.nodeID) !== -1;
 				const nodeCount = item.nodes.length;
+				const fullName = item.fullName != null ? item.fullName : ((typeof(item.version) == "number" ? "v" + item.version : item.version) + "." + item.name);
 
-				if (args.options.filter && !match(item.name, args.options.filter))
+				if (args.options.filter && !match(fullName, args.options.filter))
 					return;
 
 				data.push([

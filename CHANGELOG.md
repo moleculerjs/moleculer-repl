@@ -6,6 +6,8 @@
 - change chalk to kleur.
 - fix middleware printing in `info` command.
 - new `metrics` command for Moleculer v0.14.
+- filtering in `services` command considers the service version.
+- update dependencies
 
 --------------------------------------------------
 <a name="0.6.1"></a>

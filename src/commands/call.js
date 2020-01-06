@@ -76,7 +76,7 @@ function call(broker, args, done) {
 		.then(res => {
 			const diff = process.hrtime(startTime);
 			const duration = (diff[0] + diff[1] / 1e9) * 1000;
-			console.log(kleur.cyan().bold(">> Execution time:", humanize(duration)));
+			console.log(kleur.cyan().bold(">> Execution time:" + humanize(duration)));
 
 			console.log(kleur.yellow().bold(">> Response:"));
 			if (isStream(res)) {

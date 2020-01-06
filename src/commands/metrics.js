@@ -19,8 +19,10 @@ module.exports = function(vorpal, broker) {
 		.command("metrics", "List metrics")
 		.option("-f, --filter <match>", "filter metrics (e.g.: 'moleculer.**')")
 		.action((args, done) => {
-			if (!broker.isMetricsEnabled())
-				return console.error(kleur.red().bold("Metrics feature is disabled."));
+			if (!broker.isMetricsEnabled()) {
+				console.error(kleur.red().bold("Metrics feature is disabled."));
+				return done()
+			}
 
 			const snapshot = broker.metrics.list({ includes: args.options.filter });
 

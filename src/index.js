@@ -98,7 +98,7 @@ function REPL(broker, opts) {
 
 			cmd.action(args => {
 				const helpers = { vorpal, table, kleur, ora, clui, getBorderCharacters };
-				return def.action(broker, args, helpers);
+				return Promise.resolve(def.action(broker, args, helpers));
 			});
 
 			if (def.cancel)

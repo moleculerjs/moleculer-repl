@@ -107,7 +107,7 @@ function REPL(broker, opts) {
 	}
 
 	// Start REPL
-	vorpal
+	return vorpal
 		.delimiter(opts.delimiter)
 		.show();
 

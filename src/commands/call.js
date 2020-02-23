@@ -134,6 +134,11 @@ module.exports = function(vorpal, broker) {
 	vorpal
 		.removeIfExist("dcall")
 		.command("dcall <nodeID> <actionName> [jsonParams] [meta]", "Direct call an action")
+		.autocomplete({
+			data() {
+				return _.uniq(_.compact(broker.registry.getNodeList({ onlyAvailable: false, withServices: true }).map(node => node && node.id)));
+			}
+		})
 		.option("--load [filename]", "Load params from file")
 		.option("--stream [filename]", "Send a file as stream")
 		.option("--save [filename]", "Save response to file")

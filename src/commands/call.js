@@ -136,7 +136,7 @@ module.exports = function(vorpal, broker) {
 		.command("dcall <nodeID> <actionName> [jsonParams] [meta]", "Direct call an action")
 		.autocomplete({
 			data() {
-				return _.uniq(_.compact(broker.registry.getNodeList({ onlyAvailable: false, withServices: true }).map(node => node && node.id)));
+				return _.uniq(_.compact(broker.registry.getNodeList({ onlyAvailable: true, withServices: true }).map(node => node && node.id)));
 			}
 		})
 		.option("--load [filename]", "Load params from file")

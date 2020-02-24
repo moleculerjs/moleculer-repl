@@ -1,4 +1,13 @@
 --------------------------------------------------
+<a name="0.6.3"></a>
+# 0.6.3 (2020-02-24)
+
+## Changes
+- add autocomplete to dcall.
+- return vorpal instance in `broker.repl()`.
+- fix `metrics` execution if metrics is disabled.
+
+--------------------------------------------------
 <a name="0.6.2"></a>
 # 0.6.2 (2019-12-15)
 

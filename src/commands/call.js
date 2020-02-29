@@ -12,7 +12,7 @@ const isStream			= require("is-stream");
 function call(broker, args, done) {
 	let payload;
 	let meta = {};
-	console.log(args);
+	//console.log(args);
 	if (typeof(args.jsonParams) == "string") {
 		try {
 			payload = JSON.parse(args.jsonParams);

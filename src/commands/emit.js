@@ -16,9 +16,26 @@ module.exports = function(vorpal, broker) {
 		})
 		.allowUnknownOptions()
 		.action((args, done) => {
-			const payload = convertArgs(args.options);
+			let payload = {};
+			let meta = {
+				$repl: true
+			};
+
+			const opts = convertArgs(args.options);
+
+			Object.keys(opts).map(key => {
+				if (key.startsWith("#"))
+					meta[key.slice(1)] = opts[key];
+				else {
+					if (key.startsWith("@"))
+						payload[key.slice(1)] = opts[key];
+					else
+						payload[key] = opts[key];
+				}
+			});
+
 			console.log(kleur.yellow().bold(`>> Emit '${args.eventName}' with payload:`), payload);
-			broker.emit(args.eventName, payload);
+			broker.emit(args.eventName, payload, { meta });
 			done();
 		});
 };

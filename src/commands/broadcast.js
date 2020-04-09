@@ -10,9 +10,25 @@ module.exports = function(vorpal, broker) {
 		.command("broadcast <eventName>", "Broadcast an event")
 		.allowUnknownOptions()
 		.action((args, done) => {
-			const payload = convertArgs(args.options);
+			let payload = {};
+			let meta = {
+				$repl: true
+			};
+
+			const opts = convertArgs(args.options);
+
+			Object.keys(opts).map(key => {
+				if (key.startsWith("#"))
+					meta[key.slice(1)] = opts[key];
+				else {
+					if (key.startsWith("@"))
+						payload[key.slice(1)] = opts[key];
+					else
+						payload[key] = opts[key];
+				}
+			});
 			console.log(kleur.yellow().bold(`>> Broadcast '${args.eventName}' with payload:`), payload);
-			broker.broadcast(args.eventName, payload);
+			broker.broadcast(args.eventName, payload, { meta });
 			done();
 		});
 
@@ -22,9 +38,25 @@ module.exports = function(vorpal, broker) {
 		.command("broadcastLocal <eventName>", "Broadcast an event locally")
 		.allowUnknownOptions()
 		.action((args, done) => {
-			const payload = convertArgs(args.options);
+			let payload = {};
+			let meta = {
+				$repl: true
+			};
+
+			const opts = convertArgs(args.options);
+
+			Object.keys(opts).map(key => {
+				if (key.startsWith("#"))
+					meta[key.slice(1)] = opts[key];
+				else {
+					if (key.startsWith("@"))
+						payload[key.slice(1)] = opts[key];
+					else
+						payload[key] = opts[key];
+				}
+			});
 			console.log(kleur.yellow().bold(`>> Broadcast '${args.eventName}' locally with payload:`), payload);
-			broker.broadcastLocal(args.eventName, payload);
+			broker.broadcastLocal(args.eventName, payload, { meta });
 			done();
 		});
 };

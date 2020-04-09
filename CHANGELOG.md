@@ -1,4 +1,21 @@
 --------------------------------------------------
+<a name="0.6.4"></a>
+# 0.6.4 (2020-04-09)
+
+## Setting meta keys for `call`, `dcall`, `emit` & `broadcast` commands
+To set meta keys, use `#` prefix for arguments.
+
+```bash
+moleculer λ call greeter.echo --a 5 --#b 3
+>> Response:
+{ params: { a: 5 }, meta: { b: 3, '$repl': true } }
+```
+
+## Changes
+- update deps & audit fix
+- remove console log
+  
+--------------------------------------------------
 <a name="0.6.3"></a>
 # 0.6.3 (2020-02-24)
 

@@ -24,10 +24,12 @@ npm install moleculer-repl --save
 
 **Start broker in REPL mode**
 ```js
-let broker = new ServiceBroker({ logger: console });
+const broker = new ServiceBroker();
 
-// Start REPL
-broker.repl();
+broker.start().then(() => {
+    // Start REPL
+    broker.repl();
+});
 ```
 
 You will get a console:
@@ -49,6 +51,6 @@ Please send pull requests improving the usage and fixing bugs, improving documen
 The project is available under the [MIT license](https://tldrlegal.com/license/mit-license).
 
 # Contact
-Copyright (c) 2018 MoleculerJS
+Copyright (c) 2020 MoleculerJS
 
 [![@moleculerjs](https://img.shields.io/badge/github-moleculerjs-green.svg)](https://github.com/moleculerjs) [![@MoleculerJS](https://img.shields.io/badge/twitter-MoleculerJS-blue.svg)](https://twitter.com/MoleculerJS)

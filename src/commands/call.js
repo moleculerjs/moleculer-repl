@@ -23,9 +23,22 @@ function call(broker, args, done) {
 			return;
 		}
 	} else {
-		payload = convertArgs(args.options);
+		payload = {};
+
+		const opts = convertArgs(args.options);
 		if (args.options.save)
-			delete payload.save;
+			delete opts.save;
+
+		Object.keys(opts).map(key => {
+			if (key.startsWith("#"))
+				meta[key.slice(1)] = opts[key];
+			else {
+				if (key.startsWith("@"))
+					payload[key.slice(1)] = opts[key];
+				else
+					payload[key] = opts[key];
+			}
+		});
 	}
 
 	if (typeof(args.meta) === "string") {

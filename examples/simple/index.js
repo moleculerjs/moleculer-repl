@@ -1,10 +1,10 @@
 "use strict";
 
-let { ServiceBroker } 	= require("moleculer");
-let REPL 				= require("../../src");
+const { ServiceBroker } 	= require("moleculer");
+const REPL 				= require("../../src");
 
 // Create broker
-let broker = new ServiceBroker({
+const broker = new ServiceBroker({
 	nodeID: "repl-" + process.pid,
 	transporter: "TCP",
 	logger: console,
@@ -77,8 +77,8 @@ broker.createService({
 		}
 	},
 	events: {
-		"user.created"(payload) {
-			this.logger.info("User created even received!", payload);
+		"user.created"(ctx) {
+			this.logger.info("User created even received!", ctx.params, ctx.meta);
 		},
 		"order.created": {
 			group: "order",

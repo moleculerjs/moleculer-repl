@@ -43,8 +43,7 @@ module.exports = function(vorpal, broker) {
 				if (args.options.filter && !match(item.name, args.options.filter))
 					return;
 
-				const serviceNameParts = item.name.split(".");
-				const serviceName = serviceNameParts[0].startsWith("v") ? serviceNameParts[1] : serviceNameParts[0];
+				const serviceName = item.name.split(".").slice(0, -1).join(".");
 
 				// Draw a separator line
 				if (lastServiceName && serviceName != lastServiceName)

@@ -9,8 +9,36 @@ const broker = new ServiceBroker({
 	transporter: "TCP",
 	logger: console,
 	cacher: true,
-	metrics: true,
-	tracing: false,
+	metrics: {
+		enabled: true,
+		reporter: [
+			{
+				type: "Event",
+				options: {
+					// Prints only changed metrics, not the full list.
+					onlyChanges: true
+				}
+			}, "Prometheus"
+		]
+	},
+	tracing: {
+		enabled: true,
+		exporter: {
+			type: "Console",
+			options: {
+				// Using colors
+				colors: true,
+				// Width of row
+				width: 100,
+				// Gauge width in the row
+				gaugeWidth: 40
+			}
+		}
+	},
+
+	metadata: {
+		region: "west-eu"
+	},
 
 	middlewares: [
 		"Bulkhead",

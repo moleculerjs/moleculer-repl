@@ -39,9 +39,6 @@ module.exports = function(vorpal, broker) {
 					else if (_.isBoolean(val)) {
 						print(pad + key, kleur.magenta(val));
 					}
-					else if (_.isBoolean(val)) {
-						print(pad + key, kleur.magenta(val));
-					}
 					else if (_.isFunction(val)) {
 						print(pad + key, kleur.blue(`[Function ${val.name}]`));
 					}
@@ -51,11 +48,20 @@ module.exports = function(vorpal, broker) {
 								if (_.isString(v)) return kleur.green(`"${v}"`);
 								if (_.isPlainObject(v) || _.isFunction) return kleur.green(`"${v.name}"`);
 							}).join(", "));
+						} else if (key == "replCommands") {
+							print(pad + key, val.map(v => {
+								if (_.isPlainObject(v)) return kleur.green(`"${v.command}"`);
+							}).join(", "));
+						} else if (key == "reporter" || key == "exporter") {
+							print(pad + key, val.map(v => {
+								if (_.isString(v)) return kleur.green(`"${v}"`);
+								if (_.isPlainObject(v)) return kleur.green(`"${v.type}"`);
+							}).join(", "));
 						} else {
 							print(pad + key, kleur.blue("[" + val.join(", ") + "]"));
 						}
 					}
-					else if (_.isPlainObject(val) && level < 1) {
+					else if (_.isPlainObject(val) && level < 2) {
 						print(pad + key);
 						printObject(val, level + 1);
 					}

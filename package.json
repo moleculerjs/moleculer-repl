@@ -1,6 +1,6 @@
 {
   "name": "moleculer-repl",
-  "version": "0.6.4",
+  "version": "0.6.5",
   "description": "REPL module for Moleculer",
   "main": "index.js",
   "scripts": {

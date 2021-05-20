@@ -1,4 +1,12 @@
 --------------------------------------------------
+<a name="0.6.5"></a>
+# 0.6.5 (2021-05-20)
+
+## Changes
+- improve `info` packet to show metrics `reporter` and tracing `exporter`.
+- fix 'actions' command separation.
+- 
+--------------------------------------------------
 <a name="0.6.4"></a>
 # 0.6.4 (2020-04-09)
 

@@ -64,6 +64,8 @@ module.exports = function(vorpal, broker) {
 					meta = JSON.parse(args.meta);
 				} catch(err) {
 					console.error(kleur.red().bold("Can't parse [meta]"), args.meta);
+					done();
+					return;
 				}
 			}
 

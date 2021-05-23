@@ -5,6 +5,11 @@ const _ 		= require("lodash");
 function convertArgs(args) {
 	let res = {};
 	_.forIn(args, (value, key) => {
+		if (key.endsWith("[]")) {
+			if (!Array.isArray(value)) value = [value];
+			key = key.slice(0, -2);
+		}
+
 		if (Array.isArray(value))
 			res[key] = value;
 		else if (typeof(value) == "object")

@@ -70,7 +70,7 @@ function REPL(broker, opts) {
  * @returns {[string[], string]} List of suggestions. More info: https://nodejs.org/api/readline.html#use-of-the-completer-function
  */
 function autocompleteHandler(line, broker) {
-	let [command, ...rest] = line.split(" ");
+	let [command, nodeID, ...rest] = line.split(" ");
 
 	// Empty line. Show all available commands
 	const availableCommands = program.commands.map((entry) => entry._name);
@@ -80,6 +80,7 @@ function autocompleteHandler(line, broker) {
 
 	// Check if command value is complete
 	if (!availableCommands.includes(command)) {
+		// Unknown command. Try to provide a suggestion
 		const hits = availableCommands.filter((c) => c.startsWith(command));
 
 		// Show all completions if none found
@@ -92,16 +93,59 @@ function autocompleteHandler(line, broker) {
 	let hits;
 	if (command === "call") {
 		completions = actionNameAutocomplete(broker);
+
+		console.log(completions);
 	}
 
 	if (command === "emit") {
 		completions = eventNameAutocomplete(broker);
 	}
 
+	if (command === "dcall") {
+		completions = nodeIdAutocomplete(broker);
+
+		// Flatten to a single list
+		completions = _.flatten(completions);
+	}
+
 	completions = completions.map((entry) => `${command} ${entry}`);
 	// Match the command + action/event name against partial "line" value
 	hits = completions.filter((c) => c.startsWith(line));
 	return [hits.length ? hits : completions, line];
+}
+
+/**
+ * Returns the list of available actions
+ *
+ * @param {import("moleculer").ServiceBroker} broker
+ * @returns {Array<Array<String>>}
+ */
+function nodeIdAutocomplete(broker) {
+	return _.uniq(
+		_.compact(
+			broker.registry
+				.getNodeList({ onlyAvailable: true, withServices: true })
+				.map((node) => {
+					// return node && node.id;
+
+					// Get actions of the node
+					let actionList = node.services.map((svc) => {
+						return Object.values(svc.actions).map((action) => {
+							return action.name;
+						});
+					});
+
+					actionList = _.flatten(actionList);
+
+					// Create "<nodeID> <action name> command for autocomplete
+					actionList = actionList.map(
+						(actionName) => `${node.id} ${actionName}`
+					);
+
+					return actionList;
+				})
+		)
+	);
 }
 
 /**

@@ -169,9 +169,40 @@ async function handler(broker, args) {
  * @param {import("moleculer").ServiceBroker} broker Moleculer's Service Broker
  */
 module.exports = function (program, broker) {
+	// Register call command
 	program
 		.command("call <actionName> [jsonParams] [meta]")
 		.description("Call an action")
+		.option("--load [filename]", "Load params from file")
+		.option("--stream [filename]", "Send a file as stream")
+		.option("--save [filename]", "Save response to file")
+		.allowUnknownOption(true)
+		.allowExcessArguments(true)
+		.hook("preAction", (thisCommand) => {
+			const [actionName, ...args] = thisCommand.args;
+			// Parse the unknown args + args that commander.js managed to process
+			let parsedArgs = { ...parse(args), ...thisCommand._optionValues };
+			delete parsedArgs._;
+
+			// Set the params
+			thisCommand.params = {
+				options: parsedArgs,
+				actionName,
+				rawCommand: thisCommand.args.join(" "),
+			};
+		})
+		.action(async function () {
+			// Get the params
+			await handler(broker, this.params);
+
+			// Clear the parsed values for next execution
+			this._optionValues = {};
+		});
+
+	// Register dcall command
+	program
+		.command("dcall <nodeID> <actionName> [jsonParams] [meta]")
+		.description("Direct call an action")
 		.option("--load [filename]", "Load params from file")
 		.option("--stream [filename]", "Send a file as stream")
 		.option("--save [filename]", "Save response to file")

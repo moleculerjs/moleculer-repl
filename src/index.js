@@ -43,8 +43,10 @@ function REPL(broker, opts) {
 		delimiter: "mol $",
 	});
 
+	// Attach the commands to the program
 	registerCommands(program, broker);
 
+	// Start the server
 	const replServer = nodeRepl.start({
 		prompt: "$ ",
 		completer: function completer(line) {
@@ -58,7 +60,7 @@ function REPL(broker, opts) {
 		eval: evaluator,
 	});
 
-	// Attach broker to the REPL context
+	// Attach broker to the REPL's context
 	replServer.context.broker = broker;
 }
 
@@ -90,11 +92,8 @@ function autocompleteHandler(line, broker) {
 	// From here we already know what command will be executed //
 
 	let completions;
-	let hits;
 	if (command === "call") {
 		completions = actionNameAutocomplete(broker);
-
-		console.log(completions);
 	}
 
 	if (command === "emit") {
@@ -102,24 +101,24 @@ function autocompleteHandler(line, broker) {
 	}
 
 	if (command === "dcall") {
-		completions = nodeIdAutocomplete(broker);
+		completions = nodeIdActionNameAutocomplete(broker);
 		// Flatten to a single list
 		completions = _.flatten(completions);
 	}
 
 	completions = completions.map((entry) => `${command} ${entry}`);
 	// Match the command + action/event name against partial "line" value
-	hits = completions.filter((c) => c.startsWith(line));
+	let hits = completions.filter((c) => c.startsWith(line));
 	return [hits.length ? hits : completions, line];
 }
 
 /**
- * Returns the list of available actions
+ * Returns the list of nodes and their actions in the following format "<nodeID> <actionName>"
  *
  * @param {import("moleculer").ServiceBroker} broker
  * @returns {Array<Array<String>>}
  */
-function nodeIdAutocomplete(broker) {
+function nodeIdActionNameAutocomplete(broker) {
 	return _.uniq(
 		_.compact(
 			broker.registry

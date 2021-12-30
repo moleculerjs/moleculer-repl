@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon examples/index.js",
     "lint": "eslint --ext=.js src test",
-    "deps": "npm-check -u"
+    "deps": "npm-check -u",
+    "test": "jest --coverage"
   },
   "keywords": [
     "microservices",
@@ -21,6 +22,7 @@
   "license": "MIT",
   "devDependencies": {
     "eslint": "^7.29.0",
+    "jest": "^27.4.5",
     "moleculer": "^0.14.14",
     "nodemon": "^2.0.7",
     "npm-check": "^5.9.2"

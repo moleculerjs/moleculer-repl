@@ -209,7 +209,7 @@ module.exports = function (program, broker) {
 		.allowUnknownOption(true)
 		.allowExcessArguments(true)
 		.hook("preAction", (thisCommand) => {
-			const [actionName, ...args] = thisCommand.args;
+			const [nodeID, actionName, ...args] = thisCommand.args;
 			// Parse the unknown args + args that commander.js managed to process
 			let parsedArgs = { ...parse(args), ...thisCommand._optionValues };
 			delete parsedArgs._;
@@ -218,6 +218,7 @@ module.exports = function (program, broker) {
 			thisCommand.params = {
 				options: parsedArgs,
 				actionName,
+				nodeID,
 				rawCommand: thisCommand.args.join(" "),
 			};
 		})

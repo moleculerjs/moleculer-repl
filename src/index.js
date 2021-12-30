@@ -70,7 +70,7 @@ function REPL(broker, opts) {
  * @returns {[string[], string]} List of suggestions. More info: https://nodejs.org/api/readline.html#use-of-the-completer-function
  */
 function autocompleteHandler(line, broker) {
-	let [command, param1, param2] = line.split(" ");
+	let [command, ...rest] = line.split(" ");
 
 	// Empty line. Show all available commands
 	const availableCommands = program.commands.map((entry) => entry._name);
@@ -92,14 +92,14 @@ function autocompleteHandler(line, broker) {
 	let hits;
 	if (command === "call") {
 		completions = actionNameAutocomplete(broker);
-		completions = completions.map((entry) => `${command} ${entry}`);
 	}
 
 	if (command === "emit") {
 		completions = eventNameAutocomplete(broker);
-		completions = completions.map((entry) => `${command} ${entry}`);
 	}
 
+	completions = completions.map((entry) => `${command} ${entry}`);
+	// Match the command + action/event name against partial "line" value
 	hits = completions.filter((c) => c.startsWith(line));
 	return [hits.length ? hits : completions, line];
 }
@@ -153,7 +153,7 @@ async function evaluator(cmd, context, filename, callback) {
 		try {
 			await program.parseAsync(argv);
 		} catch (error) {
-			console.log(error);
+			// console.log(error);
 		}
 	}
 

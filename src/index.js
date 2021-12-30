@@ -92,14 +92,15 @@ function autocompleteHandler(line, broker) {
 	let hits;
 	if (command === "call") {
 		completions = actionNameAutocomplete(broker);
+		completions = completions.map((entry) => `${command} ${entry}`);
 	}
 
 	if (command === "emit") {
 		completions = eventNameAutocomplete(broker);
+		completions = completions.map((entry) => `${command} ${entry}`);
 	}
 
-	hits = completions.filter((c) => c.startsWith(param1));
-	hits = hits.map((entry) => `${command} ${entry}`);
+	hits = completions.filter((c) => c.startsWith(line));
 	return [hits.length ? hits : completions, line];
 }
 

@@ -107,7 +107,7 @@ function autocompleteHandler(line, broker) {
  * Returns the list of available actions
  *
  * @param {import("moleculer").ServiceBroker} broker
- * @returns
+ * @returns {Array<String>}
  */
 function actionNameAutocomplete(broker) {
 	return _.uniq(
@@ -123,7 +123,7 @@ function actionNameAutocomplete(broker) {
  * Returns the list of available events
  *
  * @param {import("moleculer").ServiceBroker} broker
- * @returns
+ * @returns {Array<String>}
  */
 function eventNameAutocomplete(broker) {
 	return _.uniq(

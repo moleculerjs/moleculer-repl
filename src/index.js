@@ -70,7 +70,7 @@ function REPL(broker, opts) {
  * @returns {[string[], string]} List of suggestions. More info: https://nodejs.org/api/readline.html#use-of-the-completer-function
  */
 function autocompleteHandler(line, broker) {
-	let [command, nodeID, ...rest] = line.split(" ");
+	let [command, ...rest] = line.split(" ");
 
 	// Empty line. Show all available commands
 	const availableCommands = program.commands.map((entry) => entry._name);
@@ -103,7 +103,6 @@ function autocompleteHandler(line, broker) {
 
 	if (command === "dcall") {
 		completions = nodeIdAutocomplete(broker);
-
 		// Flatten to a single list
 		completions = _.flatten(completions);
 	}

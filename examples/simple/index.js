@@ -1,82 +1,11 @@
 "use strict";
 
-const { ServiceBroker } 	= require("moleculer");
-const REPL 				= require("../../src");
+const { ServiceBroker } = require("moleculer");
+const REPL = require("../../src");
 
 // Create broker
 const broker = new ServiceBroker({
 	nodeID: "repl-" + process.pid,
-	transporter: "TCP",
-	logger: console,
-	cacher: true,
-	metrics: {
-		enabled: true,
-		reporter: [
-			{
-				type: "Event",
-				options: {
-					// Prints only changed metrics, not the full list.
-					onlyChanges: true
-				}
-			}, "Prometheus"
-		]
-	},
-	tracing: {
-		enabled: true,
-		exporter: {
-			type: "Console",
-			options: {
-				// Using colors
-				colors: true,
-				// Width of row
-				width: 100,
-				// Gauge width in the row
-				gaugeWidth: 40
-			}
-		}
-	},
-
-	metadata: {
-		region: "west-eu"
-	},
-
-	middlewares: [
-		"Bulkhead",
-		function MyFirstMiddleware() {
-			return {};
-		},
-		{
-			name: "MySecond"
-		}
-	],
-
-	errorHandler(err) {
-		throw err;
-	},
-
-	// Custom REPL command
-	replCommands: [
-		{
-			command: "hello <name>",
-			description: "Call the greeter.hello service with name",
-			alias: "hi",
-			options: [
-				{ option: "-u, --uppercase", description: "Uppercase the name" }
-			],
-			types: {
-				string: ["name"],
-				boolean: ["u", "uppercase"]
-			},
-			//parse(command, args) {},
-			//validate(args) {},
-			//help(args) {},
-			allowUnknownOptions: true,
-			action(broker, args/*, helpers*/) {
-				const name = args.options.uppercase ? args.name.toUpperCase() : args.name;
-				return broker.call("greeter.hello", { name }).then(console.log);
-			}
-		}
-	]
 });
 
 broker.createService({
@@ -86,12 +15,12 @@ broker.createService({
 			cache: true,
 			handler(ctx) {
 				return "Hello " + ctx.params.name;
-			}
+			},
 		},
 		welcome(ctx) {
 			return {
 				params: ctx.params,
-				welcomedAt: Date.now()
+				welcomedAt: Date.now(),
 			};
 		},
 		silent(ctx) {
@@ -100,26 +29,29 @@ broker.createService({
 		echo(ctx) {
 			return {
 				params: ctx.params,
-				meta: ctx.meta
+				meta: ctx.meta,
 			};
-		}
+		},
 	},
 	events: {
 		"user.created"(ctx) {
-			this.logger.info("User created even received!", ctx.params, ctx.meta);
+			this.logger.info(
+				"User created even received!",
+				ctx.params,
+				ctx.meta
+			);
 		},
 		"order.created": {
 			group: "order",
 			handler(payload) {
 				this.logger.info("User created even received!", payload);
-			}
+			},
 		},
 		"$local-event"(payload) {
 			this.logger.info("Local event received!", payload);
-		}
-	}
+		},
+	},
 });
-
 
 broker.createService({
 	name: "math",
@@ -127,13 +59,13 @@ broker.createService({
 		add: {
 			params: {
 				a: "number",
-				b: "number"
+				b: "number",
 			},
 			handler(ctx) {
 				return Number(ctx.params.a) + Number(ctx.params.b);
-			}
-		}
-	}
+			},
+		},
+	},
 });
 
 broker.createService({
@@ -141,11 +73,13 @@ broker.createService({
 	actions: {
 		echo(ctx) {
 			return ctx.params;
-		}
-	}
+		},
+	},
 });
 
-broker.start().then(() => REPL(broker, {
-	delimiter: "moleculer λ",
-	customCommands: broker.options.replCommands
-}));
+broker.start().then(() =>
+	REPL(broker, {
+		delimiter: "moleculer λ",
+		customCommands: broker.options.replCommands,
+	})
+);

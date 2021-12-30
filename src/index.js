@@ -9,14 +9,27 @@
 
 require("v8"); // Load first. It won't work in `info.js`
 
-const _ 				= require("lodash");
-const vorpal 			= require("@moleculer/vorpal")();
-const { table, getBorderCharacters } 	= require("table");
-const kleur 			= require("kleur");
-const ora 				= require("ora");
-const clui 				= require("clui");
+const _ = require("lodash");
+const vorpal = require("@moleculer/vorpal")();
+const { table, getBorderCharacters } = require("table");
+const kleur = require("kleur");
+const ora = require("ora");
+const clui = require("clui");
 
-const registerCommands 	= require("./commands");
+const registerCommands = require("./commands");
+
+const nodeRepl = require("repl");
+const { parseArgsStringToArgv } = require("string-argv");
+
+const parse = require("yargs-parser");
+
+const commander = require("commander");
+const program = new commander.Command();
+program.exitOverride();
+program.allowUnknownOption(true);
+
+program.showHelpAfterError(true);
+program.showSuggestionAfterError(true);
 
 /**
  * Start REPL mode
@@ -26,91 +39,84 @@ const registerCommands 	= require("./commands");
  */
 /* istanbul ignore next */
 function REPL(broker, opts) {
-	if (Array.isArray(opts))
-		opts = { customCommands: opts };
+	if (Array.isArray(opts)) opts = { customCommands: opts };
 
 	opts = _.defaultsDeep(opts || {}, {
 		customCommands: null,
-		delimiter: "mol $"
+		delimiter: "mol $",
 	});
 
-	vorpal.removeIfExist = function(command) {
-		const cmd = vorpal.find(command);
-		if (cmd)
-			cmd.remove();
+	const replServer = nodeRepl.start({
+		prompt: "$ ",
+		completer: completer,
+		eval: evaluator,
+	});
 
-		return vorpal;
-	};
+	// Attach broker to the REPL context
+	replServer.context.broker = broker;
+}
 
-	vorpal.isCommandArgKeyPairNormalized = false; // Switch off unix-like key value pair normalization
+async function evaluator(cmd, context, filename, callback) {
+	const broker = context.broker;
+	const argv = parseArgsStringToArgv(cmd, "node", "REPL");
 
-	vorpal.removeIfExist("exit"); //vorpal vorpal-commons.js command, fails to run .stop() on exit
+	program
+		.command("call <actionName> [jsonParams] [meta]")
+		//.description("Call an Action")
+		.option("--load [filename]", "Load params from file")
+		.option("--stream [filename]", "Send a file as stream")
+		.option("--save [filename]", "Save response to file")
+		.allowUnknownOption(true)
+		.allowExcessArguments(true)
+		.hook("preAction", (thisCommand) => {
+			// Parse the args
+			const [actionName, ...args] = thisCommand.args;
+			let parsedArgs = { ...parse(args), ...thisCommand._optionValues };
+			//let parsedArgs = thisCommand._optionValues;
+			delete parsedArgs._;
 
-	vorpal.on("vorpal_exit", () => {
-		broker.stop().then(() => process.exit(0));
-	}); //vorpal exit event (Ctrl-C)
+			// console.log(thisCommand);
 
-	vorpal
-		.removeIfExist("q")
-		.command("q", "Exit application")
-		.alias("quit")
-		.alias("exit")
-		.action((args, done) => {
-			broker.stop().then(() => {
-				process.exit(0);
-				done();
-			});
-		});
+			// Set the params
+			thisCommand.params = {
+				options: parsedArgs,
+				actionName,
+				rawCommand: thisCommand.args.join(" "),
+			};
+		})
+		.action(async function () {
+			// Get the params
+			const args = this.params;
 
-	// Register general commands
-	registerCommands(vorpal, broker);
+			console.log(args);
 
-	// Register custom commands
-	if (Array.isArray(opts.customCommands)) {
-		opts.customCommands.forEach(def => {
-			vorpal.removeIfExist(def.command);
-			let cmd = vorpal.command(def.command, def.description);
-
-			if (def.autocomplete)
-				cmd.autocomplete(def.autocomplete);
-
-			if (def.alias)
-				cmd.alias(def.alias);
-
-			if (Array.isArray(def.options)) {
-				def.options.forEach(opt => cmd.option(opt.option, opt.description, opt.autocomplete));
+			try {
+				const result = await broker.call(args.actionName, args.options);
+				console.log(result);
+			} catch (error) {
+				// console.log(error);
 			}
 
-			if (def.parse)
-				cmd.parse(def.parse);
-
-			if (def.types)
-				cmd.types(def.types);
-
-			if (def.help)
-				cmd.help(def.help);
-
-			if (def.validate)
-				cmd.validate(def.validate);
-
-			if (def.allowUnknownOptions)
-				cmd.allowUnknownOptions();
-
-			cmd.action(args => {
-				const helpers = { vorpal, table, kleur, ora, clui, getBorderCharacters };
-				return Promise.resolve(def.action(broker, args, helpers));
-			});
-
-			if (def.cancel)
-				cmd.cancel(def.cancel);
+			// Clear parsed values
+			this._optionValues = {};
 		});
+
+	if (argv.length !== 2) {
+		try {
+			await program.parseAsync(argv);
+		} catch (error) {
+			console.log(error);
+		}
 	}
 
-	// Start REPL
-	return vorpal
-		.delimiter(opts.delimiter)
-		.show();
+	callback(null);
+}
 
+function completer(line) {
+	const completions = "-test .help .error .exit .quit .q".split(" ");
+	const hits = completions.filter((c) => c.startsWith(line));
+	// Show all completions if none found
+	return [hits.length ? hits : completions, line];
 }
 
 module.exports = REPL;

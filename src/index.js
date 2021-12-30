@@ -91,25 +91,51 @@ function autocompleteHandler(line, broker) {
 
 	// From here we already know what command will be executed //
 
-	let completions;
-	if (command === "call") {
-		completions = actionNameAutocomplete(broker);
-	}
-
-	if (command === "emit") {
-		completions = eventNameAutocomplete(broker);
-	}
-
-	if (command === "dcall") {
-		completions = nodeIdActionNameAutocomplete(broker);
-		// Flatten to a single list
-		completions = _.flatten(completions);
+	let completions = [];
+	switch (command) {
+		case "call": {
+			completions = actionNameAutocomplete(broker);
+			break;
+		}
+		case "emit": {
+			completions = eventNameAutocomplete(broker);
+			break;
+		}
+		case "dcall": {
+			completions = nodeIdActionNameAutocomplete(broker);
+			// Flatten to a single list
+			completions = _.flatten(completions);
+			break;
+		}
+		case "destroy": {
+			completions = versionedServicesAutocomplete(broker);
+			break;
+		}
 	}
 
 	completions = completions.map((entry) => `${command} ${entry}`);
 	// Match the command + action/event name against partial "line" value
 	let hits = completions.filter((c) => c.startsWith(line));
 	return [hits.length ? hits : completions, line];
+}
+
+/**
+ * Returns the list of versioned services
+ *
+ * @param {import("moleculer").ServiceBroker} broker
+ * @returns {Array<Array<String>>}
+ */
+function versionedServicesAutocomplete(broker) {
+	let services = broker.registry.getServiceList({
+		onlyLocal: true,
+		onlyAvailable: true,
+		skipInternal: true,
+		withActions: true,
+		withEvents: true,
+	});
+
+	// Return only the names
+	return services.map((service) => service.fullName);
 }
 
 /**

@@ -16,13 +16,10 @@ const kleur = require("kleur");
 const ora = require("ora");
 const clui = require("clui");
 
-const registerCommands = require("./commands");
-
 const nodeRepl = require("repl");
 const { parseArgsStringToArgv } = require("string-argv");
 
-const parse = require("yargs-parser");
-
+const registerCommands = require("./test");
 const commander = require("commander");
 const program = new commander.Command();
 program.exitOverride();
@@ -46,9 +43,18 @@ function REPL(broker, opts) {
 		delimiter: "mol $",
 	});
 
+	registerCommands(program, broker);
+
 	const replServer = nodeRepl.start({
 		prompt: "$ ",
-		completer: completer,
+		completer: function completer(line) {
+			return autocompleteHandler(line, broker);
+
+			const completions = "-test .help .error .exit .quit .q".split(" ");
+			const hits = completions.filter((c) => c.startsWith(line));
+			// Show all completions if none found
+			return [hits.length ? hits : completions, line];
+		},
 		eval: evaluator,
 	});
 
@@ -56,50 +62,45 @@ function REPL(broker, opts) {
 	replServer.context.broker = broker;
 }
 
+function autocompleteHandler(line, broker) {
+	const [command, param1, param2] = line.split(" ");
+
+	// Empty line. No suggestions
+	if (!command) return [];
+
+	// No params yet. Command autocomplete
+	if (!param1 && !param2) {
+		const commandCompletions = ["call", "emit"];
+		const hits = commandCompletions.filter((c) => c.startsWith(line));
+		// Show all completions if none found
+		return [hits.length ? hits : completions, line];
+	}
+
+	let completions;
+	let hits;
+	if (command === "call") {
+		completions = _.uniq(
+			_.compact(
+				broker.registry
+					.getActionList({})
+					.map((item) =>
+						item && item.action ? item.action.name : null
+					)
+			)
+		);
+	}
+
+	hits = completions.filter((c) => c.startsWith(param1));
+	hits = hits.map((entry) => `${command} ${entry}`);
+
+	// console.log([hits.length ? hits : completions, line]);
+
+	return [hits.length ? hits : completions, line];
+}
+
 async function evaluator(cmd, context, filename, callback) {
 	const broker = context.broker;
 	const argv = parseArgsStringToArgv(cmd, "node", "REPL");
-
-	program
-		.command("call <actionName> [jsonParams] [meta]")
-		//.description("Call an Action")
-		.option("--load [filename]", "Load params from file")
-		.option("--stream [filename]", "Send a file as stream")
-		.option("--save [filename]", "Save response to file")
-		.allowUnknownOption(true)
-		.allowExcessArguments(true)
-		.hook("preAction", (thisCommand) => {
-			// Parse the args
-			const [actionName, ...args] = thisCommand.args;
-			let parsedArgs = { ...parse(args), ...thisCommand._optionValues };
-			//let parsedArgs = thisCommand._optionValues;
-			delete parsedArgs._;
-
-			// console.log(thisCommand);
-
-			// Set the params
-			thisCommand.params = {
-				options: parsedArgs,
-				actionName,
-				rawCommand: thisCommand.args.join(" "),
-			};
-		})
-		.action(async function () {
-			// Get the params
-			const args = this.params;
-
-			console.log(args);
-
-			try {
-				const result = await broker.call(args.actionName, args.options);
-				console.log(result);
-			} catch (error) {
-				// console.log(error);
-			}
-
-			// Clear parsed values
-			this._optionValues = {};
-		});
 
 	if (argv.length !== 2) {
 		try {
@@ -110,13 +111,6 @@ async function evaluator(cmd, context, filename, callback) {
 	}
 
 	callback(null);
-}
-
-function completer(line) {
-	const completions = "-test .help .error .exit .quit .q".split(" ");
-	const hits = completions.filter((c) => c.startsWith(line));
-	// Show all completions if none found
-	return [hits.length ? hits : completions, line];
 }
 
 module.exports = REPL;

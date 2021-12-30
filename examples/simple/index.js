@@ -36,7 +36,14 @@ broker.createService({
 	events: {
 		"user.created"(ctx) {
 			this.logger.info(
-				"User created even received!",
+				"User created event received!",
+				ctx.params,
+				ctx.meta
+			);
+		},
+		"user.updated"(ctx) {
+			this.logger.info(
+				"User updated even received!",
 				ctx.params,
 				ctx.meta
 			);

@@ -27,7 +27,6 @@ async function handler(broker, args) {
 				kleur.red().bold(">> ERROR:", err.message, args.jsonParams)
 			);
 			console.error(kleur.red().bold(err.stack));
-			// done();
 			return;
 		}
 	} else {
@@ -50,6 +49,7 @@ async function handler(broker, args) {
 			meta = JSON.parse(args.meta);
 		} catch (err) {
 			console.error(kleur.red().bold("Can't parse [meta]"), args.meta);
+			return;
 		}
 	}
 
@@ -115,7 +115,11 @@ async function handler(broker, args) {
 			console.log("<Stream>");
 		} else {
 			console.log(
-				util.inspect(res, { showHidden: false, depth: 4, colors: true })
+				util.inspect(res, {
+					showHidden: false,
+					depth: 4,
+					colors: true,
+				})
 			);
 		}
 
@@ -159,23 +163,25 @@ async function handler(broker, args) {
 	}
 }
 
+/**
+ * Command option declarations
+ * @param {import("commander").Command} program Commander
+ * @param {import("moleculer").ServiceBroker} broker Moleculer's Service Broker
+ */
 module.exports = function (program, broker) {
 	program
 		.command("call <actionName> [jsonParams] [meta]")
-		//.description("Call an Action")
+		.description("Call an action")
 		.option("--load [filename]", "Load params from file")
 		.option("--stream [filename]", "Send a file as stream")
 		.option("--save [filename]", "Save response to file")
 		.allowUnknownOption(true)
 		.allowExcessArguments(true)
 		.hook("preAction", (thisCommand) => {
-			// Parse the args
 			const [actionName, ...args] = thisCommand.args;
+			// Parse the unknown args + args that commander.js managed to process
 			let parsedArgs = { ...parse(args), ...thisCommand._optionValues };
-			//let parsedArgs = thisCommand._optionValues;
 			delete parsedArgs._;
-
-			// console.log(thisCommand);
 
 			// Set the params
 			thisCommand.params = {

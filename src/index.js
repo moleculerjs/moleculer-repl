@@ -49,7 +49,7 @@ function REPL(broker, opts) {
 		prompt: "$ ",
 		completer: function completer(line) {
 			return autocompleteHandler(line, broker);
-
+			// From docs
 			const completions = "-test .help .error .exit .quit .q".split(" ");
 			const hits = completions.filter((c) => c.startsWith(line));
 			// Show all completions if none found
@@ -78,29 +78,29 @@ function autocompleteHandler(line, broker) {
 		return [availableCommands, line];
 	}
 
-	// No params yet. Command autocomplete
-	if (command.length > 0 && !param1 && !param2) {
+	// Check if command value is complete
+	if (!availableCommands.includes(command)) {
 		const hits = availableCommands.filter((c) => c.startsWith(command));
 
 		// Show all completions if none found
 		return [hits.length ? hits : availableCommands, line];
 	}
 
+	// From here we already know what command will be executed //
+
 	let completions;
 	let hits;
 	if (command === "call") {
 		completions = actionNameAutocomplete(broker);
-		hits = completions.filter((c) => c.startsWith(param1));
-		hits = hits.map((entry) => `${command} ${entry}`);
-		return [hits.length ? hits : completions, line];
 	}
 
 	if (command === "emit") {
 		completions = eventNameAutocomplete(broker);
-		hits = completions.filter((c) => c.startsWith(param1));
-		hits = hits.map((entry) => `${command} ${entry}`);
-		return [hits.length ? hits : completions, line];
 	}
+
+	hits = completions.filter((c) => c.startsWith(param1));
+	hits = hits.map((entry) => `${command} ${entry}`);
+	return [hits.length ? hits : completions, line];
 }
 
 /**

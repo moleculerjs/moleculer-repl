@@ -25,13 +25,16 @@ describe("Test commands", () => {
 
 	describe("Test 'call' command", () => {
 		// Load the command declaration
-		let registerCommand = require("../src/test/call");
+		let { declaration, handler } = require("../src/test/call");
 
 		it("call", async () => {
-			// Register the command
-			registerCommand(program, broker);
-
 			// Mock the handler
+			// ToDo: investigate why this doesn't work
+			handler = jest.fn();
+
+			// Register the command
+			declaration(program, broker);
+
 			program.commands[0]._actionHandler = jest.fn();
 
 			const command =

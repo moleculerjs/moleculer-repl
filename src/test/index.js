@@ -12,6 +12,9 @@ module.exports = function (program, broker) {
 	const files = glob.sync(path.join(__dirname, "*.js"));
 	files.sort();
 	files.forEach((file) => {
-		if (path.basename(file) != "index.js") require(file)(program, broker);
+		if (path.basename(file) != "index.js") {
+			const { declaration } = require(file);
+			declaration(program, broker);
+		}
 	});
 };

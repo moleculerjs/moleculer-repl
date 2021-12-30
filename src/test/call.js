@@ -168,7 +168,7 @@ async function handler(broker, args) {
  * @param {import("commander").Command} program Commander
  * @param {import("moleculer").ServiceBroker} broker Moleculer's Service Broker
  */
-module.exports = function (program, broker) {
+function declaration(program, broker) {
 	// Register call command
 	program
 		.command("call <actionName> [jsonParams] [meta]")
@@ -229,4 +229,6 @@ module.exports = function (program, broker) {
 			// Clear the parsed values for next execution
 			this._optionValues = {};
 		});
-};
+}
+
+module.exports = { declaration, handler };

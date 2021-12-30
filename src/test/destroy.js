@@ -35,7 +35,7 @@ async function handler(broker, args) {
  * @param {import("commander").Command} program Commander
  * @param {import("moleculer").ServiceBroker} broker Moleculer's Service Broker
  */
-module.exports = function (program, broker) {
+function declaration(program, broker) {
 	program
 		.command("destroy <serviceName>")
 		.description("Destroy a local service")
@@ -59,4 +59,6 @@ module.exports = function (program, broker) {
 			// Clear the parsed values for next execution
 			this._optionValues = {};
 		});
-};
+}
+
+module.exports = { declaration, handler };

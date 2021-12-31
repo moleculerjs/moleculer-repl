@@ -82,7 +82,7 @@ function autocompleteHandler(line, broker) {
 
 	// Check if command value is complete
 	if (!availableCommands.includes(command)) {
-		// Unknown command. Try to provide a suggestion
+		// Unknown or incomplete command. Try to provide a suggestion
 		const hits = availableCommands.filter((c) => c.startsWith(command));
 
 		// Show all completions if none found

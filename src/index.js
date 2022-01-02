@@ -61,6 +61,9 @@ function REPL(broker, opts) {
 		await broker.stop();
 		process.exit(0);
 	});
+
+	// Attach broker to REPL's context
+	replServer.context.broker = broker;
 }
 
 /**
@@ -73,13 +76,17 @@ function REPL(broker, opts) {
  * @param {Function} callback
  */
 async function evaluator(cmd, context, filename, callback) {
+	/** @type {import('moleculer').ServiceBroker} */
+	const broker = this.context.broker;
 	const argv = parseArgsStringToArgv(cmd, "node", "Moleculer REPL");
 
 	if (argv.length !== 2) {
 		try {
 			await program.parseAsync(argv);
 		} catch (error) {
-			console.log(error);
+			//if (error.code !== "commander.helpDisplayed") {
+			//	broker.logger.error(error);
+			//}
 		}
 	}
 

@@ -31,7 +31,6 @@
     "node": ">= 12.x.x"
   },
   "dependencies": {
-    "@moleculer/vorpal": "^1.11.5",
     "clui": "^0.3.6",
     "commander": "^8.3.0",
     "glob": "^7.1.7",

@@ -10,7 +10,6 @@
 require("v8"); // Load first. It won't work in `info.js`
 
 const _ = require("lodash");
-const vorpal = require("@moleculer/vorpal")();
 const { table, getBorderCharacters } = require("table");
 const kleur = require("kleur");
 const ora = require("ora");

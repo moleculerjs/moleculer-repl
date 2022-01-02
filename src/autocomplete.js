@@ -99,7 +99,12 @@ function autocompleteHandler(line, broker, program) {
 	let [command, ...rest] = line.split(" ");
 
 	// Empty line. Show all available commands
-	const availableCommands = program.commands.map((entry) => entry._name);
+	let availableCommands = program.commands.map((entry) => [
+		entry._name,
+		...entry._aliases,
+	]);
+	availableCommands = _.flatten(availableCommands);
+
 	if (!command) {
 		return [availableCommands, line];
 	}

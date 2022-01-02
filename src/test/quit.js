@@ -20,8 +20,9 @@ async function handler(broker, args) {
 function declaration(program, broker) {
 	// Register cache keys command
 	program
-		.command("quit")
+		.command("exit")
 		.alias("q")
+		.alias("quit")
 		.description("Exit application")
 		.action(async function () {
 			// Get the params

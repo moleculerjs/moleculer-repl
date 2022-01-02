@@ -223,7 +223,7 @@ async function evaluator(cmd, context, filename, callback) {
 		try {
 			await program.parseAsync(argv);
 		} catch (error) {
-			// console.log(error);
+			console.log(error);
 		}
 	}
 

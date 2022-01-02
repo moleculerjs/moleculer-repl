@@ -93,6 +93,7 @@ function autocompleteHandler(line, broker) {
 
 	let completions = [];
 	switch (command) {
+		case "bench":
 		case "call": {
 			completions = actionNameAutocomplete(broker);
 			break;

@@ -21,7 +21,7 @@
   "author": "MoleculerJS",
   "license": "MIT",
   "devDependencies": {
-    "eslint": "^7.29.0",
+    "eslint": "^8.6.0",
     "jest": "^27.4.5",
     "moleculer": "^0.14.14",
     "nodemon": "^2.0.7",
@@ -34,7 +34,7 @@
     "clui": "^0.3.6",
     "commander": "^8.3.0",
     "glob": "^7.1.7",
-    "is-stream": "^2.0.0",
+    "is-stream": "^2.0.1",
     "kleur": "^4.1.4",
     "lodash": "^4.17.21",
     "ora": "^5.4.1",

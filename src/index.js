@@ -52,7 +52,6 @@ function REPL(broker, opts) {
 		const availableCommands = getAvailableCommands(program);
 
 		opts.customCommands.forEach((def) => {
-			console.log(def);
 			if (availableCommands.includes(def.name)) {
 				broker.logger.warn(
 					`Command called '${def.command}' already exists. Skipping...`

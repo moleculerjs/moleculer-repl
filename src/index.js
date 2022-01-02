@@ -97,6 +97,8 @@ function autocompleteHandler(line, broker) {
 			completions = actionNameAutocomplete(broker);
 			break;
 		}
+		case "broadcast":
+		case "broadcastLocal":
 		case "emit": {
 			completions = eventNameAutocomplete(broker);
 			break;

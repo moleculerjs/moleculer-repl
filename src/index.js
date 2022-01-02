@@ -49,7 +49,9 @@ function REPL(broker, opts) {
 
 	// Start the server
 	const replServer = nodeRepl.start({
-		prompt: "$ ",
+		prompt: opts.delimiter.endsWith(" ")
+			? opts.delimiter
+			: opts.delimiter + " ", // Add empty space
 		completer: (line) => autocompleteHandler(line, broker, program),
 		eval: evaluator,
 	});
@@ -59,9 +61,6 @@ function REPL(broker, opts) {
 		await broker.stop();
 		process.exit(0);
 	});
-
-	// Attach broker to the REPL's context
-	replServer.context.broker = broker;
 }
 
 /**
@@ -74,8 +73,7 @@ function REPL(broker, opts) {
  * @param {Function} callback
  */
 async function evaluator(cmd, context, filename, callback) {
-	const broker = context.broker;
-	const argv = parseArgsStringToArgv(cmd, "node", "REPL");
+	const argv = parseArgsStringToArgv(cmd, "node", "Moleculer REPL");
 
 	if (argv.length !== 2) {
 		try {

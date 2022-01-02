@@ -17,8 +17,9 @@ const clui = require("clui");
 
 const nodeRepl = require("repl");
 const { parseArgsStringToArgv } = require("string-argv");
+const parse = require("yargs-parser");
 
-const { autocompleteHandler } = require("./autocomplete");
+const { autocompleteHandler, getAvailableCommands } = require("./autocomplete");
 const registerCommands = require("./test");
 const commander = require("commander");
 const program = new commander.Command();
@@ -45,6 +46,29 @@ function REPL(broker, opts) {
 
 	// Attach the commands to the program
 	registerCommands(program, broker);
+
+	// Attach user defined commands
+	if (Array.isArray(opts.customCommands)) {
+		const availableCommands = getAvailableCommands(program);
+
+		opts.customCommands.forEach((def) => {
+			console.log(def);
+			if (availableCommands.includes(def.name)) {
+				broker.logger.warn(
+					`Command called '${def.command}' already exists. Skipping...`
+				);
+				return;
+			}
+			try {
+				registerCustomCommands(broker, program, def);
+			} catch (error) {
+				broker.logger.error(
+					`An error ocurred while registering '${def.command}' command`,
+					error
+				);
+			}
+		});
+	}
 
 	// Start the server
 	const replServer = nodeRepl.start({
@@ -84,12 +108,66 @@ async function evaluator(cmd, context, filename, callback) {
 			await program.parseAsync(argv);
 		} catch (error) {
 			//if (error.code !== "commander.helpDisplayed") {
-			//	broker.logger.error(error);
+			broker.logger.error(error);
 			//}
 		}
 	}
 
 	callback(null);
+}
+
+/**
+ * Registers user defined commands
+ * @param {import('moleculer').ServiceBroker} broker
+ * @param {import("commander").Command} program Commander
+ * @param {Object} def
+ */
+function registerCustomCommands(broker, program, def) {
+	const cmd = program.command(def.command);
+
+	if (def.description) cmd.description(def.description);
+
+	if (def.alias) cmd.alias(def.alias);
+
+	if (def.allowUnknownOptions) {
+		cmd.allowUnknownOption(def.allowUnknownOptions);
+		cmd.allowExcessArguments(def.allowUnknownOptions);
+	}
+
+	if (def.parse) {
+		// Use custom parser
+		cmd.hook("preAction", (thisCommand) => {
+			def.parse.call(parse, thisCommand);
+		});
+	} else {
+		cmd.hook("preAction", (thisCommand) => {
+			// By default only parse commander.js flags
+			let parsedArgs = { ...thisCommand._optionValues };
+			delete parsedArgs._;
+
+			// Set the params
+			thisCommand.params = {
+				options: parsedArgs,
+				name,
+				rawCommand: thisCommand.args.join(" "),
+			};
+		});
+	}
+
+	if (def.options) {
+		def.options.forEach((opt) => {
+			cmd.option(opt.option, opt.description);
+		});
+	}
+
+	cmd.action(async function () {
+		// Clear the parsed values for next execution
+		this._optionValues = {};
+
+		const helpers = { cmd, table, kleur, ora, clui, getBorderCharacters };
+
+		return def.action(broker, this.params, helpers);
+	});
 }
 
 module.exports = REPL;

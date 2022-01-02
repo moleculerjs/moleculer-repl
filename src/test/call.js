@@ -181,7 +181,10 @@ function declaration(program, broker) {
 		.hook("preAction", (thisCommand) => {
 			const [actionName, ...args] = thisCommand.args;
 			// Parse the unknown args + args that commander.js managed to process
-			let parsedArgs = { ...parse(args), ...thisCommand._optionValues };
+			let parsedArgs = {
+				...parse(args), // Other params
+				...thisCommand._optionValues, // Contains flag values
+			};
 			delete parsedArgs._;
 
 			// Set the params

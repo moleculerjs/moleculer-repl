@@ -88,23 +88,34 @@ function eventNameAutocomplete(broker) {
 }
 
 /**
- * Given a line from terminal generates a list of suggestions
- *
- * @param {String} line
- * @param {import("moleculer").ServiceBroker} broker
+ * Returns list of available commands
  * @param {import('commander').Command} program
- * @returns {[string[], string]} List of suggestions. More info: https://nodejs.org/api/readline.html#use-of-the-completer-function
+ * @returns {String[]} Available commands
  */
-function autocompleteHandler(line, broker, program) {
-	let [command, ...rest] = line.split(" ");
-
-	// Empty line. Show all available commands
+function getAvailableCommands(program) {
 	let availableCommands = program.commands.map((entry) => [
 		entry._name,
 		...entry._aliases,
 	]);
 	availableCommands = _.flatten(availableCommands);
 
+	return availableCommands;
+}
+
+/**
+ * Given a line from terminal generates a list of suggestions
+ *
+ * @param {String} line
+ * @param {import("moleculer").ServiceBroker} broker
+ * @param {import('commander').Command} program
+ * @returns {[String[], String]} List of suggestions. More info: https://nodejs.org/api/readline.html#use-of-the-completer-function
+ */
+function autocompleteHandler(line, broker, program) {
+	let [command, ...rest] = line.split(" ");
+
+	const availableCommands = getAvailableCommands(program);
+
+	// Empty line. Show all available commands
 	if (!command) {
 		return [availableCommands, line];
 	}
@@ -151,4 +162,4 @@ function autocompleteHandler(line, broker, program) {
 	return [hits.length ? hits : completions, line];
 }
 
-module.exports = { autocompleteHandler };
+module.exports = { autocompleteHandler, getAvailableCommands };

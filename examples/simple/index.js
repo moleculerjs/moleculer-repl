@@ -6,6 +6,51 @@ const REPL = require("../../src");
 // Create broker
 const broker = new ServiceBroker({
 	nodeID: "repl-" + process.pid,
+
+	// Custom REPL command
+	replCommands: [
+		{
+			command: "hello <name>",
+			description: "Call the greeter.hello service with name",
+			alias: "hi",
+			options: [
+				{
+					option: "-u, --uppercase",
+					description: "Uppercase the name",
+				},
+				,
+			],
+			types: {
+				string: ["name"],
+				boolean: ["u", "uppercase"],
+			},
+			//validate(args) {},
+			//help(args) {},
+			allowUnknownOptions: true,
+			parse(thisCommand) {
+				const [name, ...args] = thisCommand.args;
+				// Parse the unknown args + args that commander.js managed to process
+				let parsedArgs = {
+					...this(args), // Other args || "this" is yargs-parser.parse()
+					...thisCommand._optionValues, // Contains flag values
+				};
+				delete parsedArgs._;
+
+				// Set the params
+				thisCommand.params = {
+					options: parsedArgs,
+					name,
+					rawCommand: thisCommand.args.join(" "),
+				};
+			},
+			action(broker, args /*, helpers*/) {
+				const name = args.options.uppercase
+					? args.name.toUpperCase()
+					: args.name;
+				return broker.call("greeter.hello", { name }).then(console.log);
+			},
+		},
+	],
 });
 
 broker.createService({

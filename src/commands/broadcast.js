@@ -46,16 +46,23 @@ function declaration(program, broker, cmdHandler) {
 		.allowUnknownOption(true)
 		.allowExcessArguments(true)
 		.hook("preAction", (thisCommand) => {
-			const [eventName, ...args] = thisCommand.args;
-			// Parse the unknown args + args that commander.js managed to process
-			let parsedArgs = { ...parse(args), ...thisCommand._optionValues };
+			const parsedOpts = thisCommand.parseOptions(thisCommand.args);
+			const [eventName, jsonParams] = parsedOpts.operands;
+
+			let parsedArgs = {
+				...parse(parsedOpts.unknown), // Other params
+				...thisCommand._optionValues, // Contains flag values
+			};
 			delete parsedArgs._;
+
+			const rawCommand = thisCommand.parent.rawArgs.slice(2).join(" ");
 
 			// Set the params
 			thisCommand.params = {
 				options: parsedArgs,
 				eventName,
-				rawCommand: thisCommand.args.join(" "),
+				...(jsonParams !== undefined ? { jsonParams } : undefined),
+				rawCommand,
 			};
 
 			// Clear the parsed values for next execution
@@ -73,16 +80,23 @@ function declaration(program, broker, cmdHandler) {
 		.allowUnknownOption(true)
 		.allowExcessArguments(true)
 		.hook("preAction", (thisCommand) => {
-			const [eventName, ...args] = thisCommand.args;
-			// Parse the unknown args + args that commander.js managed to process
-			let parsedArgs = { ...parse(args), ...thisCommand._optionValues };
+			const parsedOpts = thisCommand.parseOptions(thisCommand.args);
+			const [eventName, jsonParams] = parsedOpts.operands;
+
+			let parsedArgs = {
+				...parse(parsedOpts.unknown), // Other params
+				...thisCommand._optionValues, // Contains flag values
+			};
 			delete parsedArgs._;
+
+			const rawCommand = thisCommand.parent.rawArgs.slice(2).join(" ");
 
 			// Set the params
 			thisCommand.params = {
 				options: parsedArgs,
 				eventName,
-				rawCommand: thisCommand.args.join(" "),
+				...(jsonParams !== undefined ? { jsonParams } : undefined),
+				rawCommand,
 			};
 
 			// Clear the parsed values for next execution

@@ -48,14 +48,22 @@ function declaration(program, broker, cmdLoadHandler, cmdLoadFolderHandler) {
 		.command("load <servicePath>")
 		.description("Load a service from file")
 		.hook("preAction", (thisCommand) => {
-			// Parse the args that commander.js managed to process
-			let parsedArgs = { ...thisCommand._optionValues };
+			const parsedOpts = thisCommand.parseOptions(thisCommand.args);
+			const [servicePath] = parsedOpts.operands;
+
+			let parsedArgs = {
+				...parse(parsedOpts.unknown), // Other params
+				...thisCommand._optionValues, // Contains flag values
+			};
 			delete parsedArgs._;
+
+			const rawCommand = thisCommand.parent.rawArgs.slice(2).join(" ");
 
 			// Set the params
 			thisCommand.params = {
 				options: parsedArgs,
-				rawCommand: thisCommand.args.join(" "),
+				servicePath,
+				rawCommand,
 			};
 
 			// Clear the parsed values for next execution
@@ -71,14 +79,22 @@ function declaration(program, broker, cmdLoadHandler, cmdLoadFolderHandler) {
 		.command("loadFolder <serviceFolder> [fileMask]")
 		.description("Load all services from folder")
 		.hook("preAction", (thisCommand) => {
-			// Parse the args that commander.js managed to process
-			let parsedArgs = { ...thisCommand._optionValues };
+			const parsedOpts = thisCommand.parseOptions(thisCommand.args);
+			const [serviceFolder] = parsedOpts.operands;
+
+			let parsedArgs = {
+				...parse(parsedOpts.unknown), // Other params
+				...thisCommand._optionValues, // Contains flag values
+			};
 			delete parsedArgs._;
+
+			const rawCommand = thisCommand.parent.rawArgs.slice(2).join(" ");
 
 			// Set the params
 			thisCommand.params = {
 				options: parsedArgs,
-				rawCommand: thisCommand.args.join(" "),
+				serviceFolder,
+				rawCommand,
 			};
 
 			// Clear the parsed values for next execution

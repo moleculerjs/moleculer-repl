@@ -7,7 +7,7 @@ const { parseArgsStringToArgv } = require("string-argv");
 // Load the command declaration
 let { declaration } = require("../src/commands/cls");
 
-describe("Test 'cache-clear' command", () => {
+describe("Test 'cls' command", () => {
 	let program;
 	let broker;
 

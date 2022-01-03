@@ -5,9 +5,9 @@ const commander = require("commander");
 const { parseArgsStringToArgv } = require("string-argv");
 
 // Load the command declaration
-let { declaration } = require("../src/commands/actions");
+let { declaration } = require("../src/commands/metrics");
 
-describe("Test 'actions' command", () => {
+describe("Test 'metrics' command", () => {
 	let program;
 	let broker;
 
@@ -36,8 +36,8 @@ describe("Test 'actions' command", () => {
 		cmdHandler.mockClear();
 	});
 
-	it("should 'actions' with flags", async () => {
-		const command = "actions -l --skipinternal -d -f greeter.*";
+	it("should 'metrics' with flags", async () => {
+		const command = "metrics -f moleculer.**";
 
 		await program.parseAsync(
 			parseArgsStringToArgv(command, "node", "REPL")
@@ -45,13 +45,8 @@ describe("Test 'actions' command", () => {
 
 		expect(cmdHandler).toHaveBeenCalledTimes(1);
 		expect(cmdHandler).toHaveBeenCalledWith(expect.any(ServiceBroker), {
-			options: {
-				details: true,
-				skipinternal: true,
-				local: true,
-				filter: "greeter.*",
-			},
-			rawCommand: "actions -l --skipinternal -d -f greeter.*",
+			options: { filter: "moleculer.**" },
+			rawCommand: "metrics -f moleculer.**",
 		});
 	});
 });

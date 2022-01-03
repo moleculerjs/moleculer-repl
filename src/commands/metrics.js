@@ -114,14 +114,17 @@ function declaration(program, broker, cmdHandler) {
 		.description("List metrics")
 		.option("-f, --filter <match>", "filter metrics (e.g.: 'moleculer.**')")
 		.hook("preAction", (thisCommand) => {
-			// Parse the args that commander.js managed to process
-			let parsedArgs = { ...thisCommand._optionValues };
+			let parsedArgs = {
+				...thisCommand._optionValues, // Contains flag values
+			};
 			delete parsedArgs._;
+
+			const rawCommand = thisCommand.parent.rawArgs.slice(2).join(" ");
 
 			// Set the params
 			thisCommand.params = {
 				options: parsedArgs,
-				rawCommand: thisCommand.args.join(" "),
+				rawCommand,
 			};
 
 			// Clear the parsed values for next execution

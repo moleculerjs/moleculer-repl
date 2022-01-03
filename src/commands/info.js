@@ -183,8 +183,21 @@ function declaration(program, broker, cmdHandler) {
 	program
 		.command("info")
 		.description("Information about broker")
-		.allowUnknownOption(true)
-		.allowExcessArguments(true)
+		.hook("preAction", (thisCommand) => {
+			// Command without params. Keep for consistency sake
+			let parsedArgs = {};
+
+			const rawCommand = thisCommand.parent.rawArgs.slice(2).join(" ");
+
+			// Set the params
+			thisCommand.params = {
+				options: parsedArgs,
+				rawCommand,
+			};
+
+			// Clear the parsed values for next execution
+			thisCommand._optionValues = {};
+		})
 		.action(async function () {
 			// Get the params
 			await cmdHandler(broker, this.params);

@@ -5,9 +5,9 @@ const commander = require("commander");
 const { parseArgsStringToArgv } = require("string-argv");
 
 // Load the command declaration
-let { declaration } = require("../src/commands/actions");
+let { declaration } = require("../src/commands/nodes");
 
-describe("Test 'actions' command", () => {
+describe("Test 'nodes' command", () => {
 	let program;
 	let broker;
 
@@ -36,8 +36,8 @@ describe("Test 'actions' command", () => {
 		cmdHandler.mockClear();
 	});
 
-	it("should 'actions' with flags", async () => {
-		const command = "actions -l --skipinternal -d -f greeter.*";
+	it("should 'nodes' with flags", async () => {
+		const command = "nodes -a -d --raw --filter node-* --save abc.json";
 
 		await program.parseAsync(
 			parseArgsStringToArgv(command, "node", "REPL")
@@ -46,12 +46,13 @@ describe("Test 'actions' command", () => {
 		expect(cmdHandler).toHaveBeenCalledTimes(1);
 		expect(cmdHandler).toHaveBeenCalledWith(expect.any(ServiceBroker), {
 			options: {
+				all: true,
 				details: true,
-				skipinternal: true,
-				local: true,
-				filter: "greeter.*",
+				filter: "node-*",
+				raw: true,
+				save: "abc.json",
 			},
-			rawCommand: "actions -l --skipinternal -d -f greeter.*",
+			rawCommand: "nodes -a -d --raw --filter node-* --save abc.json",
 		});
 	});
 });

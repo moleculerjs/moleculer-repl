@@ -180,19 +180,33 @@ function declaration(program, broker, cmdHandler) {
 		.allowUnknownOption(true)
 		.allowExcessArguments(true)
 		.hook("preAction", (thisCommand) => {
-			const [actionName, ...args] = thisCommand.args;
-			// Parse the unknown args + args that commander.js managed to process
+			const parsedOpts = thisCommand.parseOptions(thisCommand.args);
+			const [actionName, jsonParams] = parsedOpts.operands;
+
 			let parsedArgs = {
-				...parse(args), // Other params
+				...parse(parsedOpts.unknown), // Other params
 				...thisCommand._optionValues, // Contains flag values
 			};
 			delete parsedArgs._;
+
+			const calledFlags = Object.entries(thisCommand._optionValues)
+				.map(([key, value]) => {
+					return `--${key} ${value}`;
+				})
+				.join(" ");
 
 			// Set the params
 			thisCommand.params = {
 				options: parsedArgs,
 				actionName,
-				rawCommand: thisCommand.args.join(" "),
+				jsonParams,
+				rawCommand:
+					calledFlags.length > 0
+						? `call ` +
+						  thisCommand.args.join(" ") +
+						  " " +
+						  calledFlags
+						: `call ` + thisCommand.args.join(" "),
 			};
 
 			// Clear the parsed values for next execution
@@ -213,17 +227,34 @@ function declaration(program, broker, cmdHandler) {
 		.allowUnknownOption(true)
 		.allowExcessArguments(true)
 		.hook("preAction", (thisCommand) => {
-			const [nodeID, actionName, ...args] = thisCommand.args;
-			// Parse the unknown args + args that commander.js managed to process
-			let parsedArgs = { ...parse(args), ...thisCommand._optionValues };
+			const parsedOpts = thisCommand.parseOptions(thisCommand.args);
+			const [nodeID, actionName, jsonParams] = parsedOpts.operands;
+
+			let parsedArgs = {
+				...parse(parsedOpts.unknown), // Other params
+				...thisCommand._optionValues, // Contains flag values
+			};
 			delete parsedArgs._;
+
+			const calledFlags = Object.entries(thisCommand._optionValues)
+				.map(([key, value]) => {
+					return `--${key} ${value}`;
+				})
+				.join(" ");
 
 			// Set the params
 			thisCommand.params = {
 				options: parsedArgs,
-				actionName,
 				nodeID,
-				rawCommand: thisCommand.args.join(" "),
+				actionName,
+				jsonParams,
+				rawCommand:
+					calledFlags.length > 0
+						? `dcall ` +
+						  thisCommand.args.join(" ") +
+						  " " +
+						  calledFlags
+						: `dcall ` + thisCommand.args.join(" "),
 			};
 
 			// Clear the parsed values for next execution

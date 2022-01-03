@@ -36,8 +36,9 @@ async function handler(broker, args, methodName, infoString) {
  * Command option declarations
  * @param {import("commander").Command} program Commander
  * @param {import("moleculer").ServiceBroker} broker Moleculer's Service Broker
+ * @param {Function} cmdHandler Command handler
  */
-function declaration(program, broker) {
+function declaration(program, broker, cmdHandler) {
 	// Register broadcast
 	program
 		.command("broadcast <eventName>")
@@ -56,15 +57,13 @@ function declaration(program, broker) {
 				eventName,
 				rawCommand: thisCommand.args.join(" "),
 			};
-		})
-		.action(async function () {
-			console.log(this.params);
-
-			// Get the params
-			await handler(broker, this.params, "broadcast", "with payload");
 
 			// Clear the parsed values for next execution
-			this._optionValues = {};
+			thisCommand._optionValues = {};
+		})
+		.action(async function () {
+			// Get the params
+			await cmdHandler(broker, this.params, "broadcast", "with payload");
 		});
 
 	// Register broadcast local
@@ -85,21 +84,29 @@ function declaration(program, broker) {
 				eventName,
 				rawCommand: thisCommand.args.join(" "),
 			};
+
+			// Clear the parsed values for next execution
+			thisCommand._optionValues = {};
 		})
 		.action(async function () {
-			console.log(this.params);
-
 			// Get the params
-			await handler(
+			await cmdHandler(
 				broker,
 				this.params,
 				"broadcastLocal",
 				"locally with payload"
 			);
-
-			// Clear the parsed values for next execution
-			this._optionValues = {};
 		});
 }
 
-module.exports = { declaration, handler };
+/**
+ * Register the command
+ *
+ * @param {import("commander").Command} program Commander
+ * @param {import("moleculer").ServiceBroker} broker Moleculer's Service Broker
+ */
+function register(program, broker) {
+	declaration(program, broker, handler);
+}
+
+module.exports = { register, declaration, handler };

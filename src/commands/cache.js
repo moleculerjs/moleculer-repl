@@ -112,7 +112,12 @@ async function cacheClearHandler(broker, args) {
  * @param {import("commander").Command} program Commander
  * @param {import("moleculer").ServiceBroker} broker Moleculer's Service Broker
  */
-function declaration(program, broker) {
+function declaration(
+	program,
+	broker,
+	cmdCacheKeysHandler,
+	cmdCacheClearHandler
+) {
 	// Register cache keys command
 	program
 		.command("cache-keys")
@@ -130,13 +135,13 @@ function declaration(program, broker) {
 				options: parsedArgs,
 				rawCommand: thisCommand.args.join(" "),
 			};
+
+			// Clear the parsed values for next execution
+			thisCommand._optionValues = {};
 		})
 		.action(async function () {
 			// Get the params
-			await cacheKeysHandler(broker, this.params);
-
-			// Clear the parsed values for next execution
-			this._optionValues = {};
+			await cmdCacheKeysHandler(broker, this.params);
 		});
 
 	// Register cache clear command
@@ -155,14 +160,24 @@ function declaration(program, broker) {
 				options: parsedArgs,
 				rawCommand: thisCommand.args.join(" "),
 			};
+
+			// Clear the parsed values for next execution
+			thisCommand._optionValues = {};
 		})
 		.action(async function () {
 			// Get the params
-			await cacheClearHandler(broker, this.params);
-
-			// Clear the parsed values for next execution
-			this._optionValues = {};
+			await cmdCacheClearHandler(broker, this.params);
 		});
 }
 
-module.exports = { declaration, cacheKeysHandler, cacheClearHandler };
+/**
+ * Register the command
+ *
+ * @param {import("commander").Command} program Commander
+ * @param {import("moleculer").ServiceBroker} broker Moleculer's Service Broker
+ */
+function register(program, broker) {
+	declaration(program, broker, cacheKeysHandler, cacheClearHandler);
+}
+
+module.exports = { register, declaration, cacheKeysHandler, cacheClearHandler };

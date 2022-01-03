@@ -167,8 +167,9 @@ async function handler(broker, args) {
  * Command option declarations
  * @param {import("commander").Command} program Commander
  * @param {import("moleculer").ServiceBroker} broker Moleculer's Service Broker
+ * @param {Function} cmdHandler Command handler
  */
-function declaration(program, broker) {
+function declaration(program, broker, cmdHandler) {
 	// Register call command
 	program
 		.command("call <actionName> [jsonParams] [meta]")
@@ -193,13 +194,13 @@ function declaration(program, broker) {
 				actionName,
 				rawCommand: thisCommand.args.join(" "),
 			};
+
+			// Clear the parsed values for next execution
+			thisCommand._optionValues = {};
 		})
 		.action(async function () {
 			// Get the params
-			await handler(broker, this.params);
-
-			// Clear the parsed values for next execution
-			this._optionValues = {};
+			await cmdHandler(broker, this.params);
 		});
 
 	// Register dcall command
@@ -224,14 +225,24 @@ function declaration(program, broker) {
 				nodeID,
 				rawCommand: thisCommand.args.join(" "),
 			};
+
+			// Clear the parsed values for next execution
+			thisCommand._optionValues = {};
 		})
 		.action(async function () {
 			// Get the params
-			await handler(broker, this.params);
-
-			// Clear the parsed values for next execution
-			this._optionValues = {};
+			await cmdHandler(broker, this.params);
 		});
 }
 
-module.exports = { declaration, handler };
+/**
+ * Register the command
+ *
+ * @param {import("commander").Command} program Commander
+ * @param {import("moleculer").ServiceBroker} broker Moleculer's Service Broker
+ */
+function register(program, broker) {
+	declaration(program, broker, handler);
+}
+
+module.exports = { register, declaration, handler };

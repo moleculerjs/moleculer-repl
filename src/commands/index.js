@@ -13,8 +13,8 @@ module.exports = function (program, broker) {
 	files.sort();
 	files.forEach((file) => {
 		if (path.basename(file) != "index.js") {
-			const { declaration } = require(file);
-			declaration(program, broker);
+			const { register } = require(file);
+			register(program, broker);
 		}
 	});
 };

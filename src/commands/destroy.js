@@ -34,8 +34,9 @@ async function handler(broker, args) {
  * Command option declarations
  * @param {import("commander").Command} program Commander
  * @param {import("moleculer").ServiceBroker} broker Moleculer's Service Broker
+ * @param {Function} cmdHandler Command handler
  */
-function declaration(program, broker) {
+function declaration(program, broker, cmdHandler) {
 	program
 		.command("destroy <serviceName>")
 		.description("Destroy a local service")
@@ -54,11 +55,21 @@ function declaration(program, broker) {
 		})
 		.action(async function () {
 			// Get the params
-			await handler(broker, this.params);
+			await cmdHandler(broker, this.params);
 
 			// Clear the parsed values for next execution
-			this._optionValues = {};
+			thisCommand._optionValues = {};
 		});
 }
 
-module.exports = { declaration, handler };
+/**
+ * Register the command
+ *
+ * @param {import("commander").Command} program Commander
+ * @param {import("moleculer").ServiceBroker} broker Moleculer's Service Broker
+ */
+function register(program, broker) {
+	declaration(program, broker, handler);
+}
+
+module.exports = { register, declaration, handler };

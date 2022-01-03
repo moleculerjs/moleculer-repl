@@ -4,9 +4,15 @@ const { ServiceBroker } = require("moleculer");
 const commander = require("commander");
 const { parseArgsStringToArgv } = require("string-argv");
 
-describe("Test commands", () => {
+// Load the command declaration
+let { declaration } = require("../src/commands/call");
+
+describe("Test 'call' command", () => {
 	let program;
 	let broker;
+
+	// Mock the handler
+	const cmdHandler = jest.fn();
 
 	beforeAll(() => {
 		program = new commander.Command();
@@ -23,28 +29,24 @@ describe("Test commands", () => {
 		});
 	});
 
+	afterEach(() => {
+		cmdHandler.mockClear();
+	});
+
 	describe("Test 'call' command", () => {
-		// Load the command declaration
-		let { declaration, handler } = require("../src/test/call");
-
 		it("call", async () => {
-			// Mock the handler
-			// ToDo: investigate why this doesn't work
-			handler = jest.fn();
-
 			// Register the command
-			declaration(program, broker);
-
-			program.commands[0]._actionHandler = jest.fn();
+			declaration(program, broker, cmdHandler);
 
 			const command =
-				"call greeter.hello  --a 5 --b Bob --c --no-d --e.f hello";
+				"call greeter.hello --a 5 --b Bob --c --no-d --e.f hello";
 
 			await program.parseAsync(
 				parseArgsStringToArgv(command, "node", "REPL")
 			);
 
-			expect(program.commands[0].params).toStrictEqual({
+			expect(cmdHandler).toHaveBeenCalledTimes(1);
+			expect(cmdHandler).toHaveBeenCalledWith(expect.any(ServiceBroker), {
 				options: {
 					a: 5,
 					b: "Bob",

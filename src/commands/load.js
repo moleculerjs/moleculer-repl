@@ -42,7 +42,7 @@ async function loadFolderHandler(broker, args) {
  * @param {import("commander").Command} program Commander
  * @param {import("moleculer").ServiceBroker} broker Moleculer's Service Broker
  */
-function declaration(program, broker) {
+function declaration(program, broker, cmdLoadHandler, cmdLoadFolderHandler) {
 	// Register load command
 	program
 		.command("load <servicePath>")
@@ -57,13 +57,13 @@ function declaration(program, broker) {
 				options: parsedArgs,
 				rawCommand: thisCommand.args.join(" "),
 			};
+
+			// Clear the parsed values for next execution
+			thisCommand._optionValues = {};
 		})
 		.action(async function () {
 			// Get the params
-			await loadHandler(broker, this.params);
-
-			// Clear the parsed values for next execution
-			this._optionValues = {};
+			await cmdLoadHandler(broker, this.params);
 		});
 
 	// Register loadFolder command
@@ -80,14 +80,24 @@ function declaration(program, broker) {
 				options: parsedArgs,
 				rawCommand: thisCommand.args.join(" "),
 			};
+
+			// Clear the parsed values for next execution
+			thisCommand._optionValues = {};
 		})
 		.action(async function () {
 			// Get the params
-			await loadFolderHandler(broker, this.params);
-
-			// Clear the parsed values for next execution
-			this._optionValues = {};
+			await cmdLoadFolderHandler(broker, this.params);
 		});
 }
 
-module.exports = { declaration, loadHandler, loadFolderHandler };
+/**
+ * Register the command
+ *
+ * @param {import("commander").Command} program Commander
+ * @param {import("moleculer").ServiceBroker} broker Moleculer's Service Broker
+ */
+function register(program, broker) {
+	declaration(program, broker, loadHandler, loadFolderHandler);
+}
+
+module.exports = { register, declaration, loadHandler, loadFolderHandler };

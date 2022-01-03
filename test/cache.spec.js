@@ -7,7 +7,7 @@ const { parseArgsStringToArgv } = require("string-argv");
 // Load the command declaration
 let { declaration } = require("../src/commands/cache");
 
-describe("Test 'cache-keys' command", () => {
+describe("Test 'cache keys' command", () => {
 	let program;
 	let broker;
 
@@ -36,8 +36,8 @@ describe("Test 'cache-keys' command", () => {
 		cmdHandler.mockClear();
 	});
 
-	it("should 'cache-keys' without filter", async () => {
-		const command = "cache-keys";
+	it("should 'cache keys' without filter", async () => {
+		const command = "cache keys";
 
 		await program.parseAsync(
 			parseArgsStringToArgv(command, "node", "REPL")
@@ -46,12 +46,12 @@ describe("Test 'cache-keys' command", () => {
 		expect(cmdHandler).toHaveBeenCalledTimes(1);
 		expect(cmdHandler).toHaveBeenCalledWith(expect.any(ServiceBroker), {
 			options: {},
-			rawCommand: "cache-keys",
+			rawCommand: "cache keys",
 		});
 	});
 
 	it("should 'cache keys' with filter", async () => {
-		const command = "cache-keys -f abcd";
+		const command = "cache keys -f abcd";
 
 		await program.parseAsync(
 			parseArgsStringToArgv(command, "node", "REPL")
@@ -60,12 +60,12 @@ describe("Test 'cache-keys' command", () => {
 		expect(cmdHandler).toHaveBeenCalledTimes(1);
 		expect(cmdHandler).toHaveBeenCalledWith(expect.any(ServiceBroker), {
 			options: { filter: "abcd" },
-			rawCommand: "cache-keys -f abcd",
+			rawCommand: "cache keys -f abcd",
 		});
 	});
 });
 
-describe("Test 'cache-clear' command", () => {
+describe("Test 'cache clear' command", () => {
 	let program;
 	let broker;
 
@@ -94,8 +94,8 @@ describe("Test 'cache-clear' command", () => {
 		cmdHandler.mockClear();
 	});
 
-	it("should 'cache-clear' with pattern", async () => {
-		const command = "cache-clear abcde";
+	it("should 'cache clear' with pattern", async () => {
+		const command = "cache clear abcde";
 
 		await program.parseAsync(
 			parseArgsStringToArgv(command, "node", "REPL")
@@ -105,7 +105,7 @@ describe("Test 'cache-clear' command", () => {
 		expect(cmdHandler).toHaveBeenCalledWith(expect.any(ServiceBroker), {
 			options: {},
 			pattern: "abcde",
-			rawCommand: "cache-clear abcde",
+			rawCommand: "cache clear abcde",
 		});
 	});
 });

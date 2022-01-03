@@ -118,9 +118,11 @@ function declaration(
 	cmdCacheKeysHandler,
 	cmdCacheClearHandler
 ) {
-	// Register cache keys command
-	program
-		.command("cache-keys")
+	const cacheCMD = program.command("cache");
+
+	// Register cache keys subcommand
+	cacheCMD
+		.command("keys")
 		.description("List keys of cache entries")
 		.option("-f, --filter <match>", "filter keys")
 		.allowUnknownOption(true)
@@ -131,7 +133,9 @@ function declaration(
 			};
 			delete parsedArgs._;
 
-			const rawCommand = thisCommand.parent.rawArgs.slice(2).join(" ");
+			const rawCommand = thisCommand.parent.parent.rawArgs
+				.slice(2)
+				.join(" ");
 
 			// Set the params
 			thisCommand.params = {
@@ -147,9 +151,9 @@ function declaration(
 			await cmdCacheKeysHandler(broker, this.params);
 		});
 
-	// Register cache clear command
-	program
-		.command("cache-clear [pattern]")
+	// Register cache clear subcommand
+	cacheCMD
+		.command("clear [pattern]")
 		.description("Clear cache entries")
 		.allowUnknownOption(true)
 		.allowExcessArguments(true)
@@ -163,7 +167,9 @@ function declaration(
 			};
 			delete parsedArgs._;
 
-			const rawCommand = thisCommand.parent.rawArgs.slice(2).join(" ");
+			const rawCommand = thisCommand.parent.parent.rawArgs
+				.slice(2)
+				.join(" ");
 
 			// Set the params
 			thisCommand.params = {

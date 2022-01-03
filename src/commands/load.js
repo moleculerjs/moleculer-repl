@@ -1,40 +1,93 @@
 "use strict";
 
-const kleur 			= require("kleur");
-const fs 				= require("fs");
-const path 				= require("path");
+const parse = require("yargs-parser");
+const kleur = require("kleur");
+const fs = require("fs");
+const path = require("path");
 
-module.exports = function(vorpal, broker) {
-	// Register load service file
-	vorpal
-		.removeIfExist("load")
-		.command("load <servicePath>", "Load a service from file")
-		.action((args, done) => {
-			let filePath = path.resolve(args.servicePath);
-			if (fs.existsSync(filePath)) {
-				console.log(kleur.yellow(`>> Load '${filePath}'...`));
-				let service = broker.loadService(filePath);
-				if (service)
-					console.log(kleur.green(">> Loaded successfully!"));
-			} else {
-				console.warn(kleur.red("The service file is not exists!", filePath));
-			}
-			done();
+/**
+ * Command logic
+ * @param {import("moleculer").ServiceBroker} broker Moleculer's Service Broker
+ * @param {Object} args Parsed arguments
+ */
+async function loadHandler(broker, args) {
+	let filePath = path.resolve(args.servicePath);
+	if (fs.existsSync(filePath)) {
+		console.log(kleur.yellow(`>> Load '${filePath}'...`));
+		let service = broker.loadService(filePath);
+		if (service) console.log(kleur.green(">> Loaded successfully!"));
+	} else {
+		console.warn(kleur.red("The service file is not exists!", filePath));
+	}
+}
+
+/**
+ * Command logic
+ * @param {import("moleculer").ServiceBroker} broker Moleculer's Service Broker
+ * @param {Object} args Parsed arguments
+ */
+async function loadFolderHandler(broker, args) {
+	let filePath = path.resolve(args.serviceFolder);
+	if (fs.existsSync(filePath)) {
+		console.log(kleur.yellow(`>> Load services from '${filePath}'...`));
+		const count = broker.loadServices(filePath, args.fileMask);
+		console.log(kleur.green(`>> Loaded ${count} services!`));
+	} else {
+		console.warn(kleur.red("The folder is not exists!", filePath));
+	}
+}
+
+/**
+ * Command option declarations
+ * @param {import("commander").Command} program Commander
+ * @param {import("moleculer").ServiceBroker} broker Moleculer's Service Broker
+ */
+function declaration(program, broker) {
+	// Register load command
+	program
+		.command("load <servicePath>")
+		.description("Load a service from file")
+		.hook("preAction", (thisCommand) => {
+			// Parse the args that commander.js managed to process
+			let parsedArgs = { ...thisCommand._optionValues };
+			delete parsedArgs._;
+
+			// Set the params
+			thisCommand.params = {
+				options: parsedArgs,
+				rawCommand: thisCommand.args.join(" "),
+			};
+		})
+		.action(async function () {
+			// Get the params
+			await loadHandler(broker, this.params);
+
+			// Clear the parsed values for next execution
+			this._optionValues = {};
 		});
 
-	// Register load service folder
-	vorpal
-		.removeIfExist("loadFolder")
-		.command("loadFolder <serviceFolder> [fileMask]", "Load all services from folder")
-		.action((args, done) => {
-			let filePath = path.resolve(args.serviceFolder);
-			if (fs.existsSync(filePath)) {
-				console.log(kleur.yellow(`>> Load services from '${filePath}'...`));
-				const count = broker.loadServices(filePath, args.fileMask);
-				console.log(kleur.green(`>> Loaded ${count} services!`));
-			} else {
-				console.warn(kleur.red("The folder is not exists!", filePath));
-			}
-			done();
+	// Register loadFolder command
+	program
+		.command("loadFolder <serviceFolder> [fileMask]")
+		.description("Load all services from folder")
+		.hook("preAction", (thisCommand) => {
+			// Parse the args that commander.js managed to process
+			let parsedArgs = { ...thisCommand._optionValues };
+			delete parsedArgs._;
+
+			// Set the params
+			thisCommand.params = {
+				options: parsedArgs,
+				rawCommand: thisCommand.args.join(" "),
+			};
+		})
+		.action(async function () {
+			// Get the params
+			await loadFolderHandler(broker, this.params);
+
+			// Clear the parsed values for next execution
+			this._optionValues = {};
 		});
-};
+}
+
+module.exports = { declaration, loadHandler, loadFolderHandler };

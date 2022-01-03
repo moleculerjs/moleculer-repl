@@ -1,44 +1,64 @@
 "use strict";
 
-const kleur 			= require("kleur");
+const parse = require("yargs-parser");
+const kleur = require("kleur");
 
-module.exports = function (vorpal, broker) {
-	// Register destroy service file
-	vorpal
-		.removeIfExist("destroy")
-		.command("destroy <serviceName> [version]", "Destroy a local service")
-		.autocomplete({
-			data: () => {
-				let services = broker.registry.getServiceList({
-					onlyLocal: true,
-					onlyAvailable: true,
-					skipInternal: true,
-					withActions: true,
-					withEvents: true
-				});
-				// Return only the names
-				return services.map(service => service.name);
-			}
+/**
+ * Command logic
+ * @param {import("moleculer").ServiceBroker} broker Moleculer's Service Broker
+ * @param {Object} args Parsed arguments
+ */
+async function handler(broker, args) {
+	const serviceName = args.serviceName;
+
+	const service = broker.getLocalService(serviceName);
+
+	if (!service) {
+		console.warn(kleur.red(`Service "${serviceName}" doesn't exists!`));
+		return;
+	}
+
+	const p = broker.destroyService(service);
+	console.log(kleur.yellow(`>> Destroying '${serviceName}'...`));
+
+	try {
+		await p;
+		console.log(kleur.green(">> Destroyed successfully!"));
+	} catch (error) {
+		console.error(kleur.red(">> ERROR:", err.message));
+		console.error(kleur.red(err.stack));
+	}
+}
+
+/**
+ * Command option declarations
+ * @param {import("commander").Command} program Commander
+ * @param {import("moleculer").ServiceBroker} broker Moleculer's Service Broker
+ */
+function declaration(program, broker) {
+	program
+		.command("destroy <serviceName>")
+		.description("Destroy a local service")
+		.hook("preAction", (thisCommand) => {
+			const [serviceName, ...args] = thisCommand.args;
+			// Parse the unknown args + args that commander.js managed to process
+			let parsedArgs = { ...parse(args), ...thisCommand._optionValues };
+			delete parsedArgs._;
+
+			// Set the params
+			thisCommand.params = {
+				options: parsedArgs,
+				serviceName,
+				rawCommand: thisCommand.args.join(" "),
+			};
 		})
-		.action((args, done) => {
-			const serviceName = args.serviceName;
-			const version = args.version;
+		.action(async function () {
+			// Get the params
+			await handler(broker, this.params);
 
-			const service = broker.getLocalService(serviceName, version);
-
-			if (!service) {
-				console.warn(kleur.red(`Service "${serviceName}" doesn't exists!`));
-				done();
-				return;
-			}
-
-			const p = broker.destroyService(service);
-			console.log(kleur.yellow(`>> Destroying '${serviceName}'...`));
-			p.then(res => {
-				console.log(kleur.green(">> Destroyed successfully!"));
-			}).catch(err => {
-				console.error(kleur.red(">> ERROR:", err.message));
-				console.error(kleur.red(err.stack));
-			}).finally(done);
+			// Clear the parsed values for next execution
+			this._optionValues = {};
 		});
-};
+}
+
+module.exports = { declaration, handler };

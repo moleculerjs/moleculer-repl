@@ -20,7 +20,7 @@ const { parseArgsStringToArgv } = require("string-argv");
 const parse = require("yargs-parser");
 
 const { autocompleteHandler, getAvailableCommands } = require("./autocomplete");
-const registerCommands = require("./test");
+const registerCommands = require("./commands");
 const commander = require("commander");
 const program = new commander.Command();
 program.exitOverride();

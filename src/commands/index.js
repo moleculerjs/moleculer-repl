@@ -3,12 +3,18 @@
 const glob = require("glob");
 const path = require("path");
 
-module.exports = function(vorpal, broker) {
+/**
+ * Command option declarations
+ * @param {import("commander").Command} program Commander
+ * @param {import("moleculer").ServiceBroker} broker Moleculer's Service Broker
+ */
+module.exports = function (program, broker) {
 	const files = glob.sync(path.join(__dirname, "*.js"));
 	files.sort();
-	files.forEach(file => {
-		if (path.basename(file) != "index.js")
-			require(file)(vorpal, broker);
+	files.forEach((file) => {
+		if (path.basename(file) != "index.js") {
+			const { declaration } = require(file);
+			declaration(program, broker);
+		}
 	});
 };
-

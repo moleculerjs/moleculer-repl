@@ -107,7 +107,7 @@ async function evaluator(cmd, context, filename, callback) {
 			await program.parseAsync(argv);
 		} catch (error) {
 			//if (error.code !== "commander.helpDisplayed") {
-			broker.logger.error(error);
+			// broker.logger.error(error);
 			//}
 		}
 	}

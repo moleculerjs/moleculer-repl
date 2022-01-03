@@ -17,8 +17,7 @@ const broker = new ServiceBroker({
 				{
 					option: "-u, --uppercase",
 					description: "Uppercase the name",
-				},
-				,
+				}
 			],
 			types: {
 				string: ["name"],

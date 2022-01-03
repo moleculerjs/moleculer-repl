@@ -28,20 +28,29 @@ const broker = new ServiceBroker({
 			//help(args) {},
 			allowUnknownOptions: true,
 			parse(thisCommand) {
-				const [name, ...args] = thisCommand.args;
-				// Parse the unknown args + args that commander.js managed to process
+				const parsedOpts = thisCommand.parseOptions(thisCommand.args);
+				// Get command values declared in command field
+				const [name] = parsedOpts.operands;
+
 				let parsedArgs = {
-					...this(args), // Other args || "this" is yargs-parser.parse()
+					...this(parsedOpts.unknown), // Other params
 					...thisCommand._optionValues, // Contains flag values
 				};
 				delete parsedArgs._;
+
+				const rawCommand = thisCommand.parent.rawArgs
+					.slice(2)
+					.join(" ");
 
 				// Set the params
 				thisCommand.params = {
 					options: parsedArgs,
 					name,
-					rawCommand: thisCommand.args.join(" "),
+					rawCommand,
 				};
+
+				// Clear the parsed values for next execution
+				thisCommand._optionValues = {};
 			},
 			action(broker, args /*, helpers*/) {
 				const name = args.options.uppercase

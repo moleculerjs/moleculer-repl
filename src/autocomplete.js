@@ -28,7 +28,8 @@ function versionedServicesAutocomplete(broker) {
  * @returns {Array<Array<String>>}
  */
 function nodeIdActionNameAutocomplete(broker) {
-	return _.uniq(
+	// Flatten to a single list
+	const completions = _.uniq(
 		_.compact(
 			broker.registry
 				.getNodeList({ onlyAvailable: true, withServices: true })
@@ -53,6 +54,8 @@ function nodeIdActionNameAutocomplete(broker) {
 				})
 		)
 	);
+
+	return _.flatten(completions);
 }
 
 /**
@@ -146,8 +149,6 @@ function autocompleteHandler(line, broker, program) {
 		}
 		case "dcall": {
 			completions = nodeIdActionNameAutocomplete(broker);
-			// Flatten to a single list
-			completions = _.flatten(completions);
 			break;
 		}
 		case "destroy": {

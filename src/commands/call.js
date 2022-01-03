@@ -195,7 +195,7 @@ function declaration(program, broker, cmdHandler) {
 			thisCommand.params = {
 				options: parsedArgs,
 				actionName,
-				jsonParams,
+				...(jsonParams !== undefined ? { jsonParams } : undefined),
 				rawCommand,
 			};
 
@@ -233,7 +233,7 @@ function declaration(program, broker, cmdHandler) {
 				options: parsedArgs,
 				nodeID,
 				actionName,
-				jsonParams,
+				...(jsonParams !== undefined ? { jsonParams } : undefined),
 				rawCommand,
 			};
 

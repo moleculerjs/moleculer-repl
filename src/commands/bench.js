@@ -7,6 +7,8 @@ const ora = require("ora");
 const _ = require("lodash");
 const { formatNumber } = require("../utils");
 
+const { flagParseInt } = require("../flag-processing");
+
 function createSpinner(text) {
 	return ora({
 		text,
@@ -189,31 +191,35 @@ function declaration(program, broker, cmdHandler) {
 	program
 		.command("bench <action> [jsonParams] [meta]")
 		.description("Benchmark service action")
-		.option("--num <number>", "Number of iterates")
-		.option("--time <seconds>", "Time of bench")
+		.option("--num <number>", "Number of iterates", flagParseInt)
+		.option("--time <seconds>", "Time of bench", flagParseInt)
 		.option("--nodeID <nodeID>", "NodeID (direct call)")
 		.allowUnknownOption(true)
 		.allowExcessArguments(true)
 		.hook("preAction", (thisCommand) => {
-			const [action, jsonParams, ...args] = thisCommand.args;
-			// Parse the unknown args + args that commander.js managed to process
-			let parsedArgs = { ...parse(args), ...thisCommand._optionValues };
+			const parsedOpts = thisCommand.parseOptions(thisCommand.args);
+			const [action, jsonParams] = parsedOpts.operands;
+
+			let parsedArgs = {
+				...parse(parsedOpts.unknown), // Other params
+				...thisCommand._optionValues, // Contains flag values
+			};
 			delete parsedArgs._;
+
+			const rawCommand = thisCommand.parent.rawArgs.slice(2).join(" ");
 
 			// Set the params
 			thisCommand.params = {
 				options: parsedArgs,
 				action,
-				jsonParams,
-				rawCommand: thisCommand.args.join(" "),
+				...(jsonParams !== undefined ? { jsonParams } : undefined),
+				rawCommand,
 			};
 
 			// Clear the parsed values for next execution
 			thisCommand._optionValues = {};
 		})
 		.action(async function () {
-			console.log(this.params);
-
 			// Get the params
 			await cmdHandler(broker, this.params);
 		});

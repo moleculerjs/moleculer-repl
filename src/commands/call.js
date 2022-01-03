@@ -189,24 +189,14 @@ function declaration(program, broker, cmdHandler) {
 			};
 			delete parsedArgs._;
 
-			const calledFlags = Object.entries(thisCommand._optionValues)
-				.map(([key, value]) => {
-					return `--${key} ${value}`;
-				})
-				.join(" ");
+			const rawCommand = thisCommand.parent.rawArgs.slice(2).join(" ");
 
 			// Set the params
 			thisCommand.params = {
 				options: parsedArgs,
 				actionName,
 				jsonParams,
-				rawCommand:
-					calledFlags.length > 0
-						? `call ` +
-						  thisCommand.args.join(" ") +
-						  " " +
-						  calledFlags
-						: `call ` + thisCommand.args.join(" "),
+				rawCommand,
 			};
 
 			// Clear the parsed values for next execution
@@ -236,11 +226,7 @@ function declaration(program, broker, cmdHandler) {
 			};
 			delete parsedArgs._;
 
-			const calledFlags = Object.entries(thisCommand._optionValues)
-				.map(([key, value]) => {
-					return `--${key} ${value}`;
-				})
-				.join(" ");
+			const rawCommand = thisCommand.parent.rawArgs.slice(2).join(" ");
 
 			// Set the params
 			thisCommand.params = {
@@ -248,13 +234,7 @@ function declaration(program, broker, cmdHandler) {
 				nodeID,
 				actionName,
 				jsonParams,
-				rawCommand:
-					calledFlags.length > 0
-						? `dcall ` +
-						  thisCommand.args.join(" ") +
-						  " " +
-						  calledFlags
-						: `dcall ` + thisCommand.args.join(" "),
+				rawCommand,
 			};
 
 			// Clear the parsed values for next execution

@@ -49,14 +49,22 @@ function declaration(program, broker, cmdHandler) {
 		.allowUnknownOption(true)
 		.allowExcessArguments(true)
 		.hook("preAction", (thisCommand) => {
-			// Parse the args that commander.js managed to process
-			let parsedArgs = { ...thisCommand._optionValues };
+			const parsedOpts = thisCommand.parseOptions(thisCommand.args);
+			const [pattern] = parsedOpts.operands;
+
+			let parsedArgs = {
+				...parse(parsedOpts.unknown), // Other params
+				...thisCommand._optionValues, // Contains flag values
+			};
 			delete parsedArgs._;
+
+			const rawCommand = thisCommand.parent.rawArgs.slice(2).join(" ");
 
 			// Set the params
 			thisCommand.params = {
 				options: parsedArgs,
-				rawCommand: thisCommand.args.join(" "),
+				pattern,
+				rawCommand,
 			};
 
 			// Clear the parsed values for next execution

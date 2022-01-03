@@ -47,7 +47,7 @@ function declaration(program, broker, cmdHandler) {
 		.allowExcessArguments(true)
 		.hook("preAction", (thisCommand) => {
 			const parsedOpts = thisCommand.parseOptions(thisCommand.args);
-			const [eventName, jsonParams] = parsedOpts.operands;
+			const [eventName] = parsedOpts.operands;
 
 			let parsedArgs = {
 				...parse(parsedOpts.unknown), // Other params
@@ -61,7 +61,6 @@ function declaration(program, broker, cmdHandler) {
 			thisCommand.params = {
 				options: parsedArgs,
 				eventName,
-				...(jsonParams !== undefined ? { jsonParams } : undefined),
 				rawCommand,
 			};
 
@@ -81,7 +80,7 @@ function declaration(program, broker, cmdHandler) {
 		.allowExcessArguments(true)
 		.hook("preAction", (thisCommand) => {
 			const parsedOpts = thisCommand.parseOptions(thisCommand.args);
-			const [eventName, jsonParams] = parsedOpts.operands;
+			const [eventName] = parsedOpts.operands;
 
 			let parsedArgs = {
 				...parse(parsedOpts.unknown), // Other params
@@ -95,7 +94,6 @@ function declaration(program, broker, cmdHandler) {
 			thisCommand.params = {
 				options: parsedArgs,
 				eventName,
-				...(jsonParams !== undefined ? { jsonParams } : undefined),
 				rawCommand,
 			};
 

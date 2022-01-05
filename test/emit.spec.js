@@ -94,7 +94,7 @@ describe("Test 'emit' command", () => {
 		});
 	});
 
-	it("should 'emit' keep hexadecimals as string", async () => {
+	it("should 'emit' and keep hexadecimals as string", async () => {
 		// example adapted from: https://github.com/moleculerjs/moleculer-repl/issues/47
 
 		const command =

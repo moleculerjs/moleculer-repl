@@ -111,7 +111,7 @@ describe("Test 'broadcast' command", () => {
 		);
 	});
 
-	it("should 'broadcast' keep hexadecimals as string", async () => {
+	it("should 'broadcast' and keep hexadecimals as string", async () => {
 		// example adapted from: https://github.com/moleculerjs/moleculer-repl/issues/47
 
 		const command =
@@ -247,7 +247,7 @@ describe("Test 'broadcastLocal' command", () => {
 		);
 	});
 
-	it("should 'broadcastLocal' keep hexadecimals as string", async () => {
+	it("should 'broadcastLocal' and keep hexadecimals as string", async () => {
 		// example adapted from: https://github.com/moleculerjs/moleculer-repl/issues/47
 
 		const command =

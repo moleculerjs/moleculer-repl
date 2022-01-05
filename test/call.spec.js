@@ -94,7 +94,7 @@ describe("Test 'call' command", () => {
 		});
 	});
 
-	it("should 'call' keep hexadecimals as string", async () => {
+	it("should 'call' and keep hexadecimals as string", async () => {
 		// example adapted from: https://github.com/moleculerjs/moleculer-repl/issues/47
 
 		const command =
@@ -249,7 +249,7 @@ describe("Test 'dcall' command", () => {
 		});
 	});
 
-	it("should 'call' keep hexadecimals as string", async () => {
+	it("should 'call' and keep hexadecimals as string", async () => {
 		// example adapted from: https://github.com/moleculerjs/moleculer-repl/issues/47
 
 		const command =

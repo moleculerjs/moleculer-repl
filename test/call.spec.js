@@ -94,6 +94,31 @@ describe("Test 'call' command", () => {
 		});
 	});
 
+	it("should 'call' keep hexadecimals as string", async () => {
+		// example adapted from: https://github.com/moleculerjs/moleculer-repl/issues/47
+
+		const command =
+			"call greeter.hello --a 5 --a 6 --hash 0x7597 --b 8 --b 12 --traceHash 0xab706 --c testString";
+
+		await program.parseAsync(
+			parseArgsStringToArgv(command, "node", "REPL")
+		);
+
+		expect(cmdHandler).toHaveBeenCalledTimes(1);
+		expect(cmdHandler).toHaveBeenCalledWith(expect.any(ServiceBroker), {
+			options: {
+				a: [5, 6],
+				b: [8, 12],
+				c: "testString",
+				hash: "0x7597",
+				traceHash: "0xab706",
+			},
+			actionName: "greeter.hello",
+			rawCommand:
+				"call greeter.hello --a 5 --a 6 --hash 0x7597 --b 8 --b 12 --traceHash 0xab706 --c testString",
+		});
+	});
+
 	it("should 'call' with JSON string parameter", async () => {
 		const command = `call "math.add" '{"a": 5, "b": "Bob", "c": true, "d": false, "e": { "f": "hello" } }'`;
 
@@ -221,6 +246,32 @@ describe("Test 'dcall' command", () => {
 			nodeID: "node123",
 			rawCommand:
 				"dcall node123 user.create --phone +1111111 --passcode 0033",
+		});
+	});
+
+	it("should 'call' keep hexadecimals as string", async () => {
+		// example adapted from: https://github.com/moleculerjs/moleculer-repl/issues/47
+
+		const command =
+			"dcall node123 greeter.hello --a 5 --a 6 --hash 0x7597 --b 8 --b 12 --traceHash 0xab706 --c testString";
+
+		await program.parseAsync(
+			parseArgsStringToArgv(command, "node", "REPL")
+		);
+
+		expect(cmdHandler).toHaveBeenCalledTimes(1);
+		expect(cmdHandler).toHaveBeenCalledWith(expect.any(ServiceBroker), {
+			options: {
+				a: [5, 6],
+				b: [8, 12],
+				c: "testString",
+				hash: "0x7597",
+				traceHash: "0xab706",
+			},
+			actionName: "greeter.hello",
+			nodeID: "node123",
+			rawCommand:
+				"dcall node123 greeter.hello --a 5 --a 6 --hash 0x7597 --b 8 --b 12 --traceHash 0xab706 --c testString",
 		});
 	});
 

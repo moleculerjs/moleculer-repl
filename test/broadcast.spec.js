@@ -63,6 +63,83 @@ describe("Test 'broadcast' command", () => {
 			"with payload"
 		);
 	});
+
+	it("should 'broadcast' with arrays", async () => {
+		const command = "broadcast greeter.hello --a 5 --a 6 --b 8 --b 12";
+
+		await program.parseAsync(
+			parseArgsStringToArgv(command, "node", "REPL")
+		);
+
+		expect(cmdHandler).toHaveBeenCalledTimes(1);
+		expect(cmdHandler).toHaveBeenCalledWith(
+			expect.any(ServiceBroker),
+			{
+				options: {
+					a: [5, 6],
+					b: [8, 12],
+				},
+				eventName: "greeter.hello",
+				rawCommand: "broadcast greeter.hello --a 5 --a 6 --b 8 --b 12",
+			},
+			"broadcast",
+			"with payload"
+		);
+	});
+
+	it("should 'broadcast' NOT parse the values", async () => {
+		// example from: https://github.com/moleculerjs/moleculer-repl/issues/54
+
+		const command =
+			'broadcast user.create --phone "+1111111" --passcode "0033"';
+
+		await program.parseAsync(
+			parseArgsStringToArgv(command, "node", "REPL")
+		);
+
+		expect(cmdHandler).toHaveBeenCalledTimes(1);
+		expect(cmdHandler).toHaveBeenCalledWith(
+			expect.any(ServiceBroker),
+			{
+				options: { phone: "+1111111", passcode: "0033" },
+				eventName: "user.create",
+				rawCommand:
+					"broadcast user.create --phone +1111111 --passcode 0033",
+			},
+			"broadcast",
+			"with payload"
+		);
+	});
+
+	it("should 'broadcast' keep hexadecimals as string", async () => {
+		// example adapted from: https://github.com/moleculerjs/moleculer-repl/issues/47
+
+		const command =
+			"broadcast greeter.hello --a 5 --a 6 --hash 0x7597 --b 8 --b 12 --traceHash 0xab706 --c testString";
+
+		await program.parseAsync(
+			parseArgsStringToArgv(command, "node", "REPL")
+		);
+
+		expect(cmdHandler).toHaveBeenCalledTimes(1);
+		expect(cmdHandler).toHaveBeenCalledWith(
+			expect.any(ServiceBroker),
+			{
+				options: {
+					a: [5, 6],
+					b: [8, 12],
+					c: "testString",
+					hash: "0x7597",
+					traceHash: "0xab706",
+				},
+				eventName: "greeter.hello",
+				rawCommand:
+					"broadcast greeter.hello --a 5 --a 6 --hash 0x7597 --b 8 --b 12 --traceHash 0xab706 --c testString",
+			},
+			"broadcast",
+			"with payload"
+		);
+	});
 });
 
 describe("Test 'broadcastLocal' command", () => {
@@ -117,7 +194,85 @@ describe("Test 'broadcastLocal' command", () => {
 				rawCommand:
 					"broadcastLocal user.created --a 5 --b Bob --c --no-d --e.f hello",
 			},
-			"broadcastLocal",
+			"broadcast",
+			"locally with payload"
+		);
+	});
+
+	it("should 'broadcastLocal' with arrays", async () => {
+		const command = "broadcastLocal greeter.hello --a 5 --a 6 --b 8 --b 12";
+
+		await program.parseAsync(
+			parseArgsStringToArgv(command, "node", "REPL")
+		);
+
+		expect(cmdHandler).toHaveBeenCalledTimes(1);
+		expect(cmdHandler).toHaveBeenCalledWith(
+			expect.any(ServiceBroker),
+			{
+				options: {
+					a: [5, 6],
+					b: [8, 12],
+				},
+				eventName: "greeter.hello",
+				rawCommand:
+					"broadcastLocal greeter.hello --a 5 --a 6 --b 8 --b 12",
+			},
+			"broadcast",
+			"locally with payload"
+		);
+	});
+
+	it("should 'broadcastLocal' NOT parse the values", async () => {
+		// example from: https://github.com/moleculerjs/moleculer-repl/issues/54
+
+		const command =
+			'broadcastLocal user.create --phone "+1111111" --passcode "0033"';
+
+		await program.parseAsync(
+			parseArgsStringToArgv(command, "node", "REPL")
+		);
+
+		expect(cmdHandler).toHaveBeenCalledTimes(1);
+		expect(cmdHandler).toHaveBeenCalledWith(
+			expect.any(ServiceBroker),
+			{
+				options: { phone: "+1111111", passcode: "0033" },
+				eventName: "user.create",
+				rawCommand:
+					"broadcastLocal user.create --phone +1111111 --passcode 0033",
+			},
+			"broadcast",
+			"locally with payload"
+		);
+	});
+
+	it("should 'broadcastLocal' keep hexadecimals as string", async () => {
+		// example adapted from: https://github.com/moleculerjs/moleculer-repl/issues/47
+
+		const command =
+			"broadcastLocal greeter.hello --a 5 --a 6 --hash 0x7597 --b 8 --b 12 --traceHash 0xab706 --c testString";
+
+		await program.parseAsync(
+			parseArgsStringToArgv(command, "node", "REPL")
+		);
+
+		expect(cmdHandler).toHaveBeenCalledTimes(1);
+		expect(cmdHandler).toHaveBeenCalledWith(
+			expect.any(ServiceBroker),
+			{
+				options: {
+					a: [5, 6],
+					b: [8, 12],
+					c: "testString",
+					hash: "0x7597",
+					traceHash: "0xab706",
+				},
+				eventName: "greeter.hello",
+				rawCommand:
+					"broadcastLocal greeter.hello --a 5 --a 6 --hash 0x7597 --b 8 --b 12 --traceHash 0xab706 --c testString",
+			},
+			"broadcast",
 			"locally with payload"
 		);
 	});

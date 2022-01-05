@@ -1,7 +1,5 @@
 "use strict";
 
-const parse = require("yargs-parser");
-
 /**
  * Command logic
  * @param {import("moleculer").ServiceBroker} broker Moleculer's Service Broker

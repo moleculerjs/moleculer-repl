@@ -1,6 +1,6 @@
 "use strict";
 
-const parse = require("yargs-parser");
+const { parser } = require("../args-parser");
 const kleur = require("kleur");
 const _ = require("lodash");
 const { convertArgs } = require("../utils");
@@ -50,10 +50,9 @@ function declaration(program, broker, cmdHandler) {
 			const [eventName] = parsedOpts.operands;
 
 			let parsedArgs = {
-				...parse(parsedOpts.unknown), // Other params
+				...parser(parsedOpts.unknown), // Other params
 				...thisCommand._optionValues, // Contains flag values
 			};
-			delete parsedArgs._;
 
 			const rawCommand = thisCommand.parent.rawArgs.slice(2).join(" ");
 

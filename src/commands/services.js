@@ -1,6 +1,5 @@
 "use strict";
 
-const parse = require("yargs-parser");
 const kleur = require("kleur");
 const _ = require("lodash");
 const { table, getBorderCharacters } = require("table");
@@ -135,7 +134,6 @@ function declaration(program, broker, cmdHandler) {
 		.hook("preAction", (thisCommand) => {
 			// Parse the args that commander.js managed to process
 			let parsedArgs = { ...thisCommand._optionValues };
-			delete parsedArgs._;
 
 			// Set the params
 			thisCommand.params = {

@@ -146,7 +146,6 @@ function declaration(program, broker, cmdHandler) {
 			let parsedArgs = {
 				...thisCommand._optionValues, // Contains flag values
 			};
-			delete parsedArgs._;
 
 			const rawCommand = thisCommand.parent.rawArgs.slice(2).join(" ");
 

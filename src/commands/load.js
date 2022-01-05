@@ -1,6 +1,6 @@
 "use strict";
 
-const parse = require("yargs-parser");
+const { parser } = require("../args-parser");
 const kleur = require("kleur");
 const fs = require("fs");
 const path = require("path");
@@ -52,10 +52,9 @@ function declaration(program, broker, cmdLoadHandler, cmdLoadFolderHandler) {
 			const [servicePath] = parsedOpts.operands;
 
 			let parsedArgs = {
-				...parse(parsedOpts.unknown), // Other params
+				...parser(parsedOpts.unknown), // Other params
 				...thisCommand._optionValues, // Contains flag values
 			};
-			delete parsedArgs._;
 
 			const rawCommand = thisCommand.parent.rawArgs.slice(2).join(" ");
 
@@ -83,10 +82,9 @@ function declaration(program, broker, cmdLoadHandler, cmdLoadFolderHandler) {
 			const [serviceFolder] = parsedOpts.operands;
 
 			let parsedArgs = {
-				...parse(parsedOpts.unknown), // Other params
+				...parser(parsedOpts.unknown), // Other params
 				...thisCommand._optionValues, // Contains flag values
 			};
-			delete parsedArgs._;
 
 			const rawCommand = thisCommand.parent.rawArgs.slice(2).join(" ");
 

@@ -1,6 +1,6 @@
 "use strict";
 
-const parse = require("yargs-parser");
+const { parser } = require("../args-parser");
 const kleur = require("kleur");
 const fs = require("fs");
 const path = require("path");
@@ -18,7 +18,7 @@ const isStream = require("is-stream");
 async function handler(broker, args) {
 	let payload;
 	let meta = {};
-	console.log(args);
+	// console.log(args);
 	if (typeof args.jsonParams == "string") {
 		try {
 			payload = JSON.parse(args.jsonParams);
@@ -184,10 +184,9 @@ function declaration(program, broker, cmdHandler) {
 			const [actionName, jsonParams] = parsedOpts.operands;
 
 			let parsedArgs = {
-				...parse(parsedOpts.unknown), // Other params
+				...parser(parsedOpts.unknown), // Other params
 				...thisCommand._optionValues, // Contains flag values
 			};
-			delete parsedArgs._;
 
 			const rawCommand = thisCommand.parent.rawArgs.slice(2).join(" ");
 
@@ -221,10 +220,9 @@ function declaration(program, broker, cmdHandler) {
 			const [nodeID, actionName, jsonParams] = parsedOpts.operands;
 
 			let parsedArgs = {
-				...parse(parsedOpts.unknown), // Other params
+				...parser(parsedOpts.unknown), // Other params
 				...thisCommand._optionValues, // Contains flag values
 			};
-			delete parsedArgs._;
 
 			const rawCommand = thisCommand.parent.rawArgs.slice(2).join(" ");
 

@@ -1,6 +1,5 @@
 "use strict";
 
-const parse = require("yargs-parser");
 const util = require("util");
 
 /**

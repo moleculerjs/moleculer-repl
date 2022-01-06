@@ -137,8 +137,11 @@ function autocompleteHandler(line, broker, program) {
 	let completions = [];
 	switch (command) {
 		case "cache": {
-			// return straight away. No longer processing is necessary
 			completions = ["keys", "clear"];
+			break;
+		}
+		case "eventListener": {
+			completions = ["add", "remove", "list"];
 			break;
 		}
 		case "bench":

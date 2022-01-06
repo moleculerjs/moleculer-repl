@@ -15,11 +15,13 @@ async function handler(broker, args, methodName, infoString) {
 	let meta = {
 		$repl: true,
 	};
+	let broadcastOpts = {};
 
 	const opts = convertArgs(args.options);
 
 	Object.keys(opts).map((key) => {
 		if (key.startsWith("#")) meta[key.slice(1)] = opts[key];
+		else if (key.startsWith("$")) broadcastOpts[key.slice(1)] = opts[key];
 		else {
 			if (key.startsWith("@")) payload[key.slice(1)] = opts[key];
 			else payload[key] = opts[key];
@@ -27,9 +29,13 @@ async function handler(broker, args, methodName, infoString) {
 	});
 	console.log(
 		kleur.yellow().bold(`>> Broadcast '${args.eventName}' ${infoString}:`),
-		payload
+		payload,
+		meta ? kleur.yellow().bold("with meta:") : "",
+		meta ? meta : "",
+		broadcastOpts ? kleur.yellow().bold("with options:") : "",
+		broadcastOpts ? emitOpts : ""
 	);
-	broker[methodName](args.eventName, payload, { meta });
+	broker[methodName](args.eventName, payload, { meta, ...broadcastOpts });
 }
 
 /**

@@ -18,6 +18,7 @@ const isStream = require("is-stream");
 async function handler(broker, args) {
 	let payload;
 	let meta = {};
+	let callOpts = {};
 	// console.log(args);
 	if (typeof args.jsonParams == "string") {
 		try {
@@ -37,6 +38,7 @@ async function handler(broker, args) {
 
 		Object.keys(opts).map((key) => {
 			if (key.startsWith("#")) meta[key.slice(1)] = opts[key];
+			else if (key.startsWith("$")) callOpts[key.slice(1)] = opts[key];
 			else {
 				if (key.startsWith("@")) payload[key.slice(1)] = opts[key];
 				else payload[key] = opts[key];
@@ -94,14 +96,21 @@ async function handler(broker, args) {
 			.bold(
 				`>> Call '${args.actionName}'${nodeID ? " on " + nodeID : ""}`
 			),
-		isStream(payload) ? "with <Stream>." : "with params:",
-		isStream(payload) ? "" : payload
+		isStream(payload)
+			? kleur.yellow().bold("with <Stream>.")
+			: kleur.yellow().bold("with params:"),
+		isStream(payload) ? "" : payload,
+		meta ? kleur.yellow().bold("with meta:") : "",
+		meta ? meta : "",
+		callOpts ? kleur.yellow().bold("with options:") : "",
+		callOpts ? callOpts : ""
 	);
 
 	try {
 		const res = await broker.call(args.actionName, payload, {
 			meta,
 			nodeID,
+			...callOpts,
 		});
 
 		const diff = process.hrtime(startTime);

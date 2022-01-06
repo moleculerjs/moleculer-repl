@@ -33,7 +33,7 @@ async function handler(broker, args, methodName, infoString) {
 		meta ? kleur.yellow().bold("with meta:") : "",
 		meta ? meta : "",
 		broadcastOpts ? kleur.yellow().bold("with options:") : "",
-		broadcastOpts ? emitOpts : ""
+		broadcastOpts ? broadcastOpts : ""
 	);
 	broker[methodName](args.eventName, payload, { meta, ...broadcastOpts });
 }

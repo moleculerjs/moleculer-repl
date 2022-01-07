@@ -36,7 +36,7 @@ describe("Test 'call' command", () => {
 		cmdHandler.mockClear();
 	});
 
-	it("should 'call' with simple and nested params", async () => {
+	it("should call 'call' with simple and nested params", async () => {
 		const command =
 			"call greeter.hello --a 5 --b Bob --c --no-d --e.f hello";
 
@@ -59,7 +59,7 @@ describe("Test 'call' command", () => {
 		});
 	});
 
-	it("should 'call' with arrays", async () => {
+	it("should call 'call' with arrays", async () => {
 		const command = "call greeter.hello --a 5 --a 6 --b 8 --b 12";
 
 		await program.parseAsync(
@@ -77,7 +77,7 @@ describe("Test 'call' command", () => {
 		});
 	});
 
-	it("should 'call' NOT parse the values", async () => {
+	it("should call 'call' and NOT parse the values", async () => {
 		// example from: https://github.com/moleculerjs/moleculer-repl/issues/54
 
 		const command = 'call user.create --phone "+1111111" --passcode "0033"';
@@ -94,7 +94,7 @@ describe("Test 'call' command", () => {
 		});
 	});
 
-	it("should 'call' and keep hexadecimals as string", async () => {
+	it("should call 'call' and keep hexadecimals as string", async () => {
 		// example adapted from: https://github.com/moleculerjs/moleculer-repl/issues/47
 
 		const command =
@@ -119,7 +119,7 @@ describe("Test 'call' command", () => {
 		});
 	});
 
-	it("should 'call' with JSON string parameter", async () => {
+	it("should call 'call' with JSON string parameter", async () => {
 		const command = `call "math.add" '{"a": 5, "b": "Bob", "c": true, "d": false, "e": { "f": "hello" } }'`;
 
 		await program.parseAsync(
@@ -136,7 +136,7 @@ describe("Test 'call' command", () => {
 		});
 	});
 
-	it("should 'call' flags", async () => {
+	it("should call 'call' flags", async () => {
 		const command = `call "math.add" --load my-params.json --stream my-picture.jpg --save my-response.json`;
 
 		await program.parseAsync(
@@ -186,7 +186,7 @@ describe("Test 'dcall' command", () => {
 		cmdHandler.mockClear();
 	});
 
-	it("should 'dcall' with simple and nested params", async () => {
+	it("should call 'dcall' with simple and nested params", async () => {
 		const command =
 			"dcall node123 greeter.hello --a 5 --b Bob --c --no-d --e.f hello";
 
@@ -210,7 +210,7 @@ describe("Test 'dcall' command", () => {
 		});
 	});
 
-	it("should 'dcall' with arrays", async () => {
+	it("should call 'dcall' with arrays", async () => {
 		const command = "dcall node123 greeter.hello --a 5 --a 6 --b 8 --b 12";
 
 		await program.parseAsync(
@@ -229,7 +229,7 @@ describe("Test 'dcall' command", () => {
 		});
 	});
 
-	it("should 'dcall' NOT parse the values", async () => {
+	it("should call 'dcall' and NOT parse the values", async () => {
 		// example from: https://github.com/moleculerjs/moleculer-repl/issues/54
 
 		const command =
@@ -249,7 +249,7 @@ describe("Test 'dcall' command", () => {
 		});
 	});
 
-	it("should 'call' and keep hexadecimals as string", async () => {
+	it("should call 'call' and keep hexadecimals as string", async () => {
 		// example adapted from: https://github.com/moleculerjs/moleculer-repl/issues/47
 
 		const command =
@@ -275,7 +275,7 @@ describe("Test 'dcall' command", () => {
 		});
 	});
 
-	it("should 'dcall' with JSON string parameter", async () => {
+	it("should call 'dcall' with JSON string parameter", async () => {
 		const command = `dcall node123 "math.add" '{"a": 5, "b": "Bob", "c": true, "d": false, "e": { "f": "hello" } }'`;
 
 		await program.parseAsync(
@@ -293,7 +293,7 @@ describe("Test 'dcall' command", () => {
 		});
 	});
 
-	it("should 'dcall' flags", async () => {
+	it("should call 'dcall' flags", async () => {
 		const command = `dcall node123 "math.add" --load my-params.json --stream my-picture.jpg --save my-response.json`;
 
 		await program.parseAsync(

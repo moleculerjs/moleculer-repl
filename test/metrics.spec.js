@@ -36,7 +36,7 @@ describe("Test 'metrics' command", () => {
 		cmdHandler.mockClear();
 	});
 
-	it("should 'metrics' with flags", async () => {
+	it("should call 'metrics' with flags", async () => {
 		const command = "metrics -f moleculer.**";
 
 		await program.parseAsync(

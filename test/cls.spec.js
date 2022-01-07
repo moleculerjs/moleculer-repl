@@ -36,7 +36,7 @@ describe("Test 'cls' command", () => {
 		cmdHandler.mockClear();
 	});
 
-	it("should 'cls' the console", async () => {
+	it("should call 'cls'", async () => {
 		const command = "cls";
 
 		await program.parseAsync(

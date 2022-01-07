@@ -36,7 +36,7 @@ describe("Test 'broadcast' command", () => {
 		cmdHandler.mockClear();
 	});
 
-	it("should 'broadcast' with simple and nested params", async () => {
+	it("should call 'broadcast' with simple and nested params", async () => {
 		const command =
 			'broadcast "user.created" --a 5 --b Bob --c --no-d --e.f "hello"';
 
@@ -64,7 +64,7 @@ describe("Test 'broadcast' command", () => {
 		);
 	});
 
-	it("should 'broadcast' with arrays", async () => {
+	it("should call 'broadcast' with arrays", async () => {
 		const command = "broadcast greeter.hello --a 5 --a 6 --b 8 --b 12";
 
 		await program.parseAsync(
@@ -87,7 +87,7 @@ describe("Test 'broadcast' command", () => {
 		);
 	});
 
-	it("should 'broadcast' NOT parse the values", async () => {
+	it("should call 'broadcast' and NOT parse the values", async () => {
 		// example from: https://github.com/moleculerjs/moleculer-repl/issues/54
 
 		const command =
@@ -111,7 +111,7 @@ describe("Test 'broadcast' command", () => {
 		);
 	});
 
-	it("should 'broadcast' and keep hexadecimals as string", async () => {
+	it("should call 'broadcast' and keep hexadecimals as string", async () => {
 		// example adapted from: https://github.com/moleculerjs/moleculer-repl/issues/47
 
 		const command =
@@ -171,7 +171,7 @@ describe("Test 'broadcastLocal' command", () => {
 		cmdHandler.mockClear();
 	});
 
-	it("should 'broadcastLocal' with simple and nested params", async () => {
+	it("should call 'broadcastLocal' with simple and nested params", async () => {
 		const command =
 			'broadcastLocal "user.created" --a 5 --b Bob --c --no-d --e.f "hello"';
 
@@ -199,7 +199,7 @@ describe("Test 'broadcastLocal' command", () => {
 		);
 	});
 
-	it("should 'broadcastLocal' with arrays", async () => {
+	it("should call 'broadcastLocal' with arrays", async () => {
 		const command = "broadcastLocal greeter.hello --a 5 --a 6 --b 8 --b 12";
 
 		await program.parseAsync(
@@ -223,7 +223,7 @@ describe("Test 'broadcastLocal' command", () => {
 		);
 	});
 
-	it("should 'broadcastLocal' NOT parse the values", async () => {
+	it("should call 'broadcastLocal' and NOT parse the values", async () => {
 		// example from: https://github.com/moleculerjs/moleculer-repl/issues/54
 
 		const command =
@@ -247,7 +247,7 @@ describe("Test 'broadcastLocal' command", () => {
 		);
 	});
 
-	it("should 'broadcastLocal' and keep hexadecimals as string", async () => {
+	it("should call 'broadcastLocal' and keep hexadecimals as string", async () => {
 		// example adapted from: https://github.com/moleculerjs/moleculer-repl/issues/47
 
 		const command =

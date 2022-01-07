@@ -36,7 +36,7 @@ describe("Test 'nodes' command", () => {
 		cmdHandler.mockClear();
 	});
 
-	it("should 'nodes' with flags", async () => {
+	it("should call 'nodes' with flags", async () => {
 		const command = "nodes -a -d --raw --filter node-* --save abc.json";
 
 		await program.parseAsync(

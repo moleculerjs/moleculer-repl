@@ -48,7 +48,7 @@ describe("Test custom commands", () => {
 		replServer.close();
 	});
 
-	it("should 'actions' with flags", async () => {
+	it("should call 'hi' with flags", async () => {
 		expect(true).toBe(true);
 
 		const callbackMock = jest.fn();

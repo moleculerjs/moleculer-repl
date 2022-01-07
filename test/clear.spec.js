@@ -36,7 +36,7 @@ describe("Test 'clear' command", () => {
 		cmdHandler.mockClear();
 	});
 
-	it("should 'clear' with pattern", async () => {
+	it("should call 'clear' with pattern", async () => {
 		const command = "clear abcde";
 
 		await program.parseAsync(

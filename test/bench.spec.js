@@ -36,7 +36,7 @@ describe("Test 'bench' command", () => {
 		cmdHandler.mockClear();
 	});
 
-	it("should 'bench' with flags", async () => {
+	it("should call 'bench' with flags", async () => {
 		const command = "bench --time 30 greeter.welcome --num 5 --nodeID abcd";
 
 		await program.parseAsync(

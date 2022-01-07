@@ -36,7 +36,7 @@ describe("Test 'env' command", () => {
 		cmdHandler.mockClear();
 	});
 
-	it("should 'env' the console", async () => {
+	it("should call 'env'", async () => {
 		const command = "env";
 
 		await program.parseAsync(

@@ -36,7 +36,7 @@ describe("Test 'emit' command", () => {
 		cmdHandler.mockClear();
 	});
 
-	it("should 'emit' with simple and nested params", async () => {
+	it("should call 'emit' with simple and nested params", async () => {
 		const command =
 			'emit "user.created" --a 5 --b Bob --c --no-d --e.f "hello"';
 
@@ -59,7 +59,7 @@ describe("Test 'emit' command", () => {
 		});
 	});
 
-	it("should 'emit' with arrays", async () => {
+	it("should call 'emit' with arrays", async () => {
 		const command = "emit greeter.hello --a 5 --a 6 --b 8 --b 12";
 
 		await program.parseAsync(
@@ -77,7 +77,7 @@ describe("Test 'emit' command", () => {
 		});
 	});
 
-	it("should 'emit' NOT parse the values", async () => {
+	it("should call 'emit' NOT parse the values", async () => {
 		// example from: https://github.com/moleculerjs/moleculer-repl/issues/54
 
 		const command = 'emit user.create --phone "+1111111" --passcode "0033"';
@@ -94,7 +94,7 @@ describe("Test 'emit' command", () => {
 		});
 	});
 
-	it("should 'emit' and keep hexadecimals as string", async () => {
+	it("should call 'emit' and keep hexadecimals as string", async () => {
 		// example adapted from: https://github.com/moleculerjs/moleculer-repl/issues/47
 
 		const command =

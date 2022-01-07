@@ -36,7 +36,7 @@ describe("Test 'events' command", () => {
 		cmdHandler.mockClear();
 	});
 
-	it("should 'events' with flags", async () => {
+	it("should call 'events' with flags", async () => {
 		const command = "events -a -d -f greeter.* --skipinternal";
 
 		await program.parseAsync(

@@ -36,7 +36,7 @@ describe("Test 'actions' command", () => {
 		cmdHandler.mockClear();
 	});
 
-	it("should 'actions' with flags", async () => {
+	it("should call 'actions' with flags", async () => {
 		const command = "actions -l --skipinternal -d -f greeter.*";
 
 		await program.parseAsync(

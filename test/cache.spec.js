@@ -36,7 +36,7 @@ describe("Test 'cache keys' command", () => {
 		cmdHandler.mockClear();
 	});
 
-	it("should 'cache keys' without filter", async () => {
+	it("should call 'cache keys' without filter", async () => {
 		const command = "cache keys";
 
 		await program.parseAsync(
@@ -50,7 +50,7 @@ describe("Test 'cache keys' command", () => {
 		});
 	});
 
-	it("should 'cache keys' with filter", async () => {
+	it("should call 'cache keys' with filter", async () => {
 		const command = "cache keys -f abcd";
 
 		await program.parseAsync(
@@ -94,7 +94,7 @@ describe("Test 'cache clear' command", () => {
 		cmdHandler.mockClear();
 	});
 
-	it("should 'cache clear' with pattern", async () => {
+	it("should call 'cache clear' with pattern", async () => {
 		const command = "cache clear abcde";
 
 		await program.parseAsync(

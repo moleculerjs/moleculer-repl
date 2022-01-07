@@ -36,7 +36,7 @@ describe("Test 'listener add' command", () => {
 		cmdHandler.mockClear();
 	});
 
-	it("should 'listener add' with group flag", async () => {
+	it("should call 'listener add' with group flag", async () => {
 		const command = "listener add user.created --group abcd";
 
 		await program.parseAsync(
@@ -83,7 +83,7 @@ describe("Test 'listener remove' command", () => {
 		cmdHandler.mockClear();
 	});
 
-	it("should 'listener remove'", async () => {
+	it("should call 'listener remove'", async () => {
 		const command = "listener remove user.created";
 
 		await program.parseAsync(
@@ -128,7 +128,7 @@ describe("Test 'listener list' command", () => {
 		cmdHandler.mockClear();
 	});
 
-	it("should 'listener list'", async () => {
+	it("should call 'listener list'", async () => {
 		const command = "listener list";
 
 		await program.parseAsync(

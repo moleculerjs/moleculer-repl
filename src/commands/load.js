@@ -41,6 +41,8 @@ async function loadFolderHandler(broker, args) {
  * Command option declarations
  * @param {import("commander").Command} program Commander
  * @param {import("moleculer").ServiceBroker} broker Moleculer's Service Broker
+ * @param {Function} cmdLoadHandler Command handler for loading a single service
+ * @param {Function} cmdLoadFolderHandler Command handler for loading services from a folder
  */
 function declaration(program, broker, cmdLoadHandler, cmdLoadFolderHandler) {
 	// Register load command

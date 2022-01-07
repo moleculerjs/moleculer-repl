@@ -111,6 +111,8 @@ async function cacheClearHandler(broker, args) {
  * Command option declarations
  * @param {import("commander").Command} program Commander
  * @param {import("moleculer").ServiceBroker} broker Moleculer's Service Broker
+ * @param {Function} cmdCacheKeysHandler Handler that shows the keys
+ * @param {Function} cmdCacheClearHandler Handler that clears the cache
  */
 function declaration(
 	program,

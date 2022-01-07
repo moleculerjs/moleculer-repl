@@ -140,7 +140,7 @@ function autocompleteHandler(line, broker, program) {
 			completions = ["keys", "clear"];
 			break;
 		}
-		case "eventListener": {
+		case "listener": {
 			completions = ["add", "remove", "list"];
 			break;
 		}

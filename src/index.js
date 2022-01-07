@@ -109,7 +109,9 @@ async function evaluator(cmd, context, filename, callback) {
 			if (
 				error.code !== "commander.helpDisplayed" &&
 				error.code !== "commander.unknownCommand" &&
-				error.code !== "commander.unknownOption"
+				error.code !== "commander.unknownOption" &&
+				error.code !== "commander.help" &&
+				error.code !== "commander.missingArgument"
 			) {
 				broker.logger.error(error);
 			}

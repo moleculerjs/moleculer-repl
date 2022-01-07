@@ -148,6 +148,16 @@ function registerCustomCommands(broker, program, def) {
 		cmd.hook("preAction", (thisCommand) => {
 			const parsedOpts = thisCommand.parseOptions(thisCommand.args);
 
+			let values = {};
+			if (parsedOpts.operands.length > 0) {
+				for (let i = 0; i < parsedOpts.operands.length; i++) {
+					const arg = thisCommand._args[i];
+					if (arg) {
+						values[arg._name] = parsedOpts.operands[i];
+					}
+				}
+			}
+
 			let parsedArgs = {
 				...parser(parsedOpts.unknown), // Other params
 				...thisCommand._optionValues, // Contains commander.js flag values
@@ -159,6 +169,7 @@ function registerCustomCommands(broker, program, def) {
 			thisCommand.params = {
 				options: parsedArgs,
 				rawCommand,
+				...values
 			};
 		});
 	}

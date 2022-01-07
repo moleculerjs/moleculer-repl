@@ -17,7 +17,7 @@ const clui = require("clui");
 
 const nodeRepl = require("repl");
 const { parseArgsStringToArgv } = require("string-argv");
-const parse = require("yargs-parser");
+const { parser } = require("./args-parser");
 
 const { autocompleteHandler, getAvailableCommands } = require("./autocomplete");
 const registerCommands = require("./commands");
@@ -142,19 +142,23 @@ function registerCustomCommands(broker, program, def) {
 	if (def.parse) {
 		// Use custom parser
 		cmd.hook("preAction", (thisCommand) => {
-			def.parse.call(parse, thisCommand);
+			def.parse.call(parser, thisCommand);
 		});
 	} else {
 		cmd.hook("preAction", (thisCommand) => {
-			// By default only parse commander.js flags
-			let parsedArgs = { ...thisCommand._optionValues };
-			delete parsedArgs._;
+			const parsedOpts = thisCommand.parseOptions(thisCommand.args);
+
+			let parsedArgs = {
+				...parser(parsedOpts.unknown), // Other params
+				...thisCommand._optionValues, // Contains commander.js flag values
+			};
+
+			const rawCommand = thisCommand.parent.rawArgs.slice(2).join(" ");
 
 			// Set the params
 			thisCommand.params = {
 				options: parsedArgs,
-				name,
-				rawCommand: thisCommand.args.join(" "),
+				rawCommand,
 			};
 		});
 	}

@@ -17,7 +17,7 @@ const broker = new ServiceBroker({
 				{
 					option: "-u, --uppercase",
 					description: "Uppercase the name",
-				}
+				},
 			],
 			types: {
 				string: ["name"],
@@ -27,15 +27,16 @@ const broker = new ServiceBroker({
 			//help(args) {},
 			allowUnknownOptions: true,
 			parse(thisCommand) {
+				/** @type {import('commander').ParseOptionsResult} */
 				const parsedOpts = thisCommand.parseOptions(thisCommand.args);
 				// Get command values declared in command field
 				const [name] = parsedOpts.operands;
 
 				let parsedArgs = {
-					...this(parsedOpts.unknown), // Other params
+					// "this" is the parser method. See args-parser.js in source code
+					...this(parsedOpts.unknown),
 					...thisCommand._optionValues, // Contains flag values
 				};
-				delete parsedArgs._;
 
 				const rawCommand = thisCommand.parent.rawArgs
 					.slice(2)

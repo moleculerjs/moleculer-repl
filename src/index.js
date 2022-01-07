@@ -9,108 +9,187 @@
 
 require("v8"); // Load first. It won't work in `info.js`
 
-const _ 				= require("lodash");
-const vorpal 			= require("@moleculer/vorpal")();
-const { table, getBorderCharacters } 	= require("table");
-const kleur 			= require("kleur");
-const ora 				= require("ora");
-const clui 				= require("clui");
+const _ = require("lodash");
+const { table, getBorderCharacters } = require("table");
+const kleur = require("kleur");
+const ora = require("ora");
+const clui = require("clui");
 
-const registerCommands 	= require("./commands");
+const nodeRepl = require("repl");
+const { parseArgsStringToArgv } = require("string-argv");
+const { parser } = require("./args-parser");
+
+const { autocompleteHandler, getAvailableCommands } = require("./autocomplete");
+const registerCommands = require("./commands");
+const commander = require("commander");
+const program = new commander.Command();
+program.exitOverride();
+program.allowUnknownOption(true);
+
+program.showHelpAfterError(true);
+program.showSuggestionAfterError(true);
 
 /**
  * Start REPL mode
  *
- * @param {ServiceBroker} broker
+ * @param {import("moleculer").ServiceBroker} broker
  * @param {Object|Array} opts
  */
 /* istanbul ignore next */
 function REPL(broker, opts) {
-	if (Array.isArray(opts))
-		opts = { customCommands: opts };
+	if (Array.isArray(opts)) opts = { customCommands: opts };
 
 	opts = _.defaultsDeep(opts || {}, {
 		customCommands: null,
-		delimiter: "mol $"
+		delimiter: "mol $",
 	});
 
-	vorpal.removeIfExist = function(command) {
-		const cmd = vorpal.find(command);
-		if (cmd)
-			cmd.remove();
+	// Attach the commands to the program
+	registerCommands(program, broker);
 
-		return vorpal;
-	};
-
-	vorpal.isCommandArgKeyPairNormalized = false; // Switch off unix-like key value pair normalization
-
-	vorpal.removeIfExist("exit"); //vorpal vorpal-commons.js command, fails to run .stop() on exit
-
-	vorpal.on("vorpal_exit", () => {
-		broker.stop().then(() => process.exit(0));
-	}); //vorpal exit event (Ctrl-C)
-
-	vorpal
-		.removeIfExist("q")
-		.command("q", "Exit application")
-		.alias("quit")
-		.alias("exit")
-		.action((args, done) => {
-			broker.stop().then(() => {
-				process.exit(0);
-				done();
-			});
-		});
-
-	// Register general commands
-	registerCommands(vorpal, broker);
-
-	// Register custom commands
+	// Attach user defined commands
 	if (Array.isArray(opts.customCommands)) {
-		opts.customCommands.forEach(def => {
-			vorpal.removeIfExist(def.command);
-			let cmd = vorpal.command(def.command, def.description);
+		const availableCommands = getAvailableCommands(program);
 
-			if (def.autocomplete)
-				cmd.autocomplete(def.autocomplete);
-
-			if (def.alias)
-				cmd.alias(def.alias);
-
-			if (Array.isArray(def.options)) {
-				def.options.forEach(opt => cmd.option(opt.option, opt.description, opt.autocomplete));
+		opts.customCommands.forEach((def) => {
+			if (availableCommands.includes(def.name)) {
+				broker.logger.warn(
+					`Command called '${def.command}' already exists. Skipping...`
+				);
+				return;
 			}
-
-			if (def.parse)
-				cmd.parse(def.parse);
-
-			if (def.types)
-				cmd.types(def.types);
-
-			if (def.help)
-				cmd.help(def.help);
-
-			if (def.validate)
-				cmd.validate(def.validate);
-
-			if (def.allowUnknownOptions)
-				cmd.allowUnknownOptions();
-
-			cmd.action(args => {
-				const helpers = { vorpal, table, kleur, ora, clui, getBorderCharacters };
-				return Promise.resolve(def.action(broker, args, helpers));
-			});
-
-			if (def.cancel)
-				cmd.cancel(def.cancel);
+			try {
+				registerCustomCommands(broker, program, def);
+			} catch (error) {
+				broker.logger.error(
+					`An error ocurred while registering '${def.command}' command`,
+					error
+				);
+			}
 		});
 	}
 
-	// Start REPL
-	return vorpal
-		.delimiter(opts.delimiter)
-		.show();
+	// Start the server
+	const replServer = nodeRepl.start({
+		prompt: opts.delimiter.endsWith(" ")
+			? opts.delimiter
+			: opts.delimiter + " ", // Add empty space
+		completer: (line) => autocompleteHandler(line, broker, program),
+		eval: evaluator,
+	});
 
+	// Caught on "Ctrl+D"
+	replServer.on("exit", async () => {
+		await broker.stop();
+		process.exit(0);
+	});
+
+	// Attach broker to REPL's context
+	replServer.context.broker = broker;
+
+	return replServer;
+}
+
+/**
+ * Node.js custom evaluation function
+ * More info: https://nodejs.org/api/repl.html#custom-evaluation-functions
+ *
+ * @param {String} cmd
+ * @param {import("vm").Context} context
+ * @param {String} filename
+ * @param {Function} callback
+ */
+async function evaluator(cmd, context, filename, callback) {
+	/** @type {import('moleculer').ServiceBroker} */
+	const broker = this.context.broker;
+	const argv = parseArgsStringToArgv(cmd, "node", "Moleculer REPL");
+
+	if (argv.length !== 2) {
+		try {
+			await program.parseAsync(argv);
+		} catch (error) {
+			if (
+				error.code !== "commander.helpDisplayed" &&
+				error.code !== "commander.unknownCommand" &&
+				error.code !== "commander.unknownOption" &&
+				error.code !== "commander.help" &&
+				error.code !== "commander.missingArgument"
+			) {
+				broker.logger.error(error);
+			}
+		}
+	}
+
+	callback(null);
+}
+
+/**
+ * Registers user defined commands
+ * @param {import('moleculer').ServiceBroker} broker
+ * @param {import("commander").Command} program Commander
+ * @param {Object} def
+ */
+function registerCustomCommands(broker, program, def) {
+	const cmd = program.command(def.command);
+
+	if (def.description) cmd.description(def.description);
+
+	if (def.alias) cmd.alias(def.alias);
+
+	if (def.allowUnknownOptions) {
+		cmd.allowUnknownOption(def.allowUnknownOptions);
+		cmd.allowExcessArguments(def.allowUnknownOptions);
+	}
+
+	if (def.parse) {
+		// Use custom parser
+		cmd.hook("preAction", (thisCommand) => {
+			def.parse.call(parser, thisCommand);
+		});
+	} else {
+		cmd.hook("preAction", (thisCommand) => {
+			const parsedOpts = thisCommand.parseOptions(thisCommand.args);
+
+			let values = {};
+			if (parsedOpts.operands.length > 0) {
+				for (let i = 0; i < parsedOpts.operands.length; i++) {
+					const arg = thisCommand._args[i];
+					if (arg) {
+						values[arg._name] = parsedOpts.operands[i];
+					}
+				}
+			}
+
+			let parsedArgs = {
+				...parser(parsedOpts.unknown), // Other params
+				...thisCommand._optionValues, // Contains commander.js flag values
+			};
+
+			const rawCommand = thisCommand.parent.rawArgs.slice(2).join(" ");
+
+			// Set the params
+			thisCommand.params = {
+				options: parsedArgs,
+				rawCommand,
+				...values,
+			};
+		});
+	}
+
+	if (def.options) {
+		def.options.forEach((opt) => {
+			cmd.option(opt.option, opt.description);
+		});
+	}
+
+	cmd.action(async function () {
+		// Clear the parsed values for next execution
+		this._optionValues = {};
+
+		const helpers = { cmd, table, kleur, ora, clui, getBorderCharacters };
+
+		return def.action(broker, this.params, helpers);
+	});
 }
 
 module.exports = REPL;

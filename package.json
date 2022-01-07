@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon examples/index.js",
     "lint": "eslint --ext=.js src test",
-    "deps": "npm-check -u"
+    "deps": "npm-check -u",
+    "test": "jest --coverage"
   },
   "keywords": [
     "microservices",
@@ -20,7 +21,8 @@
   "author": "MoleculerJS",
   "license": "MIT",
   "devDependencies": {
-    "eslint": "^7.29.0",
+    "eslint": "^8.6.0",
+    "jest": "^27.4.7",
     "moleculer": "^0.14.14",
     "nodemon": "^2.0.7",
     "npm-check": "^5.9.2"
@@ -29,15 +31,17 @@
     "node": ">= 12.x.x"
   },
   "dependencies": {
-    "@moleculer/vorpal": "^1.11.5",
     "clui": "^0.3.6",
+    "commander": "^8.3.0",
     "glob": "^7.1.7",
-    "is-stream": "^2.0.0",
+    "is-stream": "^2.0.1",
     "kleur": "^4.1.4",
     "lodash": "^4.17.21",
     "ora": "^5.4.1",
     "pretty-bytes": "^5.6.0",
-    "table": "^6.7.1",
-    "tiny-human-time": "^1.2.0"
+    "string-argv": "^0.3.1",
+    "table": "^6.8.0",
+    "tiny-human-time": "^1.2.0",
+    "yargs-parser": "^21.0.0"
   }
 }

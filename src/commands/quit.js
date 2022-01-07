@@ -6,7 +6,8 @@
  * @param {Object} args Parsed arguments
  */
 async function handler(broker, args) {
-	process.stdout.write("\x1Bc");
+	await broker.stop();
+	process.exit(0);
 }
 
 /**
@@ -16,9 +17,12 @@ async function handler(broker, args) {
  * @param {Function} cmdHandler Command handler
  */
 function declaration(program, broker, cmdHandler) {
+	// Register cache keys command
 	program
-		.command("cls")
-		.description("Clear console")
+		.command("exit")
+		.alias("q")
+		.alias("quit")
+		.description("Exit application")
 		.hook("preAction", (thisCommand) => {
 			// Command without params. Keep for consistency sake
 			let parsedArgs = {};

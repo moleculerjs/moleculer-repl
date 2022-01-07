@@ -14,7 +14,7 @@
 			"type": "node",
 			"request": "launch",
 			"name": "Launch demo",
-			"program": "${workspaceRoot}\\examples\\index.js",
+			"program": "${workspaceRoot}/examples/index.js",
 			"cwd": "${workspaceRoot}",
 			"args": [
 				"simple"
@@ -24,7 +24,7 @@
 			"type": "node",
 			"request": "launch",
 			"name": "Jest",
-			"program": "${workspaceRoot}\\node_modules\\jest-cli\\bin\\jest.js",
+			"program": "${workspaceRoot}/node_modules/jest-cli/bin/jest.js",
 			"args": ["--runInBand"],
 			"cwd": "${workspaceRoot}",
 			"runtimeArgs": [

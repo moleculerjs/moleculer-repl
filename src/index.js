@@ -86,6 +86,8 @@ function REPL(broker, opts) {
 
 	// Attach broker to REPL's context
 	replServer.context.broker = broker;
+
+	return replServer;
 }
 
 /**
@@ -169,7 +171,7 @@ function registerCustomCommands(broker, program, def) {
 			thisCommand.params = {
 				options: parsedArgs,
 				rawCommand,
-				...values
+				...values,
 			};
 		});
 	}

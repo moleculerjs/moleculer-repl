@@ -167,7 +167,9 @@ function declaration(
 	cmdRemoveListener,
 	cmdListListeners
 ) {
-	const eventListenerCMD = program.command("listener");
+	const eventListenerCMD = program
+		.command("listener")
+		.description("Adds or removes event listeners");
 
 	// Register add event listener
 	eventListenerCMD

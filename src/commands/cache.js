@@ -120,7 +120,7 @@ function declaration(
 	cmdCacheKeysHandler,
 	cmdCacheClearHandler
 ) {
-	const cacheCMD = program.command("cache");
+	const cacheCMD = program.command("cache").description("Manage cache");
 
 	// Register cache keys subcommand
 	cacheCMD

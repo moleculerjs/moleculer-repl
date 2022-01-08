@@ -1,3 +1,15 @@
+<a name="0.7.0"></a>
+# 0.7.0 (2022-01-08)
+
+## Rewritten codebase without vulnerable `vorpal` [#57](https://github.com/moleculerjs/moleculer-repl/pull/57)
+Thanks to [@AndreMaz](https://github.com/AndreMaz), he has rewritten the REPL module because we had a lot of issue with the unmaintained `vorpal` dependency.
+This new version is compatible with the previous versions and support everything what supported in previous versions but it can open new opportunities for us in the future. 
+
+Kudos to André :tada:
+
+_You may encounter changes in operations, this is why we increased the major version number._
+
+--------------------------------------------------
 <a name="0.6.6"></a>
 # 0.6.6 (2021-06-27)
 

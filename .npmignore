@@ -1,3 +1,6 @@
 test/
 .github/
 .vscode/
+coverage/
+examples/
+CHANGELOG.md

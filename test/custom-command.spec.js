@@ -14,7 +14,7 @@ describe("Test custom commands", () => {
 			{
 				command: "hello <name>",
 				description: "Call the greeter.hello service with name",
-				alias: "hi",
+				alias: ["hi"],
 				options: [
 					{
 						option: "-u, --uppercase",
@@ -48,7 +48,37 @@ describe("Test custom commands", () => {
 		replServer.close();
 	});
 
-	it("should call 'hi' with flags", async () => {
+	afterEach(() => {
+		cmdHandler.mockReset();
+	});
+
+	it("should call 'hello' with flags", async () => {
+		expect(true).toBe(true);
+
+		const callbackMock = jest.fn();
+		replServer.eval(
+			"hello -u --prefix Mr. test",
+			undefined,
+			undefined,
+			callbackMock
+		);
+
+		expect(cmdHandler).toHaveBeenCalledTimes(1);
+		expect(cmdHandler).toHaveBeenCalledWith(
+			expect.any(ServiceBroker),
+			{
+				options: {
+					uppercase: true,
+					prefix: "Mr.",
+				},
+				name: "test",
+				rawCommand: "hello -u --prefix Mr. test",
+			},
+			expect.any(Object)
+		);
+	});
+
+	it("should call with 'hi' as alias with flags", async () => {
 		expect(true).toBe(true);
 
 		const callbackMock = jest.fn();

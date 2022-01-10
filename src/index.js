@@ -134,7 +134,10 @@ function registerCustomCommands(broker, program, def) {
 
 	if (def.description) cmd.description(def.description);
 
-	if (def.alias) cmd.alias(def.alias);
+	if (def.alias) {
+		if (!Array.isArray(def.alias)) def.alias = [def.alias];
+		def.alias.forEach((alias) => cmd.alias(alias));
+	}
 
 	if (def.allowUnknownOptions) {
 		cmd.allowUnknownOption(def.allowUnknownOptions);

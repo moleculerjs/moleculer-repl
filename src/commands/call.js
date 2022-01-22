@@ -71,6 +71,27 @@ async function handler(broker, args) {
 		}
 	}
 
+	// Load payload from file with a { "params" : {...}, "meta": {...}, options {...}} format
+	if (args.options.loadFull) {
+		let fName;
+		if (_.isString(args.options.loadFull)) {
+			fName = path.resolve(args.options.loadFull);
+		} else {
+			fName = path.resolve(`${args.actionName}.params.json`);
+		}
+		if (fs.existsSync(fName)) {
+			console.log(kleur.magenta(`>> Load params from '${fName}' file.`));
+			({
+				params: payload,
+				meta,
+				options: callOpts,
+			} = JSON.parse(fs.readFileSync(fName, "utf8")));
+			console.log(payload);
+		} else {
+			console.log(kleur.red(">> File not found:", fName));
+		}
+	}
+
 	// Load payload from file as stream
 	if (args.options.stream) {
 		let fName;
@@ -184,6 +205,10 @@ function declaration(program, broker, cmdHandler) {
 		.command("call <actionName> [jsonParams] [meta]")
 		.description("Call an action")
 		.option("--load [filename]", "Load params from file")
+		.option(
+			"--loadFull [filename]",
+			'Load params and meta from file (e.g., {"params":{}, "meta":{}, "options":{}})'
+		)
 		.option("--stream [filename]", "Send a file as stream")
 		.option("--save [filename]", "Save response to file")
 		.allowUnknownOption(true)
@@ -220,6 +245,10 @@ function declaration(program, broker, cmdHandler) {
 		.command("dcall <nodeID> <actionName> [jsonParams] [meta]")
 		.description("Direct call an action")
 		.option("--load [filename]", "Load params from file")
+		.option(
+			"--loadFull [filename]",
+			'Load params and meta from file (e.g., {"params":{}, "meta":{}, "options":{}})'
+		)
 		.option("--stream [filename]", "Send a file as stream")
 		.option("--save [filename]", "Save response to file")
 		.allowUnknownOption(true)

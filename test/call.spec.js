@@ -137,7 +137,7 @@ describe("Test 'call' command", () => {
 	});
 
 	it("should call 'call' flags", async () => {
-		const command = `call "math.add" --load my-params.json --stream my-picture.jpg --save my-response.json`;
+		const command = `call "math.add" --load my-params.json --stream my-picture.jpg --save my-response.json --loadFull params.json`;
 
 		await program.parseAsync(
 			parseArgsStringToArgv(command, "node", "REPL")
@@ -149,10 +149,11 @@ describe("Test 'call' command", () => {
 				load: "my-params.json",
 				stream: "my-picture.jpg",
 				save: "my-response.json",
+				loadFull: "params.json",
 			},
 			actionName: "math.add",
 			rawCommand:
-				"call math.add --load my-params.json --stream my-picture.jpg --save my-response.json",
+				"call math.add --load my-params.json --stream my-picture.jpg --save my-response.json --loadFull params.json",
 		});
 	});
 });
@@ -294,7 +295,7 @@ describe("Test 'dcall' command", () => {
 	});
 
 	it("should call 'dcall' flags", async () => {
-		const command = `dcall node123 "math.add" --load my-params.json --stream my-picture.jpg --save my-response.json`;
+		const command = `dcall node123 "math.add" --load my-params.json --stream my-picture.jpg --save my-response.json --loadFull params.json`;
 
 		await program.parseAsync(
 			parseArgsStringToArgv(command, "node", "REPL")
@@ -306,11 +307,12 @@ describe("Test 'dcall' command", () => {
 				load: "my-params.json",
 				stream: "my-picture.jpg",
 				save: "my-response.json",
+				loadFull: "params.json",
 			},
 			actionName: "math.add",
 			nodeID: "node123",
 			rawCommand:
-				"dcall node123 math.add --load my-params.json --stream my-picture.jpg --save my-response.json",
+				"dcall node123 math.add --load my-params.json --stream my-picture.jpg --save my-response.json --loadFull params.json",
 		});
 	});
 });

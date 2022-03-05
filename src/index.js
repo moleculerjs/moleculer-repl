@@ -204,17 +204,17 @@ module.exports = REPL;
  */
 
 /**
- * @typedef CustomCommand
+ * @typedef CustomCommand Custom command definition
  * @property {String?} description Command description
  * @property {Array<String> | String} alias Command alias
  * @property {Boolean} allowUnknownOptions Allow unknown command options
  * @property {Function} parse Custom params parser
- * @property {Array<CommandOptions>} options
+ * @property {Array<CommandOptions>} options Command options
  * @property {Function} action Custom command handler
  */
 
 /**
- * @typedef REPLOptions REPL
+ * @typedef REPLOptions REPL Options
  * @property {String?} delimiter REPL delimiter
  * @property {Array<CustomCommand>|CustomCommand} customCommands Custom commands
  */

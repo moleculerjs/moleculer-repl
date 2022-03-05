@@ -21,7 +21,7 @@ const broker = new ServiceBroker({
 				{
 					option: "-p, --prefix <prefix>",
 					description: "Add prefix to the name",
-				}
+				},
 			],
 			types: {
 				string: ["name"],

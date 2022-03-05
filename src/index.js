@@ -33,7 +33,7 @@ program.showSuggestionAfterError(true);
  * Start REPL mode
  *
  * @param {import("moleculer").ServiceBroker} broker
- * @param {Object|Array} opts
+ * @param {REPLOptions} opts
  */
 /* istanbul ignore next */
 function REPL(broker, opts) {
@@ -127,7 +127,7 @@ async function evaluator(cmd, context, filename, callback) {
  * Registers user defined commands
  * @param {import('moleculer').ServiceBroker} broker
  * @param {import("commander").Command} program Commander
- * @param {Object} def
+ * @param {CustomCommand} def
  */
 function registerCustomCommands(broker, program, def) {
 	const cmd = program.command(def.command);
@@ -193,3 +193,25 @@ function registerCustomCommands(broker, program, def) {
 }
 
 module.exports = REPL;
+
+/**
+ * @typedef CommandOptions
+ * @property {String} option Command option. More info: https://github.com/tj/commander.js/#options
+ * @property {String} description Option description
+ */
+
+/**
+ * @typedef CustomCommand
+ * @property {String?} description Command description
+ * @property {Array<String> | String} alias Command alias
+ * @property {Boolean} allowUnknownOptions Allow unknown command options
+ * @property {Function} parse Custom params parser
+ * @property {Array<CommandOptions>} options
+ * @property {Function} action Custom command handler
+ */
+
+/**
+ * @typedef REPLOptions REPL
+ * @property {String?} delimiter REPL delimiter
+ * @property {Array<CustomCommand>|CustomCommand} customCommands Custom commands
+ */

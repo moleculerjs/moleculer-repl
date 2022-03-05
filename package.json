@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon examples/index.js",
+    "check": "tsc --noEmit true",
+    "types": "tsc --emitDeclarationOnly true --noEmitOnError false",
     "lint": "eslint --ext=.js src test",
     "deps": "npm-check -u",
     "test": "jest --coverage"

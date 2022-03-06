@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "clui": "^0.3.6",
-    "commander": "^8.3.0",
+    "commander": "^9.0.0",
     "glob": "^7.1.7",
     "kleur": "^4.1.4",
     "lodash": "^4.17.21",

@@ -127,7 +127,7 @@ async function evaluator(cmd, context, filename, callback) {
  * Registers user defined commands
  * @param {import('moleculer').ServiceBroker} broker
  * @param {import("commander").Command} program Commander
- * @param {CustomCommand} def
+ * @param {Partial<CustomCommand>} def Command definition
  */
 function registerCustomCommands(broker, program, def) {
 	const cmd = program.command(def.command);
@@ -205,16 +205,17 @@ module.exports = REPL;
 
 /**
  * @typedef CustomCommand Custom command definition
+ * @property {String} command Command declaration
  * @property {String?} description Command description
- * @property {Array<String> | String} alias Command alias
- * @property {Boolean} allowUnknownOptions Allow unknown command options
- * @property {Function} parse Custom params parser
+ * @property {Array<String> | String | null} alias Command alias
+ * @property {Boolean?} allowUnknownOptions Allow unknown command options
+ * @property {Function?} parse Custom params parser
  * @property {Array<CommandOptions>} options Command options
  * @property {Function} action Custom command handler
  */
 
 /**
  * @typedef REPLOptions REPL Options
- * @property {String?} delimiter REPL delimiter
- * @property {Array<CustomCommand>|CustomCommand} customCommands Custom commands
+ * @property {String|null} delimiter REPL delimiter
+ * @property {Array<CustomCommand>|CustomCommand|null} customCommands Custom commands
  */

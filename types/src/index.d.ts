@@ -68,19 +68,19 @@ type CustomCommand = {
     action: Function;
 };
 
-declare module 'moleculer' {
-    class MoleculerREPL extends ServiceBroker {
-        repl(opts?: Partial<REPLOptions>): nodeRepl.REPLServer
+declare module "moleculer" {
+    interface ServiceBroker {
+        repl(opts?: Partial<REPLOptions>): nodeRepl.REPLServer;
     }
 
     interface BrokerOptions {
         /**
-        * Custom command definition
-        */
+         * Custom command definition
+         */
         replCommands?: Array<CustomCommand>;
         /**
-        * REPL delimiter
-        */
-        replDelimiter?: String;
+         * REPL delimiter
+         */
+        replDelimiter?: string;
     }
 }

@@ -6,7 +6,7 @@ const _ = require("lodash");
  * Returns the list of versioned services
  *
  * @param {import("moleculer").ServiceBroker} broker
- * @returns {Array<Array<String>>}
+ * @returns {Array<String>}
  */
 function versionedServicesAutocomplete(broker) {
 	let services = broker.registry.getServiceList({
@@ -25,7 +25,7 @@ function versionedServicesAutocomplete(broker) {
  * Returns the list of nodes and their actions in the following format "<nodeID> <actionName>"
  *
  * @param {import("moleculer").ServiceBroker} broker
- * @returns {Array<Array<String>>}
+ * @returns {Array<String>}
  */
 function nodeIdActionNameAutocomplete(broker) {
 	// Flatten to a single list

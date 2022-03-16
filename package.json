@@ -20,6 +20,7 @@
     "type": "git",
     "url": "https://github.com/moleculerjs/moleculer-repl.git"
   },
+  "types": "./types/index.d.ts",
   "author": "MoleculerJS",
   "license": "MIT",
   "devDependencies": {

@@ -1,3 +1,12 @@
+<a name="0.7.1"></a>
+# 0.7.1 (2022-05-19)
+
+## Changes
+- rewritten types [#62](https://github.com/moleculerjs/moleculer-repl/pull/62). _Typescript users need it for Moleculer >=v0.14.20._
+- add `--loadFull` to `call` command [#61](https://github.com/moleculerjs/moleculer-repl/pull/61)
+- alias array supported [#59](https://github.com/moleculerjs/moleculer-repl/pull/59)
+
+--------------------------------------------------
 <a name="0.7.0"></a>
 # 0.7.0 (2022-01-08)
 

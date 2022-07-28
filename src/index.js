@@ -14,6 +14,8 @@ const { table, getBorderCharacters } = require("table");
 const kleur = require("kleur");
 const ora = require("ora");
 const clui = require("clui");
+const { homedir } = require("os");
+const { join } = require("path");
 
 const nodeRepl = require("repl");
 const { parseArgsStringToArgv } = require("string-argv");
@@ -77,6 +79,18 @@ function REPL(broker, opts) {
 		completer: (line) => autocompleteHandler(line, broker, program),
 		eval: evaluator,
 	});
+
+	// Setup history
+	replServer.setupHistory(
+		join(homedir(), ".moleculer_repl_history"),
+		(err, repl) => {
+			if (err)
+				broker.logger.error(
+					`Failed to initialize Moleculer REPL history`,
+					err
+				);
+		}
+	);
 
 	// Caught on "Ctrl+D"
 	replServer.on("exit", async () => {

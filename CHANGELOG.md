@@ -1,3 +1,10 @@
+<a name="0.7.2"></a>
+# 0.7.2 (2022-08-13)
+
+## Changes
+- add REPL history [#64](https://github.com/moleculerjs/moleculer-repl/pull/64)
+
+--------------------------------------------------
 <a name="0.7.1"></a>
 # 0.7.1 (2022-05-19)
 

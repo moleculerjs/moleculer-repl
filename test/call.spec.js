@@ -156,6 +156,29 @@ describe("Test 'call' command", () => {
 				"call math.add --load my-params.json --stream my-picture.jpg --save my-response.json --loadFull params.json",
 		});
 	});
+
+	it("should call 'call' targeting local broker", async () => {
+		const command = `call "math.add" --local --load my-params.json --stream my-picture.jpg --save my-response.json --loadFull params.json`;
+
+		await program.parseAsync(
+			parseArgsStringToArgv(command, "node", "REPL")
+		);
+
+		expect(cmdHandler).toHaveBeenCalledTimes(1);
+		expect(cmdHandler).toHaveBeenCalledWith(expect.any(ServiceBroker), {
+			options: {
+				local: true,
+				load: "my-params.json",
+				stream: "my-picture.jpg",
+				save: "my-response.json",
+				loadFull: "params.json",
+			},
+			actionName: "math.add",
+			nodeID: broker.nodeID,
+			rawCommand:
+				"call math.add --local --load my-params.json --stream my-picture.jpg --save my-response.json --loadFull params.json",
+		});
+	});
 });
 
 describe("Test 'dcall' command", () => {

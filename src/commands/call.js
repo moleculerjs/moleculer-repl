@@ -209,7 +209,7 @@ function declaration(program, broker, cmdHandler) {
 			"--loadFull [filename]",
 			'Load params and meta from file (e.g., {"params":{}, "meta":{}, "options":{}})'
 		)
-		.option("--local", "Call the local service broker")
+		.option("--$local", "Call the local service broker")
 		.option("--stream [filename]", "Send a file as stream")
 		.option("--save [filename]", "Save response to file")
 		.allowUnknownOption(true)
@@ -229,7 +229,7 @@ function declaration(program, broker, cmdHandler) {
 			thisCommand.params = {
 				options: parsedArgs,
 				actionName,
-        nodeID: parsedArgs.local ? broker.nodeID : undefined,
+				nodeID: parsedArgs.$local ? broker.nodeID : undefined,
 				...(jsonParams !== undefined ? { jsonParams } : undefined),
 				rawCommand,
 			};

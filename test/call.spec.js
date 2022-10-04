@@ -158,7 +158,7 @@ describe("Test 'call' command", () => {
 	});
 
 	it("should call 'call' targeting local broker", async () => {
-		const command = `call "math.add" --local --load my-params.json --stream my-picture.jpg --save my-response.json --loadFull params.json`;
+		const command = `call "math.add" --$local --load my-params.json --stream my-picture.jpg --save my-response.json --loadFull params.json`;
 
 		await program.parseAsync(
 			parseArgsStringToArgv(command, "node", "REPL")
@@ -167,7 +167,7 @@ describe("Test 'call' command", () => {
 		expect(cmdHandler).toHaveBeenCalledTimes(1);
 		expect(cmdHandler).toHaveBeenCalledWith(expect.any(ServiceBroker), {
 			options: {
-				local: true,
+				$local: true,
 				load: "my-params.json",
 				stream: "my-picture.jpg",
 				save: "my-response.json",
@@ -176,7 +176,7 @@ describe("Test 'call' command", () => {
 			actionName: "math.add",
 			nodeID: broker.nodeID,
 			rawCommand:
-				"call math.add --local --load my-params.json --stream my-picture.jpg --save my-response.json --loadFull params.json",
+				"call math.add --$local --load my-params.json --stream my-picture.jpg --save my-response.json --loadFull params.json",
 		});
 	});
 });

@@ -109,18 +109,16 @@ async function handler(broker, args) {
 	}
 
 	// Remove non-standard call opts
-	const nonStandardCallOpts = [{
+	[{
 		key: "local",
 		replaceKey: "nodeID",
 		value: args.nodeID,
-	}];
-	for (let key of Object.keys(callOpts)) {
-		const opt = nonStandardCallOpts.find(opt => opt.key === key);
-		if (opt) {
-			delete callOpts[key];
+	}].forEach(opt => {
+		if (callOpts[opt.key]) {
+			delete callOpts[opt.key];
 			opt.replaceKey ? callOpts[opt.replaceKey] = opt.value : undefined;
 		}
-	}
+	});
 
 	const startTime = process.hrtime();
 	const nodeID = args.nodeID;

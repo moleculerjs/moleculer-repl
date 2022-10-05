@@ -137,8 +137,8 @@ async function handler(broker, args) {
 		isStream(payload) ? "" : payload,
 		meta ? kleur.yellow().bold("with meta:") : "",
 		meta ? meta : "",
-		callOpts ? kleur.yellow().bold("with options:") : "",
-		callOpts ? callOpts : ""
+		Object.keys(callOpts).length ? kleur.yellow().bold("with options:") : "",
+		Object.keys(callOpts).length ? callOpts : ""
 	);
 
 	try {

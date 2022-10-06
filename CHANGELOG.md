@@ -1,3 +1,10 @@
+<a name="0.7.3"></a>
+# 0.7.3 (2022-10-06)
+
+## Changes
+- add `--$local` option to `call` [#66](https://github.com/moleculerjs/moleculer-repl/pull/66)
+
+--------------------------------------------------
 <a name="0.7.2"></a>
 # 0.7.2 (2022-08-13)
 

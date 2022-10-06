@@ -108,6 +108,18 @@ async function handler(broker, args) {
 		}
 	}
 
+	// Remove non-standard call opts
+	[{
+		key: "local",
+		replaceKey: "nodeID",
+		value: args.nodeID,
+	}].forEach(opt => {
+		if (callOpts[opt.key]) {
+			delete callOpts[opt.key];
+			opt.replaceKey ? callOpts[opt.replaceKey] = opt.value : undefined;
+		}
+	});
+
 	const startTime = process.hrtime();
 	const nodeID = args.nodeID;
 	meta.$repl = true;
@@ -123,8 +135,8 @@ async function handler(broker, args) {
 		isStream(payload) ? "" : payload,
 		meta ? kleur.yellow().bold("with meta:") : "",
 		meta ? meta : "",
-		callOpts ? kleur.yellow().bold("with options:") : "",
-		callOpts ? callOpts : ""
+		Object.keys(callOpts).length ? kleur.yellow().bold("with options:") : "",
+		Object.keys(callOpts).length ? callOpts : ""
 	);
 
 	try {
@@ -209,6 +221,7 @@ function declaration(program, broker, cmdHandler) {
 			"--loadFull [filename]",
 			'Load params and meta from file (e.g., {"params":{}, "meta":{}, "options":{}})'
 		)
+		.option("--$local", "Call the local service broker")
 		.option("--stream [filename]", "Send a file as stream")
 		.option("--save [filename]", "Save response to file")
 		.allowUnknownOption(true)
@@ -228,6 +241,7 @@ function declaration(program, broker, cmdHandler) {
 			thisCommand.params = {
 				options: parsedArgs,
 				actionName,
+				nodeID: parsedArgs.$local ? broker.nodeID : undefined,
 				...(jsonParams !== undefined ? { jsonParams } : undefined),
 				rawCommand,
 			};

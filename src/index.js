@@ -18,12 +18,14 @@ const { homedir } = require("os");
 const { join } = require("path");
 
 const nodeRepl = require("repl");
+const nodeNet = require("net");
 const { parseArgsStringToArgv } = require("string-argv");
 const { parser } = require("./args-parser");
 
 const { autocompleteHandler, getAvailableCommands } = require("./autocomplete");
 const registerCommands = require("./commands");
 const commander = require("commander");
+const { Socket } = require("net");
 const program = new commander.Command();
 program.exitOverride();
 program.allowUnknownOption(true);
@@ -44,6 +46,7 @@ function REPL(broker, opts) {
 	opts = _.defaultsDeep(opts || {}, {
 		customCommands: null,
 		delimiter: "mol $",
+		tcpPort: null
 	});
 
 	// Attach the commands to the program
@@ -71,11 +74,76 @@ function REPL(broker, opts) {
 		});
 	}
 
+	// Create a TCP based REPL instance
+	if (opts.tcpPort) {
+		nodeNet.createServer(socket => {
+
+			// Get all console print related functions
+			const _assert_ = console.assert;
+			const _debug_ = console.debug;
+			const _error_ = console.error;
+			const _info_ = console.info;
+			const _log_ = console.log;
+			const _table_ = console.table;
+			const _timeEnd_ = console.timeEnd;
+			const _timeLog_ = console.timeLog;
+			const _trace_ = console.trace;
+			const _warn_ = console.warn;
+
+			// Pipe the original console messages to the socket
+			console.assert = (msg => pipeToSocket(socket, _assert_, msg));
+			console.debug = (msg => pipeToSocket(socket, _debug_, msg));
+			console.error = (msg => pipeToSocket(socket, _error_, msg));
+			console.info = (msg => pipeToSocket(socket, _info_, msg));
+			console.log = (msg => pipeToSocket(socket, _log_, msg));
+			console.table = (msg => pipeToSocket(socket, _table_, msg));
+			console.timeEnd = (msg => pipeToSocket(socket, _timeEnd_, msg));
+			console.timeLog = (msg => pipeToSocket(socket, _timeLog_, msg));
+			console.trace = (msg => pipeToSocket(socket, _trace_, msg));
+			console.warn = (msg => pipeToSocket(socket, _warn_, msg));
+
+			// Create and start a TCP socket based REPL instance
+			startReplServer(broker, opts, socket);
+
+		}).listen(opts.tcpPort);
+	}
+
+	// Create a stdin based REPL instance
+	return startReplServer(broker, opts);
+}
+
+/**
+ * Pipe the messages written to the console with stdout to the TCP socket.
+ *
+ * @param {Socket} socket
+ * @param {Function} cal
+ * @param {String} msg
+ */
+function pipeToSocket(socket, cal, msg) {
+	// write the msg to the original console
+	cal(msg);
+	// write the msg to the socket console
+	socket.write(msg);
+}
+
+/**
+ * Unified approch toiInstantiate and start a REPLServer instance based on the either a socket or stdin/stdout.
+ *
+ * @param {import("moleculer").ServiceBroker} broker
+ * @param {REPLOptions} opts
+ * @param {Socket} socket
+ */
+function startReplServer(broker, opts, socket = null) {
+
 	// Start the server
 	const replServer = nodeRepl.start({
 		prompt: opts.delimiter.endsWith(" ")
 			? opts.delimiter
 			: opts.delimiter + " ", // Add empty space
+		input: (socket instanceof Socket) ? socket : process.stdin,
+		output: (socket instanceof Socket) ? socket : process.stdout,
+		terminal: true,
+		useGlobal: false,
 		completer: (line) => autocompleteHandler(line, broker, program),
 		eval: evaluator,
 	});
@@ -95,6 +163,11 @@ function REPL(broker, opts) {
 	// Caught on "Ctrl+D"
 	replServer.on("exit", async () => {
 		await broker.stop();
+
+		if (socket instanceof Socket) {
+			socket.end();
+		}
+
 		process.exit(0);
 	});
 
@@ -232,4 +305,5 @@ module.exports = REPL;
  * @typedef REPLOptions REPL Options
  * @property {String|null} delimiter REPL delimiter
  * @property {Array<CustomCommand>|CustomCommand|null} customCommands Custom commands
+ * @property {number|null} tcpPort REPL TCP Port
  */

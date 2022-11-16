@@ -76,32 +76,13 @@ function REPL(broker, opts) {
 
 	// Create a TCP based REPL instance
 	if (opts.tcpPort) {
+
+		console.log(kleur
+			.cyan()
+			.bold(`Remote REPL instance available via TCP socket - Use socat or telnet, e.g: $ telnet <ip> ${opts.tcpPort}`)
+		);
+
 		nodeNet.createServer(socket => {
-
-			// Get all console print related functions
-			const _assert_ = console.assert;
-			const _debug_ = console.debug;
-			const _error_ = console.error;
-			const _info_ = console.info;
-			const _log_ = console.log;
-			const _table_ = console.table;
-			const _timeEnd_ = console.timeEnd;
-			const _timeLog_ = console.timeLog;
-			const _trace_ = console.trace;
-			const _warn_ = console.warn;
-
-			// Pipe the original console messages to the socket
-			console.assert = (msg => pipeToSocket(socket, _assert_, msg));
-			console.debug = (msg => pipeToSocket(socket, _debug_, msg));
-			console.error = (msg => pipeToSocket(socket, _error_, msg));
-			console.info = (msg => pipeToSocket(socket, _info_, msg));
-			console.log = (msg => pipeToSocket(socket, _log_, msg));
-			console.table = (msg => pipeToSocket(socket, _table_, msg));
-			console.timeEnd = (msg => pipeToSocket(socket, _timeEnd_, msg));
-			console.timeLog = (msg => pipeToSocket(socket, _timeLog_, msg));
-			console.trace = (msg => pipeToSocket(socket, _trace_, msg));
-			console.warn = (msg => pipeToSocket(socket, _warn_, msg));
-
 			// Create and start a TCP socket based REPL instance
 			startReplServer(broker, opts, socket);
 
@@ -113,20 +94,6 @@ function REPL(broker, opts) {
 }
 
 /**
- * Pipe the messages written to the console with stdout to the TCP socket.
- *
- * @param {Socket} socket
- * @param {Function} cal
- * @param {String} msg
- */
-function pipeToSocket(socket, cal, msg) {
-	// write the msg to the original console
-	cal(msg);
-	// write the msg to the socket console
-	socket.write(msg);
-}
-
-/**
  * Unified approch toiInstantiate and start a REPLServer instance based on the either a socket or stdin/stdout.
  *
  * @param {import("moleculer").ServiceBroker} broker
@@ -134,6 +101,23 @@ function pipeToSocket(socket, cal, msg) {
  * @param {Socket} socket
  */
 function startReplServer(broker, opts, socket = null) {
+
+	// Get all stdout / stderr and write them to the TCP socket, if one is available
+	const oriStdoutWrite = process.stdout.write.bind(process.stdout);
+	process.stdout.write = (chunk, encoding, callback) => {
+		if (socket instanceof Socket) {
+			socket.write(chunk + "\r");
+		}
+		return oriStdoutWrite(chunk, encoding, callback);
+	};
+
+	const oriStderrWrite = process.stderr.write.bind(process.stderr);
+	process.stderr.write = (chunk, encoding, callback) => {
+		if (socket instanceof Socket) {
+			socket.write(chunk + "\r");
+		}
+		return oriStderrWrite(chunk, encoding, callback);
+	};
 
 	// Start the server
 	const replServer = nodeRepl.start({
@@ -167,6 +151,10 @@ function startReplServer(broker, opts, socket = null) {
 		if (socket instanceof Socket) {
 			socket.end();
 		}
+
+		// reset the stdout and stderr with their original write callbacks
+		process.stdout.write = oriStdoutWrite;
+		process.stderr.write = oriStderrWrite;
 
 		process.exit(0);
 	});

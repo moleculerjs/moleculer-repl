@@ -41,10 +41,10 @@ mol $
 **Start broker in REPL mode in a remote machine**
 ```js
 const broker = new ServiceBroker({
-	nodeID: "repl-" + process.pid,
-
+    ...
 	// REPL TCP Socket port
 	replTcpPort: 1337,
+    ...
 });
 
 broker.start().then(() => {

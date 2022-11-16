@@ -8,7 +8,7 @@ const broker = new ServiceBroker({
 	nodeID: "repl-" + process.pid,
 
 	// REPL TCP Socket port
-	replTcpPort: 5001,
+	replTcpPort: 1337,
 
 	// Custom REPL command
 	replCommands: [
@@ -125,6 +125,6 @@ broker.start().then(() =>
 	REPL(broker, {
 		delimiter: "moleculer λ",
 		customCommands: broker.options.replCommands,
-		tcpPort: 5001
+		tcpPort: broker.options.replTcpPort
 	})
 );

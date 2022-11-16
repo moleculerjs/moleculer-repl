@@ -18,12 +18,14 @@ const { homedir } = require("os");
 const { join } = require("path");
 
 const nodeRepl = require("repl");
+const nodeNet = require("net");
 const { parseArgsStringToArgv } = require("string-argv");
 const { parser } = require("./args-parser");
 
 const { autocompleteHandler, getAvailableCommands } = require("./autocomplete");
 const registerCommands = require("./commands");
 const commander = require("commander");
+const { Socket } = require("net");
 const program = new commander.Command();
 program.exitOverride();
 program.allowUnknownOption(true);
@@ -44,6 +46,7 @@ function REPL(broker, opts) {
 	opts = _.defaultsDeep(opts || {}, {
 		customCommands: null,
 		delimiter: "mol $",
+		tcpPort: null
 	});
 
 	// Attach the commands to the program
@@ -71,11 +74,60 @@ function REPL(broker, opts) {
 		});
 	}
 
+	// Create a TCP based REPL instance
+	if (opts.tcpPort) {
+
+		console.log(kleur
+			.cyan()
+			.bold(`Remote REPL instance available via TCP socket - Use socat or telnet, e.g: $ telnet <ip> ${opts.tcpPort}`)
+		);
+
+		nodeNet.createServer(socket => {
+			// Create and start a TCP socket based REPL instance
+			startReplServer(broker, opts, socket);
+
+		}).listen(opts.tcpPort);
+	}
+
+	// Create a stdin based REPL instance
+	return startReplServer(broker, opts);
+}
+
+/**
+ * Unified approch toiInstantiate and start a REPLServer instance based on the either a socket or stdin/stdout.
+ *
+ * @param {import("moleculer").ServiceBroker} broker
+ * @param {REPLOptions} opts
+ * @param {Socket} socket
+ */
+function startReplServer(broker, opts, socket = null) {
+
+	// Get all stdout / stderr and write them to the TCP socket, if one is available
+	const oriStdoutWrite = process.stdout.write.bind(process.stdout);
+	process.stdout.write = (chunk, encoding, callback) => {
+		if (socket instanceof Socket) {
+			socket.write(chunk + "\r");
+		}
+		return oriStdoutWrite(chunk, encoding, callback);
+	};
+
+	const oriStderrWrite = process.stderr.write.bind(process.stderr);
+	process.stderr.write = (chunk, encoding, callback) => {
+		if (socket instanceof Socket) {
+			socket.write(chunk + "\r");
+		}
+		return oriStderrWrite(chunk, encoding, callback);
+	};
+
 	// Start the server
 	const replServer = nodeRepl.start({
 		prompt: opts.delimiter.endsWith(" ")
 			? opts.delimiter
 			: opts.delimiter + " ", // Add empty space
+		input: (socket instanceof Socket) ? socket : process.stdin,
+		output: (socket instanceof Socket) ? socket : process.stdout,
+		terminal: true,
+		useGlobal: false,
 		completer: (line) => autocompleteHandler(line, broker, program),
 		eval: evaluator,
 	});
@@ -95,6 +147,15 @@ function REPL(broker, opts) {
 	// Caught on "Ctrl+D"
 	replServer.on("exit", async () => {
 		await broker.stop();
+
+		if (socket instanceof Socket) {
+			socket.end();
+		}
+
+		// reset the stdout and stderr with their original write callbacks
+		process.stdout.write = oriStdoutWrite;
+		process.stderr.write = oriStderrWrite;
+
 		process.exit(0);
 	});
 
@@ -232,4 +293,5 @@ module.exports = REPL;
  * @typedef REPLOptions REPL Options
  * @property {String|null} delimiter REPL delimiter
  * @property {Array<CustomCommand>|CustomCommand|null} customCommands Custom commands
+ * @property {number|null} tcpPort REPL TCP Port
  */

@@ -22,6 +22,10 @@ type REPLOptions = {
      * Custom commands
      */
     customCommands: Array<CustomCommand> | CustomCommand | null;
+    /**
+     * REPL TCP Port
+     */
+     tcpPort: number | null;
 };
 import nodeRepl = require("repl");
 type CommandOptions = {
@@ -82,5 +86,9 @@ declare module "moleculer" {
          * REPL delimiter
          */
         replDelimiter?: string;
+        /**
+         * REPL TCP Port
+         */
+        replTcpPort?: number;
     }
 }

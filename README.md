@@ -38,6 +38,31 @@ You will get a console:
 mol $ 
 ```
 
+**Start broker in REPL mode in a remote machine**
+```js
+const broker = new ServiceBroker({
+    ...
+	// REPL TCP Socket port
+	replTcpPort: 1337,
+    ...
+});
+
+broker.start().then(() => {
+    // Start REPL
+    broker.repl();
+});
+```
+
+On your local machine:
+
+```bash
+$ telnet <remote-machine-ip> 1337
+Trying <remote-machine-ip>...
+Connected to <remote-machine-ip>.
+Escape character is '^]'.
+mol $ 
+```
+
 Run `help` to see available commands.
 
 ## Documentation

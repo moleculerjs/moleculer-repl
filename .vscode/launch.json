@@ -13,12 +13,24 @@
 		{
 			"type": "node",
 			"request": "launch",
-			"name": "Launch demo",
+			"name": "Launch Demo - Simple",
 			"program": "${workspaceRoot}/examples/index.js",
 			"cwd": "${workspaceRoot}",
 			"args": [
 				"simple"
-			]
+			],
+			"console": "integratedTerminal"
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Launch Demo - Remote",
+			"program": "${workspaceRoot}/examples/index.js",
+			"cwd": "${workspaceRoot}",
+			"args": [
+				"remote"
+			],
+			"console": "integratedTerminal"
 		},
 		{
 			"type": "node",

@@ -1,3 +1,9 @@
+<a name="0.7.4"></a>
+# 0.7.4 (2022-11-16)
+
+## Changes
+- add support for instanting a remote REPL instance over TCP socket
+
 <a name="0.7.3"></a>
 # 0.7.3 (2022-10-06)
 

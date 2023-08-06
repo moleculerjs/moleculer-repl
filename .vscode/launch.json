@@ -18,7 +18,8 @@
 			"cwd": "${workspaceRoot}",
 			"args": [
 				"simple"
-			]
+			],
+			"console": "integratedTerminal"
 		},
 		{
 			"type": "node",

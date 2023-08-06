@@ -122,6 +122,20 @@ async function handler(broker, args) {
 
 	const startTime = process.hrtime();
 	const nodeID = args.nodeID;
+
+	if (
+		nodeID &&
+		!broker.registry
+			.getServiceList({})
+			.map((service) => service.nodeID)
+			.includes(nodeID)
+	) {
+		console.error(
+			kleur.red().bold(`>> Node '${nodeID}' is not available.`)
+		);
+		return;
+	}
+
 	meta.$repl = true;
 	console.log(
 		kleur
@@ -228,7 +242,7 @@ function declaration(program, broker, cmdHandler) {
 		.allowExcessArguments(true)
 		.hook("preAction", (thisCommand) => {
 			const parsedOpts = thisCommand.parseOptions(thisCommand.args);
-			const [actionName, jsonParams] = parsedOpts.operands;
+			const [actionName, jsonParams, meta] = parsedOpts.operands;
 
 			let parsedArgs = {
 				...parser(parsedOpts.unknown), // Other params
@@ -243,6 +257,7 @@ function declaration(program, broker, cmdHandler) {
 				actionName,
 				nodeID: parsedArgs.$local ? broker.nodeID : undefined,
 				...(jsonParams !== undefined ? { jsonParams } : undefined),
+				...(meta !== undefined ? { meta } : undefined),
 				rawCommand,
 			};
 
@@ -269,7 +284,7 @@ function declaration(program, broker, cmdHandler) {
 		.allowExcessArguments(true)
 		.hook("preAction", (thisCommand) => {
 			const parsedOpts = thisCommand.parseOptions(thisCommand.args);
-			const [nodeID, actionName, jsonParams] = parsedOpts.operands;
+			const [nodeID, actionName, jsonParams, meta] = parsedOpts.operands;
 
 			let parsedArgs = {
 				...parser(parsedOpts.unknown), // Other params
@@ -284,6 +299,7 @@ function declaration(program, broker, cmdHandler) {
 				nodeID,
 				actionName,
 				...(jsonParams !== undefined ? { jsonParams } : undefined),
+				...(meta !== undefined ? { meta } : undefined),
 				rawCommand,
 			};
 

@@ -120,7 +120,7 @@ describe("Test 'call' command", () => {
 	});
 
 	it("should call 'call' with JSON string parameter", async () => {
-		const command = `call "math.add" '{"a": 5, "b": "Bob", "c": true, "d": false, "e": { "f": "hello" } }'`;
+		const command = `call "math.add" '{"a": 5, "b": "Bob", "c": true, "d": false, "e": { "f": "hello" } }' '{"meta_a": 5, "meta_b": "Bob", "meta_c": true, "meta_d": false, "meta_e": { "meta_f": "hello" } }'`;
 
 		await program.parseAsync(
 			parseArgsStringToArgv(command, "node", "REPL")
@@ -132,7 +132,8 @@ describe("Test 'call' command", () => {
 			actionName: "math.add",
 			jsonParams:
 				'{"a": 5, "b": "Bob", "c": true, "d": false, "e": { "f": "hello" } }',
-			rawCommand: `call math.add {"a": 5, "b": "Bob", "c": true, "d": false, "e": { "f": "hello" } }`,
+			meta: '{"meta_a": 5, "meta_b": "Bob", "meta_c": true, "meta_d": false, "meta_e": { "meta_f": "hello" } }',
+			rawCommand: `call math.add {"a": 5, "b": "Bob", "c": true, "d": false, "e": { "f": "hello" } } {"meta_a": 5, "meta_b": "Bob", "meta_c": true, "meta_d": false, "meta_e": { "meta_f": "hello" } }`,
 		});
 	});
 
@@ -300,7 +301,7 @@ describe("Test 'dcall' command", () => {
 	});
 
 	it("should call 'dcall' with JSON string parameter", async () => {
-		const command = `dcall node123 "math.add" '{"a": 5, "b": "Bob", "c": true, "d": false, "e": { "f": "hello" } }'`;
+		const command = `dcall node123 "math.add" '{"a": 5, "b": "Bob", "c": true, "d": false, "e": { "f": "hello" } }' '{"meta_a": 5, "meta_b": "Bob", "meta_c": true, "meta_d": false, "meta_e": { "meta_f": "hello" } }'`;
 
 		await program.parseAsync(
 			parseArgsStringToArgv(command, "node", "REPL")
@@ -313,7 +314,8 @@ describe("Test 'dcall' command", () => {
 			nodeID: "node123",
 			jsonParams:
 				'{"a": 5, "b": "Bob", "c": true, "d": false, "e": { "f": "hello" } }',
-			rawCommand: `dcall node123 math.add {"a": 5, "b": "Bob", "c": true, "d": false, "e": { "f": "hello" } }`,
+			meta: '{"meta_a": 5, "meta_b": "Bob", "meta_c": true, "meta_d": false, "meta_e": { "meta_f": "hello" } }',
+			rawCommand: `dcall node123 math.add {"a": 5, "b": "Bob", "c": true, "d": false, "e": { "f": "hello" } } {"meta_a": 5, "meta_b": "Bob", "meta_c": true, "meta_d": false, "meta_e": { "meta_f": "hello" } }`,
 		});
 	});
 

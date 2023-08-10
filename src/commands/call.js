@@ -191,19 +191,65 @@ async function handler(broker, args) {
 			}
 
 			if (isStream(res)) {
-				res.pipe(fs.createWriteStream(fName));
+				const isObjectMode = res.objectMode || res.readableObjectMode;
+				const print = args.options.save === "stdout";
+
+				let chunkSeq = 0;
+
+				const pass = new Transform({
+					objectMode: true,
+					transform(chunk, _, cb) {
+						const value = isObjectMode
+							? print
+								? JSON.stringify(chunk, null, 4)
+								: Buffer.from(JSON.stringify(chunk, null, 4))
+							: chunk;
+
+						const message = isObjectMode
+							? `<= Stream chunk is received seq: ${chunkSeq++}\n${value}`
+							: value;
+
+						cb(null, message);
+					},
+				});
+
+				const stream = res.pipe(pass);
+
+				stream
+					.on("error", (err) =>
+						console.error(
+							"=> Receive stream error",
+							util.inspect(err, {
+								showHidden: false,
+								depth: 4,
+								colors: true,
+							})
+						)
+					)
+					.on("end", () => {
+						const message = isObjectMode
+							? ">> Response has been printed to stdout."
+							: `>> Response has been saved to '${fName}' file.`;
+
+						console.log(message);
+					});
+
+				if (print) {
+					stream.on("data", (value) => console.log(value));
+				} else {
+					stream.pipe(fs.createWriteStream(fName));
+				}
 			} else {
 				fs.writeFileSync(
 					fName,
 					_.isObject(res) ? JSON.stringify(res, null, 4) : res,
 					"utf8"
 				);
+
+				console.log(
+					kleur.magenta().bold(`>> Response has been saved to '${fName}' file.`)
+				);
 			}
-			console.log(
-				kleur
-					.magenta()
-					.bold(`>> Response has been saved to '${fName}' file.`)
-			);
 		}
 	} catch (err) {
 		console.error(kleur.red().bold(">> ERROR:", err.message));

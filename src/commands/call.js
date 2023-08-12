@@ -6,6 +6,7 @@ const fs = require("fs");
 const path = require("path");
 const _ = require("lodash");
 const util = require("util");
+const { Transform } = require("stream");
 const { convertArgs } = require("../utils");
 const humanize = require("tiny-human-time").short;
 const { isStream } = require("../utils");
@@ -109,14 +110,16 @@ async function handler(broker, args) {
 	}
 
 	// Remove non-standard call opts
-	[{
-		key: "local",
-		replaceKey: "nodeID",
-		value: args.nodeID,
-	}].forEach(opt => {
+	[
+		{
+			key: "local",
+			replaceKey: "nodeID",
+			value: args.nodeID,
+		},
+	].forEach((opt) => {
 		if (callOpts[opt.key]) {
 			delete callOpts[opt.key];
-			opt.replaceKey ? callOpts[opt.replaceKey] = opt.value : undefined;
+			opt.replaceKey ? (callOpts[opt.replaceKey] = opt.value) : undefined;
 		}
 	});
 
@@ -149,7 +152,9 @@ async function handler(broker, args) {
 		isStream(payload) ? "" : payload,
 		meta ? kleur.yellow().bold("with meta:") : "",
 		meta ? meta : "",
-		Object.keys(callOpts).length ? kleur.yellow().bold("with options:") : "",
+		Object.keys(callOpts).length
+			? kleur.yellow().bold("with options:")
+			: "",
 		Object.keys(callOpts).length ? callOpts : ""
 	);
 
@@ -197,17 +202,20 @@ async function handler(broker, args) {
 				let chunkSeq = 0;
 
 				const pass = new Transform({
-					objectMode: true,
+					objectMode: isObjectMode || print,
 					transform(chunk, _, cb) {
-						const value = isObjectMode
-							? print
+						const value = print
+							? isObjectMode
 								? JSON.stringify(chunk, null, 4)
-								: Buffer.from(JSON.stringify(chunk, null, 4))
-							: chunk;
+								: util.inspect(chunk)
+							: isObjectMode
+								? Buffer.from(JSON.stringify(chunk, null, 4))
+								: chunk;
 
-						const message = isObjectMode
-							? `<= Stream chunk is received seq: ${chunkSeq++}\n${value}`
-							: value;
+						const message =
+							isObjectMode || print
+								? `<= Stream chunk is received seq: ${chunkSeq++}\n${value}\n`
+								: value;
 
 						cb(null, message);
 					},
@@ -215,30 +223,24 @@ async function handler(broker, args) {
 
 				const stream = res.pipe(pass);
 
-				stream
-					.on("error", (err) =>
-						console.error(
-							"=> Receive stream error",
-							util.inspect(err, {
-								showHidden: false,
-								depth: 4,
-								colors: true,
-							})
-						)
-					)
-					.on("end", () => {
-						const message = isObjectMode
-							? ">> Response has been printed to stdout."
-							: `>> Response has been saved to '${fName}' file.`;
-
-						console.log(message);
-					});
-
 				if (print) {
 					stream.on("data", (value) => console.log(value));
 				} else {
 					stream.pipe(fs.createWriteStream(fName));
 				}
+
+				await new Promise((resolve, reject) => {
+					stream
+						.on("end", () => {
+							resolve();
+							const message = print
+								? ">> Response has been printed to stdout."
+								: `>> Response has been saved to '${fName}' file.`;
+
+							console.log(message);
+						})
+						.on("error", reject);
+				});
 			} else {
 				fs.writeFileSync(
 					fName,
@@ -247,7 +249,9 @@ async function handler(broker, args) {
 				);
 
 				console.log(
-					kleur.magenta().bold(`>> Response has been saved to '${fName}' file.`)
+					kleur
+						.magenta()
+						.bold(`>> Response has been saved to '${fName}' file.`)
 				);
 			}
 		}
@@ -279,7 +283,7 @@ function declaration(program, broker, cmdHandler) {
 		.option("--load [filename]", "Load params from file")
 		.option(
 			"--loadFull [filename]",
-			'Load params and meta from file (e.g., {"params":{}, "meta":{}, "options":{}})'
+			"Load params and meta from file (e.g., {\"params\":{}, \"meta\":{}, \"options\":{}})"
 		)
 		.option("--$local", "Call the local service broker")
 		.option("--stream [filename]", "Send a file as stream")
@@ -322,7 +326,7 @@ function declaration(program, broker, cmdHandler) {
 		.option("--load [filename]", "Load params from file")
 		.option(
 			"--loadFull [filename]",
-			'Load params and meta from file (e.g., {"params":{}, "meta":{}, "options":{}})'
+			"Load params and meta from file (e.g., {\"params\":{}, \"meta\":{}, \"options\":{}})"
 		)
 		.option("--stream [filename]", "Send a file as stream")
 		.option("--save [filename]", "Save response to file")

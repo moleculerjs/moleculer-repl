@@ -96,6 +96,16 @@ broker.createService({
 		},
 		"order.created": {
 			group: "order",
+			params: {
+				id: "number",
+				amount: "number",
+				onlyLocal: { type: "boolean", optional: true },
+				skipInternal: { type: "boolean", optional: true },
+				withActions: { type: "boolean", optional: true },
+				withEvents: { type: "boolean", optional: true },
+				onlyAvailable: { type: "boolean", optional: true },
+				grouping: { type: "boolean", optional: true },
+			},
 			handler(payload) {
 				this.logger.info("User created even received!", payload);
 			},

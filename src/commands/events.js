@@ -23,6 +23,7 @@ async function handler(broker, args) {
 			kleur.bold("Group"),
 			kleur.bold("State"),
 			kleur.bold("Nodes"),
+			kleur.bold("Params"),
 		],
 	];
 
@@ -32,6 +33,8 @@ async function handler(broker, args) {
 
 	events.forEach((item) => {
 		const event = item.event;
+		const params =
+			event && event.params ? Object.keys(event.params).join(", ") : "";
 
 		if (args.options.filter && !match(item.name, args.options.filter))
 			return;
@@ -44,6 +47,7 @@ async function handler(broker, args) {
 					? kleur.bgGreen().white("   OK   ")
 					: kleur.bgRed().white().bold(" FAILED "),
 				(item.hasLocal ? "(*) " : "") + item.count,
+				params,
 			]);
 		} else {
 			data.push([

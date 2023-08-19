@@ -397,9 +397,9 @@ describe("Test 'call' with stream result", () => {
 			expect.any(Object),
 			expect.any(Object),
 			["<Stream>"],
-			["<= Stream chunk is received seq: 0\n[\n    1\n]\n"],
-			["<= Stream chunk is received seq: 1\n[\n    2\n]\n"],
-			["<= Stream chunk is received seq: 2\n[\n    3\n]\n"],
+			["<= Stream chunk is received seq: 1\n[\n    1\n]\n"],
+			["<= Stream chunk is received seq: 2\n[\n    2\n]\n"],
+			["<= Stream chunk is received seq: 3\n[\n    3\n]\n"],
 			[">> Response has been printed to stdout."],
 		]);
 
@@ -430,9 +430,9 @@ describe("Test 'call' with stream result", () => {
 		logSpy.mockRestore();
 
 		expect(chunks).toMatchObject([
-			"<= Stream chunk is received seq: 0\n[\n    1\n]\n",
-			"<= Stream chunk is received seq: 1\n[\n    2\n]\n",
-			"<= Stream chunk is received seq: 2\n[\n    3\n]\n",
+			"[\n    1\n]\n",
+			"[\n    2\n]\n",
+			"[\n    3\n]\n",
 		]);
 	});
 
@@ -452,7 +452,7 @@ describe("Test 'call' with stream result", () => {
 			expect.any(Object),
 			expect.any(Object),
 			["<Stream>"],
-			["<= Stream chunk is received seq: 0\n<Buffer 74 65 73 74>\n"],
+			["<= Stream chunk is received seq: 1\n<Buffer 74 65 73 74>\n"],
 			[">> Response has been printed to stdout."],
 		]);
 

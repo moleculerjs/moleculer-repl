@@ -209,13 +209,12 @@ async function handler(broker, args) {
 								? JSON.stringify(chunk, null, 4)
 								: util.inspect(chunk)
 							: isObjectMode
-								? Buffer.from(JSON.stringify(chunk, null, 4))
+								? Buffer.from(JSON.stringify(chunk, null, 4) + "\n")
 								: chunk;
 
-						const message =
-							isObjectMode || print
-								? `<= Stream chunk is received seq: ${chunkSeq++}\n${value}\n`
-								: value;
+						const message = print
+							? `<= Stream chunk is received seq: ${++chunkSeq}\n${value}\n`
+							: value;
 
 						cb(null, message);
 					},

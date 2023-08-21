@@ -1,8 +1,8 @@
 "use strict";
 
 const { ServiceBroker } = require("moleculer");
-const fs = require("fs");
-const { PassThrough, Readable } = require("stream");
+const { Readable, PassThrough } = require('stream');
+const fs = require('fs');
 const commander = require("commander");
 const { parseArgsStringToArgv } = require("string-argv");
 
@@ -82,7 +82,7 @@ describe("Test 'call' command", () => {
 	it("should call 'call' and NOT parse the values", async () => {
 		// example from: https://github.com/moleculerjs/moleculer-repl/issues/54
 
-		const command = "call user.create --phone \"+1111111\" --passcode \"0033\"";
+		const command = 'call user.create --phone "+1111111" --passcode "0033"';
 
 		await program.parseAsync(
 			parseArgsStringToArgv(command, "node", "REPL")
@@ -122,7 +122,7 @@ describe("Test 'call' command", () => {
 	});
 
 	it("should call 'call' with JSON string parameter", async () => {
-		const command = "call \"math.add\" '{\"a\": 5, \"b\": \"Bob\", \"c\": true, \"d\": false, \"e\": { \"f\": \"hello\" } }' '{\"meta_a\": 5, \"meta_b\": \"Bob\", \"meta_c\": true, \"meta_d\": false, \"meta_e\": { \"meta_f\": \"hello\" } }'";
+		const command = `call "math.add" '{"a": 5, "b": "Bob", "c": true, "d": false, "e": { "f": "hello" } }' '{"meta_a": 5, "meta_b": "Bob", "meta_c": true, "meta_d": false, "meta_e": { "meta_f": "hello" } }'`;
 
 		await program.parseAsync(
 			parseArgsStringToArgv(command, "node", "REPL")
@@ -133,14 +133,14 @@ describe("Test 'call' command", () => {
 			options: {},
 			actionName: "math.add",
 			jsonParams:
-				"{\"a\": 5, \"b\": \"Bob\", \"c\": true, \"d\": false, \"e\": { \"f\": \"hello\" } }",
-			meta: "{\"meta_a\": 5, \"meta_b\": \"Bob\", \"meta_c\": true, \"meta_d\": false, \"meta_e\": { \"meta_f\": \"hello\" } }",
-			rawCommand: "call math.add {\"a\": 5, \"b\": \"Bob\", \"c\": true, \"d\": false, \"e\": { \"f\": \"hello\" } } {\"meta_a\": 5, \"meta_b\": \"Bob\", \"meta_c\": true, \"meta_d\": false, \"meta_e\": { \"meta_f\": \"hello\" } }",
+				'{"a": 5, "b": "Bob", "c": true, "d": false, "e": { "f": "hello" } }',
+			meta: '{"meta_a": 5, "meta_b": "Bob", "meta_c": true, "meta_d": false, "meta_e": { "meta_f": "hello" } }',
+			rawCommand: `call math.add {"a": 5, "b": "Bob", "c": true, "d": false, "e": { "f": "hello" } } {"meta_a": 5, "meta_b": "Bob", "meta_c": true, "meta_d": false, "meta_e": { "meta_f": "hello" } }`,
 		});
 	});
 
 	it("should call 'call' flags", async () => {
-		const command = "call \"math.add\" --load my-params.json --stream my-picture.jpg --save my-response.json --loadFull params.json";
+		const command = `call "math.add" --load my-params.json --stream my-picture.jpg --save my-response.json --loadFull params.json`;
 
 		await program.parseAsync(
 			parseArgsStringToArgv(command, "node", "REPL")
@@ -161,7 +161,7 @@ describe("Test 'call' command", () => {
 	});
 
 	it("should call 'call' targeting local broker", async () => {
-		const command = "call \"math.add\" --$local --load my-params.json --stream my-picture.jpg --save my-response.json --loadFull params.json";
+		const command = `call "math.add" --$local --load my-params.json --stream my-picture.jpg --save my-response.json --loadFull params.json`;
 
 		await program.parseAsync(
 			parseArgsStringToArgv(command, "node", "REPL")
@@ -260,7 +260,7 @@ describe("Test 'dcall' command", () => {
 		// example from: https://github.com/moleculerjs/moleculer-repl/issues/54
 
 		const command =
-			"dcall node123 user.create --phone \"+1111111\" --passcode \"0033\"";
+			'dcall node123 user.create --phone "+1111111" --passcode "0033"';
 
 		await program.parseAsync(
 			parseArgsStringToArgv(command, "node", "REPL")
@@ -303,7 +303,7 @@ describe("Test 'dcall' command", () => {
 	});
 
 	it("should call 'dcall' with JSON string parameter", async () => {
-		const command = "dcall node123 \"math.add\" '{\"a\": 5, \"b\": \"Bob\", \"c\": true, \"d\": false, \"e\": { \"f\": \"hello\" } }' '{\"meta_a\": 5, \"meta_b\": \"Bob\", \"meta_c\": true, \"meta_d\": false, \"meta_e\": { \"meta_f\": \"hello\" } }'";
+		const command = `dcall node123 "math.add" '{"a": 5, "b": "Bob", "c": true, "d": false, "e": { "f": "hello" } }' '{"meta_a": 5, "meta_b": "Bob", "meta_c": true, "meta_d": false, "meta_e": { "meta_f": "hello" } }'`;
 
 		await program.parseAsync(
 			parseArgsStringToArgv(command, "node", "REPL")
@@ -315,14 +315,14 @@ describe("Test 'dcall' command", () => {
 			actionName: "math.add",
 			nodeID: "node123",
 			jsonParams:
-				"{\"a\": 5, \"b\": \"Bob\", \"c\": true, \"d\": false, \"e\": { \"f\": \"hello\" } }",
-			meta: "{\"meta_a\": 5, \"meta_b\": \"Bob\", \"meta_c\": true, \"meta_d\": false, \"meta_e\": { \"meta_f\": \"hello\" } }",
-			rawCommand: "dcall node123 math.add {\"a\": 5, \"b\": \"Bob\", \"c\": true, \"d\": false, \"e\": { \"f\": \"hello\" } } {\"meta_a\": 5, \"meta_b\": \"Bob\", \"meta_c\": true, \"meta_d\": false, \"meta_e\": { \"meta_f\": \"hello\" } }",
+				'{"a": 5, "b": "Bob", "c": true, "d": false, "e": { "f": "hello" } }',
+			meta: '{"meta_a": 5, "meta_b": "Bob", "meta_c": true, "meta_d": false, "meta_e": { "meta_f": "hello" } }',
+			rawCommand: `dcall node123 math.add {"a": 5, "b": "Bob", "c": true, "d": false, "e": { "f": "hello" } } {"meta_a": 5, "meta_b": "Bob", "meta_c": true, "meta_d": false, "meta_e": { "meta_f": "hello" } }`,
 		});
 	});
 
 	it("should call 'dcall' flags", async () => {
-		const command = "dcall node123 \"math.add\" --load my-params.json --stream my-picture.jpg --save my-response.json --loadFull params.json";
+		const command = `dcall node123 "math.add" --load my-params.json --stream my-picture.jpg --save my-response.json --loadFull params.json`;
 
 		await program.parseAsync(
 			parseArgsStringToArgv(command, "node", "REPL")
@@ -382,7 +382,7 @@ describe("Test 'call' with stream result", () => {
 	});
 
 	it("should call and print stream with objectMode to stdout", async () => {
-		const command = "call \"stream.objectStream\" --$local --save stdout";
+		const command = 'call "stream.objectStream" --$local --save stdout';
 
 		const logSpy = jest
 			.spyOn(global.console, "log")
@@ -407,7 +407,7 @@ describe("Test 'call' with stream result", () => {
 	});
 
 	it("should call and save stream with objectMode to file", async () => {
-		const command = "call \"stream.objectStream\" --$local --save file.json";
+		const command = 'call "stream.objectStream" --$local --save file.json';
 		const mockWriteable = new PassThrough();
 
 		const logSpy = jest
@@ -460,7 +460,7 @@ describe("Test 'call' with stream result", () => {
 	});
 
 	it("should call and save stream without objectMode to file", async () => {
-		const command = "call \"stream.binaryStream\" --$local --save file.json";
+		const command = 'call "stream.binaryStream" --$local --save file.json';
 		const mockWriteable = new PassThrough();
 
 		const logSpy = jest

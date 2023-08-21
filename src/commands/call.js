@@ -282,7 +282,7 @@ function declaration(program, broker, cmdHandler) {
 		.option("--load [filename]", "Load params from file")
 		.option(
 			"--loadFull [filename]",
-			"Load params and meta from file (e.g., {\"params\":{}, \"meta\":{}, \"options\":{}})"
+			'Load params and meta from file (e.g., {"params":{}, "meta":{}, "options":{}})'
 		)
 		.option("--$local", "Call the local service broker")
 		.option("--stream [filename]", "Send a file as stream")
@@ -325,7 +325,7 @@ function declaration(program, broker, cmdHandler) {
 		.option("--load [filename]", "Load params from file")
 		.option(
 			"--loadFull [filename]",
-			"Load params and meta from file (e.g., {\"params\":{}, \"meta\":{}, \"options\":{}})"
+			'Load params and meta from file (e.g., {"params":{}, "meta":{}, "options":{}})'
 		)
 		.option("--stream [filename]", "Send a file as stream")
 		.option("--save [filename]", "Save response to file")

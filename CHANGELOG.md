@@ -1,3 +1,12 @@
+<a name="0.7.4"></a>
+# 0.7.4 (2023-09-09)
+
+## Changes
+- allow to pass meta as JSON string [#71](https://github.com/moleculerjs/moleculer-repl/pull/71)
+- Adds stream objectMode support and print stream to stdout [#72](https://github.com/moleculerjs/moleculer-repl/pull/72)
+- show params of events [#74](https://github.com/moleculerjs/moleculer-repl/pull/74)
+
+--------------------------------------------------
 <a name="0.7.3"></a>
 # 0.7.3 (2022-10-06)
 

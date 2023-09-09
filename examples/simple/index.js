@@ -1,5 +1,6 @@
 "use strict";
 
+const { Readable } = require("stream");
 const { ServiceBroker } = require("moleculer");
 const REPL = require("../../src");
 
@@ -57,7 +58,7 @@ broker.createService({
 				welcomedAt: Date.now(),
 			};
 		},
-		silent(ctx) {
+		silent() {
 			return;
 		},
 		echo(ctx) {
@@ -65,6 +66,17 @@ broker.createService({
 				params: ctx.params,
 				meta: ctx.meta,
 			};
+		},
+		objectStream() {
+			return Readable.from(
+				[{ hello: "world" }, { peace: "for everyone" }],
+				{ objectMode: true }
+			);
+		},
+		binaryStream() {
+			return Readable.from([Buffer.from("hello"), Buffer.from("world")], {
+				objectMode: false,
+			});
 		},
 	},
 	events: {

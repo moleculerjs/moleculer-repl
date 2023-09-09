@@ -6,6 +6,7 @@ const fs = require("fs");
 const path = require("path");
 const _ = require("lodash");
 const util = require("util");
+const { Transform } = require("stream");
 const { convertArgs } = require("../utils");
 const humanize = require("tiny-human-time").short;
 const { isStream } = require("../utils");
@@ -109,14 +110,16 @@ async function handler(broker, args) {
 	}
 
 	// Remove non-standard call opts
-	[{
-		key: "local",
-		replaceKey: "nodeID",
-		value: args.nodeID,
-	}].forEach(opt => {
+	[
+		{
+			key: "local",
+			replaceKey: "nodeID",
+			value: args.nodeID,
+		},
+	].forEach((opt) => {
 		if (callOpts[opt.key]) {
 			delete callOpts[opt.key];
-			opt.replaceKey ? callOpts[opt.replaceKey] = opt.value : undefined;
+			opt.replaceKey ? (callOpts[opt.replaceKey] = opt.value) : undefined;
 		}
 	});
 
@@ -149,7 +152,9 @@ async function handler(broker, args) {
 		isStream(payload) ? "" : payload,
 		meta ? kleur.yellow().bold("with meta:") : "",
 		meta ? meta : "",
-		Object.keys(callOpts).length ? kleur.yellow().bold("with options:") : "",
+		Object.keys(callOpts).length
+			? kleur.yellow().bold("with options:")
+			: "",
 		Object.keys(callOpts).length ? callOpts : ""
 	);
 
@@ -191,19 +196,63 @@ async function handler(broker, args) {
 			}
 
 			if (isStream(res)) {
-				res.pipe(fs.createWriteStream(fName));
+				const isObjectMode = res.objectMode || res.readableObjectMode;
+				const print = args.options.save === "stdout";
+
+				let chunkSeq = 0;
+
+				const pass = new Transform({
+					objectMode: isObjectMode || print,
+					transform(chunk, _, cb) {
+						const value = print
+							? isObjectMode
+								? JSON.stringify(chunk, null, 4)
+								: util.inspect(chunk)
+							: isObjectMode
+								? Buffer.from(JSON.stringify(chunk, null, 4) + "\n")
+								: chunk;
+
+						const message = print
+							? `<= Stream chunk is received seq: ${++chunkSeq}\n${value}\n`
+							: value;
+
+						cb(null, message);
+					},
+				});
+
+				const stream = res.pipe(pass);
+
+				if (print) {
+					stream.on("data", (value) => console.log(value));
+				} else {
+					stream.pipe(fs.createWriteStream(fName));
+				}
+
+				await new Promise((resolve, reject) => {
+					stream
+						.on("end", () => {
+							resolve();
+							const message = print
+								? ">> Response has been printed to stdout."
+								: `>> Response has been saved to '${fName}' file.`;
+
+							console.log(message);
+						})
+						.on("error", reject);
+				});
 			} else {
 				fs.writeFileSync(
 					fName,
 					_.isObject(res) ? JSON.stringify(res, null, 4) : res,
 					"utf8"
 				);
+
+				console.log(
+					kleur
+						.magenta()
+						.bold(`>> Response has been saved to '${fName}' file.`)
+				);
 			}
-			console.log(
-				kleur
-					.magenta()
-					.bold(`>> Response has been saved to '${fName}' file.`)
-			);
 		}
 	} catch (err) {
 		console.error(kleur.red().bold(">> ERROR:", err.message));

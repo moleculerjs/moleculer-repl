@@ -1,11 +1,13 @@
 "use strict";
 
 const { ServiceBroker } = require("moleculer");
+const { Readable, PassThrough } = require('stream');
+const fs = require('fs');
 const commander = require("commander");
 const { parseArgsStringToArgv } = require("string-argv");
 
 // Load the command declaration
-let { declaration } = require("../src/commands/call");
+let { declaration, handler } = require("../src/commands/call");
 
 describe("Test 'call' command", () => {
 	let program;
@@ -339,5 +341,147 @@ describe("Test 'dcall' command", () => {
 			rawCommand:
 				"dcall node123 math.add --load my-params.json --stream my-picture.jpg --save my-response.json --loadFull params.json",
 		});
+	});
+});
+
+describe("Test 'call' with stream result", () => {
+	let program;
+	let broker;
+
+	beforeAll(async () => {
+		program = new commander.Command();
+		program.exitOverride();
+		program.allowUnknownOption(true);
+
+		program.showHelpAfterError(true);
+		program.showSuggestionAfterError(true);
+
+		// Create broker
+		broker = new ServiceBroker({
+			nodeID: "repl-" + process.pid,
+			logger: false,
+		});
+
+		broker.createService({
+			name: "stream",
+			actions: {
+				objectStream() {
+					return Readable.from([[1], [2], [3]], { objectMode: true });
+				},
+				binaryStream() {
+					return Readable.from([Buffer.from("test")], {
+						objectMode: false,
+					});
+				},
+			},
+		});
+
+		declaration(program, broker, handler);
+
+		await broker.start();
+	});
+
+	it("should call and print stream with objectMode to stdout", async () => {
+		const command = 'call "stream.objectStream" --$local --save stdout';
+
+		const logSpy = jest
+			.spyOn(global.console, "log")
+			.mockImplementation(() => {});
+
+		await program.parseAsync(
+			parseArgsStringToArgv(command, "node", "REPL")
+		);
+
+		expect(logSpy.mock.calls).toMatchObject([
+			expect.any(Object),
+			expect.any(Object),
+			expect.any(Object),
+			["<Stream>"],
+			["<= Stream chunk is received seq: 1\n[\n    1\n]\n"],
+			["<= Stream chunk is received seq: 2\n[\n    2\n]\n"],
+			["<= Stream chunk is received seq: 3\n[\n    3\n]\n"],
+			[">> Response has been printed to stdout."],
+		]);
+
+		logSpy.mockRestore();
+	});
+
+	it("should call and save stream with objectMode to file", async () => {
+		const command = 'call "stream.objectStream" --$local --save file.json';
+		const mockWriteable = new PassThrough();
+
+		const logSpy = jest
+			.spyOn(global.console, "log")
+			.mockImplementation(() => {});
+
+		jest.spyOn(fs, "createWriteStream").mockImplementationOnce(
+			() => mockWriteable
+		);
+
+		const chunks = [];
+		mockWriteable.on("data", (data) => {
+			chunks.push(data.toString());
+		});
+
+		await program.parseAsync(
+			parseArgsStringToArgv(command, "node", "REPL")
+		);
+
+		logSpy.mockRestore();
+
+		expect(chunks).toMatchObject([
+			"[\n    1\n]\n",
+			"[\n    2\n]\n",
+			"[\n    3\n]\n",
+		]);
+	});
+
+	it("should call and print stream without objectMode to stdout", async () => {
+		const command = "call \"stream.binaryStream\" --$local --save stdout";
+
+		const logSpy = jest
+			.spyOn(global.console, "log")
+			.mockImplementation(() => {});
+
+		await program.parseAsync(
+			parseArgsStringToArgv(command, "node", "REPL")
+		);
+
+		expect(logSpy.mock.calls).toMatchObject([
+			expect.any(Object),
+			expect.any(Object),
+			expect.any(Object),
+			["<Stream>"],
+			["<= Stream chunk is received seq: 1\n<Buffer 74 65 73 74>\n"],
+			[">> Response has been printed to stdout."],
+		]);
+
+		logSpy.mockRestore();
+	});
+
+	it("should call and save stream without objectMode to file", async () => {
+		const command = 'call "stream.binaryStream" --$local --save file.json';
+		const mockWriteable = new PassThrough();
+
+		const logSpy = jest
+			.spyOn(global.console, "log")
+			.mockImplementation(() => {});
+
+		jest.spyOn(fs, "createWriteStream").mockImplementationOnce(
+			() => mockWriteable
+		);
+
+		const chunks = [];
+		mockWriteable.on("data", (data) => {
+			chunks.push(data.toString());
+		});
+
+		await program.parseAsync(
+			parseArgsStringToArgv(command, "node", "REPL")
+		);
+
+		logSpy.mockRestore();
+
+		expect(chunks).toMatchObject([Buffer.from("test").toString()]);
 	});
 });

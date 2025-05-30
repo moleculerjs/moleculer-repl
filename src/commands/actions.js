@@ -81,14 +81,14 @@ async function handler(broker, args) {
 
 		let getStateLabel = (state) => {
 			switch (state) {
-				case true:
-				case CIRCUIT_CLOSE:
-					return kleur.bgGreen().white("   OK   ");
-				case CIRCUIT_HALF_OPEN:
-					return kleur.bgYellow().black(" TRYING ");
-				case false:
-				case CIRCUIT_OPEN:
-					return kleur.bgRed().white(" FAILED ");
+			case true:
+			case CIRCUIT_CLOSE:
+				return kleur.bgGreen().white("   OK   ");
+			case CIRCUIT_HALF_OPEN:
+				return kleur.bgYellow().black(" TRYING ");
+			case false:
+			case CIRCUIT_OPEN:
+				return kleur.bgRed().white(" FAILED ");
 			}
 		};
 

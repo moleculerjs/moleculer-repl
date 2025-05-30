@@ -1,7 +1,7 @@
 /*eslint-disable no-console*/
 /*
  * moleculer-repl
- * Copyright (c) 2018 MoleculerJS (https://github.com/moleculerjs/moleculer-repl)
+ * Copyright (c) 2025 MoleculerJS (https://github.com/moleculerjs/moleculer-repl)
  * MIT Licensed
  */
 
@@ -32,9 +32,13 @@ program.showHelpAfterError(true);
 program.showSuggestionAfterError(true);
 
 /**
+ * @typedef {import("moleculer").ServiceBroker} ServiceBroker
+ */
+
+/**
  * Start REPL mode
  *
- * @param {import("moleculer").ServiceBroker} broker
+ * @param {ServiceBroker} broker
  * @param {REPLOptions} opts
  */
 /* istanbul ignore next */
@@ -54,7 +58,7 @@ function REPL(broker, opts) {
 		const availableCommands = getAvailableCommands(program);
 
 		opts.customCommands.forEach((def) => {
-			if (availableCommands.includes(def.name)) {
+			if (availableCommands.includes(def.command)) {
 				broker.logger.warn(
 					`Command called '${def.command}' already exists. Skipping...`
 				);
@@ -86,7 +90,7 @@ function REPL(broker, opts) {
 		(err, repl) => {
 			if (err)
 				broker.logger.error(
-					`Failed to initialize Moleculer REPL history`,
+					"Failed to initialize Moleculer REPL history",
 					err
 				);
 		}
@@ -225,11 +229,11 @@ module.exports = REPL;
  * @property {Boolean?} allowUnknownOptions Allow unknown command options
  * @property {Function?} parse Custom params parser
  * @property {Array<CommandOptions>} options Command options
- * @property {Function} action Custom command handler
+ * @property {(broker: ServiceBroker, args: unknown, helpers: unknown) => Promise<void>} action Custom command handler
  */
 
 /**
  * @typedef REPLOptions REPL Options
- * @property {String|null} delimiter REPL delimiter
- * @property {Array<CustomCommand>|CustomCommand|null} customCommands Custom commands
+ * @property {string|null=} delimiter REPL delimiter
+ * @property {Array<CustomCommand>|CustomCommand|null=} customCommands Custom commands
  */

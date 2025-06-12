@@ -1,7 +1,9 @@
 const { ServiceBroker } = require("moleculer");
+const REPL = require("../../src");
 
 const broker = new ServiceBroker({
 	namespace: "e2e",
+	// transporter: "TCP",
 	nodeID: "main-node",
 	logger: true
 });
@@ -28,7 +30,7 @@ broker.createService({
 
 async function start() {
 	await broker.start();
-	broker.repl();
+	REPL(broker, {});
 }
 
 start();

@@ -2,7 +2,7 @@ const commander = require("commander");
 
 /**
  * Tries to parse string to integer
- * @param {String} value 
+ * @param {String} value
  * @returns {Number}
  */
 function flagParseInt(value) {
@@ -16,7 +16,7 @@ function flagParseInt(value) {
 
 /**
  * Checks if string is a hexadecimal
- * @param {String} x 
+ * @param {String} x
  * @returns {Boolean}
  */
 function isHex(x) {

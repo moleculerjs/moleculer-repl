@@ -1,5 +1,7 @@
 "use strict";
 
+import { vi, describe, it, expect, beforeAll, afterEach } from "vitest";
+
 const { ServiceBroker } = require("moleculer");
 const commander = require("commander");
 const { parseArgsStringToArgv } = require("string-argv");
@@ -12,7 +14,7 @@ describe("Test 'cache keys' command", () => {
 	let broker;
 
 	// Mock the handler
-	const cmdHandler = jest.fn();
+	const cmdHandler = vi.fn();
 
 	beforeAll(() => {
 		program = new commander.Command();
@@ -25,7 +27,7 @@ describe("Test 'cache keys' command", () => {
 		// Create broker
 		broker = new ServiceBroker({
 			nodeID: "repl-" + process.pid,
-			logger: false,
+			logger: false
 		});
 
 		// Register the command
@@ -39,28 +41,24 @@ describe("Test 'cache keys' command", () => {
 	it("should call 'cache keys' without filter", async () => {
 		const command = "cache keys";
 
-		await program.parseAsync(
-			parseArgsStringToArgv(command, "node", "REPL")
-		);
+		await program.parseAsync(parseArgsStringToArgv(command, "node", "REPL"));
 
 		expect(cmdHandler).toHaveBeenCalledTimes(1);
 		expect(cmdHandler).toHaveBeenCalledWith(expect.any(ServiceBroker), {
 			options: {},
-			rawCommand: "cache keys",
+			rawCommand: "cache keys"
 		});
 	});
 
 	it("should call 'cache keys' with filter", async () => {
 		const command = "cache keys -f abcd";
 
-		await program.parseAsync(
-			parseArgsStringToArgv(command, "node", "REPL")
-		);
+		await program.parseAsync(parseArgsStringToArgv(command, "node", "REPL"));
 
 		expect(cmdHandler).toHaveBeenCalledTimes(1);
 		expect(cmdHandler).toHaveBeenCalledWith(expect.any(ServiceBroker), {
 			options: { filter: "abcd" },
-			rawCommand: "cache keys -f abcd",
+			rawCommand: "cache keys -f abcd"
 		});
 	});
 });
@@ -70,7 +68,7 @@ describe("Test 'cache clear' command", () => {
 	let broker;
 
 	// Mock the handler
-	const cmdHandler = jest.fn();
+	const cmdHandler = vi.fn();
 
 	beforeAll(() => {
 		program = new commander.Command();
@@ -83,7 +81,7 @@ describe("Test 'cache clear' command", () => {
 		// Create broker
 		broker = new ServiceBroker({
 			nodeID: "repl-" + process.pid,
-			logger: false,
+			logger: false
 		});
 
 		// Register the command
@@ -97,15 +95,13 @@ describe("Test 'cache clear' command", () => {
 	it("should call 'cache clear' with pattern", async () => {
 		const command = "cache clear abcde";
 
-		await program.parseAsync(
-			parseArgsStringToArgv(command, "node", "REPL")
-		);
+		await program.parseAsync(parseArgsStringToArgv(command, "node", "REPL"));
 
 		expect(cmdHandler).toHaveBeenCalledTimes(1);
 		expect(cmdHandler).toHaveBeenCalledWith(expect.any(ServiceBroker), {
 			options: {},
 			pattern: "abcde",
-			rawCommand: "cache clear abcde",
+			rawCommand: "cache clear abcde"
 		});
 	});
 });

@@ -2,9 +2,8 @@
 
 const kleur = require("kleur");
 const _ = require("lodash");
-const util = require("util");
 const clui = require("clui");
-const pretty = require("pretty-bytes");
+const { prettyBytes } = require("../utils");
 const os = require("os");
 
 /**
@@ -13,7 +12,7 @@ const os = require("os");
  * @param {Object} args Parsed arguments
  */
 async function handler(broker, args) {
-	const printHeader = (name) => {
+	const printHeader = name => {
 		const title = "  " + name + "  ";
 		const lines = "=".repeat(title.length);
 		console.log(kleur.yellow().bold(lines));
@@ -23,16 +22,12 @@ async function handler(broker, args) {
 	};
 
 	const print = (caption, value) => {
-		console.log(
-			"   ",
-			_.padEnd(caption, 25) +
-				(value != null ? ": " + kleur.bold(value) : "")
-		);
+		console.log("   ", _.padEnd(caption, 25) + (value != null ? ": " + kleur.bold(value) : ""));
 	};
 
 	const printObject = (obj, level = 0) => {
 		const pad = "  ".repeat(level);
-		Object.keys(obj).forEach((key) => {
+		Object.keys(obj).forEach(key => {
 			const val = obj[key];
 			if (_.isString(val)) {
 				print(pad + key, kleur.green(`"${val}"`));
@@ -47,7 +42,7 @@ async function handler(broker, args) {
 					print(
 						pad + key,
 						val
-							.map((v) => {
+							.map(v => {
 								if (_.isString(v)) return kleur.green(`"${v}"`);
 								if (_.isPlainObject(v) || _.isFunction)
 									return kleur.green(`"${v.name}"`);
@@ -58,9 +53,8 @@ async function handler(broker, args) {
 					print(
 						pad + key,
 						val
-							.map((v) => {
-								if (_.isPlainObject(v))
-									return kleur.green(`"${v.command}"`);
+							.map(v => {
+								if (_.isPlainObject(v)) return kleur.green(`"${v.command}"`);
 							})
 							.join(", ")
 					);
@@ -68,10 +62,9 @@ async function handler(broker, args) {
 					print(
 						pad + key,
 						val
-							.map((v) => {
+							.map(v => {
 								if (_.isString(v)) return kleur.green(`"${v}"`);
-								if (_.isPlainObject(v))
-									return kleur.green(`"${v.type}"`);
+								if (_.isPlainObject(v)) return kleur.green(`"${v.type}"`);
 							})
 							.join(", ")
 					);
@@ -91,7 +84,7 @@ async function handler(broker, args) {
 	const total = health.mem.total;
 	const free = health.mem.free;
 	const used = total - free;
-	const human = pretty(free);
+	const human = prettyBytes(free);
 
 	const v8 = require("v8");
 	const heapStat = v8.getHeapStatistics();
@@ -101,10 +94,7 @@ async function handler(broker, args) {
 	printHeader("General information");
 	print("CPU", "Arch: " + os.arch() + ", Cores: " + os.cpus().length);
 	print("Memory", Gauge(used, total, 20, total * 0.8, human + " free"));
-	print(
-		"Heap",
-		Gauge(heapUsed, maxHeap, 20, maxHeap * 0.5, pretty(heapUsed))
-	);
+	print("Heap", Gauge(heapUsed, maxHeap, 20, maxHeap * 0.5, prettyBytes(heapUsed)));
 	print("OS", os.platform() + " (" + os.type() + ")");
 	print("IP", health.net.ip.join(", "));
 	print("Hostname", os.hostname());
@@ -125,10 +115,7 @@ async function handler(broker, args) {
 	print("Events", broker.registry.getEventList({ onlyLocal: true }).length);
 	console.log("");
 	print("Strategy", strategy ? strategy.name : kleur.gray("<None>"));
-	print(
-		"Cacher",
-		broker.cacher ? broker.cacher.constructor.name : kleur.gray("<None>")
-	);
+	print("Cacher", broker.cacher ? broker.cacher.constructor.name : kleur.gray("<None>"));
 
 	if (broker.transit) {
 		print("Nodes", broker.registry.nodes.list(false).length);
@@ -137,26 +124,21 @@ async function handler(broker, args) {
 		printHeader("Transport information");
 		print(
 			"Serializer",
-			broker.serializer
-				? broker.serializer.constructor.name
-				: kleur.gray("<None>")
+			broker.serializer ? broker.serializer.constructor.name : kleur.gray("<None>")
 		);
 		print("Pending requests", broker.transit.pendingRequests.size);
 
 		if (broker.transit.tx) {
 			print(
 				"Transporter",
-				broker.transit.tx
-					? broker.transit.tx.constructor.name
-					: kleur.gray("<None>")
+				broker.transit.tx ? broker.transit.tx.constructor.name : kleur.gray("<None>")
 			);
 
 			console.log("");
 
 			printHeader("Transporter settings");
 			if (!_.isNil(broker.transit.tx.opts)) {
-				if (_.isString(broker.transit.tx.opts))
-					print("URL", broker.transit.tx.opts);
+				if (_.isString(broker.transit.tx.opts)) print("URL", broker.transit.tx.opts);
 				else printObject(broker.transit.tx.opts);
 			} else {
 				print("Not Setting is set!");
@@ -182,7 +164,7 @@ function declaration(program, broker, cmdHandler) {
 	program
 		.command("info")
 		.description("Information about broker")
-		.hook("preAction", (thisCommand) => {
+		.hook("preAction", thisCommand => {
 			// Command without params. Keep for consistency sake
 			let parsedArgs = {};
 
@@ -191,7 +173,7 @@ function declaration(program, broker, cmdHandler) {
 			// Set the params
 			thisCommand.params = {
 				options: parsedArgs,
-				rawCommand,
+				rawCommand
 			};
 
 			// Clear the parsed values for next execution

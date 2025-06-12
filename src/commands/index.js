@@ -1,7 +1,6 @@
 "use strict";
 
-const glob = require("glob");
-const path = require("path");
+const glob = require("fast-glob");
 
 /**
  * Command option declarations
@@ -9,12 +8,10 @@ const path = require("path");
  * @param {import("moleculer").ServiceBroker} broker Moleculer's Service Broker
  */
 module.exports = function (program, broker) {
-	const files = glob.sync(path.join(__dirname, "*.js"));
+	const files = glob.sync("*.js", { cwd: __dirname, absolute: true, ignore: ["index.js"] });
 	files.sort();
-	files.forEach((file) => {
-		if (path.basename(file) != "index.js") {
-			const { register } = require(file);
-			register(program, broker);
-		}
-	});
+	for (const file of files) {
+		const { register } = require(file);
+		register(program, broker);
+	}
 };

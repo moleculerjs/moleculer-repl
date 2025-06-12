@@ -1,4 +1,3 @@
-/*eslint-disable no-console*/
 /*
  * moleculer-repl
  * Copyright (c) 2025 MoleculerJS (https://github.com/moleculerjs/moleculer-repl)
@@ -12,7 +11,6 @@ require("v8"); // Load first. It won't work in `info.js`
 const _ = require("lodash");
 const { table, getBorderCharacters } = require("table");
 const kleur = require("kleur");
-const ora = require("ora");
 const clui = require("clui");
 const { homedir } = require("os");
 const { join } = require("path");
@@ -47,7 +45,7 @@ function REPL(broker, opts) {
 
 	opts = _.defaultsDeep(opts || {}, {
 		customCommands: null,
-		delimiter: "mol $",
+		delimiter: "mol $"
 	});
 
 	// Attach the commands to the program
@@ -57,11 +55,9 @@ function REPL(broker, opts) {
 	if (Array.isArray(opts.customCommands)) {
 		const availableCommands = getAvailableCommands(program);
 
-		opts.customCommands.forEach((def) => {
+		opts.customCommands.forEach(def => {
 			if (availableCommands.includes(def.command)) {
-				broker.logger.warn(
-					`Command called '${def.command}' already exists. Skipping...`
-				);
+				broker.logger.warn(`Command called '${def.command}' already exists. Skipping...`);
 				return;
 			}
 			try {
@@ -77,24 +73,15 @@ function REPL(broker, opts) {
 
 	// Start the server
 	const replServer = nodeRepl.start({
-		prompt: opts.delimiter.endsWith(" ")
-			? opts.delimiter
-			: opts.delimiter + " ", // Add empty space
-		completer: (line) => autocompleteHandler(line, broker, program),
-		eval: evaluator,
+		prompt: opts.delimiter.endsWith(" ") ? opts.delimiter : opts.delimiter + " ", // Add empty space
+		completer: line => autocompleteHandler(line, broker, program),
+		eval: evaluator
 	});
 
 	// Setup history
-	replServer.setupHistory(
-		join(homedir(), ".moleculer_repl_history"),
-		(err, repl) => {
-			if (err)
-				broker.logger.error(
-					"Failed to initialize Moleculer REPL history",
-					err
-				);
-		}
-	);
+	replServer.setupHistory(join(homedir(), ".moleculer_repl_history"), (err, repl) => {
+		if (err) broker.logger.error("Failed to initialize Moleculer REPL history", err);
+	});
 
 	// Caught on "Ctrl+D"
 	replServer.on("exit", async () => {
@@ -154,7 +141,7 @@ function registerCustomCommands(broker, program, def) {
 
 	if (def.alias) {
 		if (!Array.isArray(def.alias)) def.alias = [def.alias];
-		def.alias.forEach((alias) => cmd.alias(alias));
+		def.alias.forEach(alias => cmd.alias(alias));
 	}
 
 	if (def.allowUnknownOptions) {
@@ -164,11 +151,11 @@ function registerCustomCommands(broker, program, def) {
 
 	if (def.parse) {
 		// Use custom parser
-		cmd.hook("preAction", (thisCommand) => {
+		cmd.hook("preAction", thisCommand => {
 			def.parse.call(parser, thisCommand);
 		});
 	} else {
-		cmd.hook("preAction", (thisCommand) => {
+		cmd.hook("preAction", thisCommand => {
 			const parsedOpts = thisCommand.parseOptions(thisCommand.args);
 
 			let values = {};
@@ -183,7 +170,7 @@ function registerCustomCommands(broker, program, def) {
 
 			let parsedArgs = {
 				...parser(parsedOpts.unknown), // Other params
-				...thisCommand._optionValues, // Contains commander.js flag values
+				...thisCommand._optionValues // Contains commander.js flag values
 			};
 
 			const rawCommand = thisCommand.parent.rawArgs.slice(2).join(" ");
@@ -192,13 +179,13 @@ function registerCustomCommands(broker, program, def) {
 			thisCommand.params = {
 				options: parsedArgs,
 				rawCommand,
-				...values,
+				...values
 			};
 		});
 	}
 
 	if (def.options) {
-		def.options.forEach((opt) => {
+		def.options.forEach(opt => {
 			cmd.option(opt.option, opt.description);
 		});
 	}
@@ -207,7 +194,7 @@ function registerCustomCommands(broker, program, def) {
 		// Clear the parsed values for next execution
 		this._optionValues = {};
 
-		const helpers = { cmd, table, kleur, ora, clui, getBorderCharacters };
+		const helpers = { cmd, table, kleur, clui, getBorderCharacters };
 
 		return def.action(broker, this.params, helpers);
 	});

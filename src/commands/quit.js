@@ -17,13 +17,13 @@ async function handler(broker, args) {
  * @param {Function} cmdHandler Command handler
  */
 function declaration(program, broker, cmdHandler) {
-	// Register cache keys command
+	// Register exit command
 	program
 		.command("exit")
 		.alias("q")
 		.alias("quit")
 		.description("Exit application")
-		.hook("preAction", (thisCommand) => {
+		.hook("preAction", thisCommand => {
 			// Command without params. Keep for consistency sake
 			let parsedArgs = {};
 
@@ -32,7 +32,7 @@ function declaration(program, broker, cmdHandler) {
 			// Set the params
 			thisCommand.params = {
 				options: parsedArgs,
-				rawCommand,
+				rawCommand
 			};
 
 			// Clear the parsed values for next execution

@@ -1,5 +1,7 @@
 "use strict";
 
+import { vi, describe, it, expect, beforeAll, afterEach } from "vitest";
+
 const { ServiceBroker } = require("moleculer");
 const commander = require("commander");
 const { parseArgsStringToArgv } = require("string-argv");
@@ -12,7 +14,7 @@ describe("Test 'broadcast' command", () => {
 	let broker;
 
 	// Mock the handler
-	const cmdHandler = jest.fn();
+	const cmdHandler = vi.fn();
 
 	beforeAll(() => {
 		program = new commander.Command();
@@ -25,7 +27,7 @@ describe("Test 'broadcast' command", () => {
 		// Create broker
 		broker = new ServiceBroker({
 			nodeID: "repl-" + process.pid,
-			logger: false,
+			logger: false
 		});
 
 		// Register the command
@@ -37,12 +39,9 @@ describe("Test 'broadcast' command", () => {
 	});
 
 	it("should call 'broadcast' with simple and nested params", async () => {
-		const command =
-			'broadcast "user.created" --a 5 --b Bob --c --no-d --e.f "hello"';
+		const command = 'broadcast "user.created" --a 5 --b Bob --c --no-d --e.f "hello"';
 
-		await program.parseAsync(
-			parseArgsStringToArgv(command, "node", "REPL")
-		);
+		await program.parseAsync(parseArgsStringToArgv(command, "node", "REPL"));
 
 		expect(cmdHandler).toHaveBeenCalledTimes(1);
 		expect(cmdHandler).toHaveBeenCalledWith(
@@ -53,11 +52,10 @@ describe("Test 'broadcast' command", () => {
 					b: "Bob",
 					c: true,
 					d: false,
-					e: { f: "hello" },
+					e: { f: "hello" }
 				},
 				eventName: "user.created",
-				rawCommand:
-					"broadcast user.created --a 5 --b Bob --c --no-d --e.f hello",
+				rawCommand: "broadcast user.created --a 5 --b Bob --c --no-d --e.f hello"
 			},
 			"broadcast",
 			"with payload"
@@ -67,9 +65,7 @@ describe("Test 'broadcast' command", () => {
 	it("should call 'broadcast' with arrays", async () => {
 		const command = "broadcast greeter.hello --a 5 --a 6 --b 8 --b 12";
 
-		await program.parseAsync(
-			parseArgsStringToArgv(command, "node", "REPL")
-		);
+		await program.parseAsync(parseArgsStringToArgv(command, "node", "REPL"));
 
 		expect(cmdHandler).toHaveBeenCalledTimes(1);
 		expect(cmdHandler).toHaveBeenCalledWith(
@@ -77,10 +73,10 @@ describe("Test 'broadcast' command", () => {
 			{
 				options: {
 					a: [5, 6],
-					b: [8, 12],
+					b: [8, 12]
 				},
 				eventName: "greeter.hello",
-				rawCommand: "broadcast greeter.hello --a 5 --a 6 --b 8 --b 12",
+				rawCommand: "broadcast greeter.hello --a 5 --a 6 --b 8 --b 12"
 			},
 			"broadcast",
 			"with payload"
@@ -90,12 +86,9 @@ describe("Test 'broadcast' command", () => {
 	it("should call 'broadcast' and NOT parse the values", async () => {
 		// example from: https://github.com/moleculerjs/moleculer-repl/issues/54
 
-		const command =
-			'broadcast user.create --phone "+1111111" --passcode "0033"';
+		const command = 'broadcast user.create --phone "+1111111" --passcode "0033"';
 
-		await program.parseAsync(
-			parseArgsStringToArgv(command, "node", "REPL")
-		);
+		await program.parseAsync(parseArgsStringToArgv(command, "node", "REPL"));
 
 		expect(cmdHandler).toHaveBeenCalledTimes(1);
 		expect(cmdHandler).toHaveBeenCalledWith(
@@ -103,8 +96,7 @@ describe("Test 'broadcast' command", () => {
 			{
 				options: { phone: "+1111111", passcode: "0033" },
 				eventName: "user.create",
-				rawCommand:
-					"broadcast user.create --phone +1111111 --passcode 0033",
+				rawCommand: "broadcast user.create --phone +1111111 --passcode 0033"
 			},
 			"broadcast",
 			"with payload"
@@ -117,9 +109,7 @@ describe("Test 'broadcast' command", () => {
 		const command =
 			"broadcast greeter.hello --a 5 --a 6 --hash 0x7597 --b 8 --b 12 --traceHash 0xab706 --c testString";
 
-		await program.parseAsync(
-			parseArgsStringToArgv(command, "node", "REPL")
-		);
+		await program.parseAsync(parseArgsStringToArgv(command, "node", "REPL"));
 
 		expect(cmdHandler).toHaveBeenCalledTimes(1);
 		expect(cmdHandler).toHaveBeenCalledWith(
@@ -130,11 +120,11 @@ describe("Test 'broadcast' command", () => {
 					b: [8, 12],
 					c: "testString",
 					hash: "0x7597",
-					traceHash: "0xab706",
+					traceHash: "0xab706"
 				},
 				eventName: "greeter.hello",
 				rawCommand:
-					"broadcast greeter.hello --a 5 --a 6 --hash 0x7597 --b 8 --b 12 --traceHash 0xab706 --c testString",
+					"broadcast greeter.hello --a 5 --a 6 --hash 0x7597 --b 8 --b 12 --traceHash 0xab706 --c testString"
 			},
 			"broadcast",
 			"with payload"
@@ -147,7 +137,7 @@ describe("Test 'broadcastLocal' command", () => {
 	let broker;
 
 	// Mock the handler
-	const cmdHandler = jest.fn();
+	const cmdHandler = vi.fn();
 
 	beforeAll(() => {
 		program = new commander.Command();
@@ -160,7 +150,7 @@ describe("Test 'broadcastLocal' command", () => {
 		// Create broker
 		broker = new ServiceBroker({
 			nodeID: "repl-" + process.pid,
-			logger: false,
+			logger: false
 		});
 
 		// Register the command
@@ -172,12 +162,9 @@ describe("Test 'broadcastLocal' command", () => {
 	});
 
 	it("should call 'broadcastLocal' with simple and nested params", async () => {
-		const command =
-			'broadcastLocal "user.created" --a 5 --b Bob --c --no-d --e.f "hello"';
+		const command = 'broadcastLocal "user.created" --a 5 --b Bob --c --no-d --e.f "hello"';
 
-		await program.parseAsync(
-			parseArgsStringToArgv(command, "node", "REPL")
-		);
+		await program.parseAsync(parseArgsStringToArgv(command, "node", "REPL"));
 
 		expect(cmdHandler).toHaveBeenCalledTimes(1);
 		expect(cmdHandler).toHaveBeenCalledWith(
@@ -188,11 +175,10 @@ describe("Test 'broadcastLocal' command", () => {
 					b: "Bob",
 					c: true,
 					d: false,
-					e: { f: "hello" },
+					e: { f: "hello" }
 				},
 				eventName: "user.created",
-				rawCommand:
-					"broadcastLocal user.created --a 5 --b Bob --c --no-d --e.f hello",
+				rawCommand: "broadcastLocal user.created --a 5 --b Bob --c --no-d --e.f hello"
 			},
 			"broadcast",
 			"locally with payload"
@@ -202,9 +188,7 @@ describe("Test 'broadcastLocal' command", () => {
 	it("should call 'broadcastLocal' with arrays", async () => {
 		const command = "broadcastLocal greeter.hello --a 5 --a 6 --b 8 --b 12";
 
-		await program.parseAsync(
-			parseArgsStringToArgv(command, "node", "REPL")
-		);
+		await program.parseAsync(parseArgsStringToArgv(command, "node", "REPL"));
 
 		expect(cmdHandler).toHaveBeenCalledTimes(1);
 		expect(cmdHandler).toHaveBeenCalledWith(
@@ -212,11 +196,10 @@ describe("Test 'broadcastLocal' command", () => {
 			{
 				options: {
 					a: [5, 6],
-					b: [8, 12],
+					b: [8, 12]
 				},
 				eventName: "greeter.hello",
-				rawCommand:
-					"broadcastLocal greeter.hello --a 5 --a 6 --b 8 --b 12",
+				rawCommand: "broadcastLocal greeter.hello --a 5 --a 6 --b 8 --b 12"
 			},
 			"broadcast",
 			"locally with payload"
@@ -226,12 +209,9 @@ describe("Test 'broadcastLocal' command", () => {
 	it("should call 'broadcastLocal' and NOT parse the values", async () => {
 		// example from: https://github.com/moleculerjs/moleculer-repl/issues/54
 
-		const command =
-			'broadcastLocal user.create --phone "+1111111" --passcode "0033"';
+		const command = 'broadcastLocal user.create --phone "+1111111" --passcode "0033"';
 
-		await program.parseAsync(
-			parseArgsStringToArgv(command, "node", "REPL")
-		);
+		await program.parseAsync(parseArgsStringToArgv(command, "node", "REPL"));
 
 		expect(cmdHandler).toHaveBeenCalledTimes(1);
 		expect(cmdHandler).toHaveBeenCalledWith(
@@ -239,8 +219,7 @@ describe("Test 'broadcastLocal' command", () => {
 			{
 				options: { phone: "+1111111", passcode: "0033" },
 				eventName: "user.create",
-				rawCommand:
-					"broadcastLocal user.create --phone +1111111 --passcode 0033",
+				rawCommand: "broadcastLocal user.create --phone +1111111 --passcode 0033"
 			},
 			"broadcast",
 			"locally with payload"
@@ -253,9 +232,7 @@ describe("Test 'broadcastLocal' command", () => {
 		const command =
 			"broadcastLocal greeter.hello --a 5 --a 6 --hash 0x7597 --b 8 --b 12 --traceHash 0xab706 --c testString";
 
-		await program.parseAsync(
-			parseArgsStringToArgv(command, "node", "REPL")
-		);
+		await program.parseAsync(parseArgsStringToArgv(command, "node", "REPL"));
 
 		expect(cmdHandler).toHaveBeenCalledTimes(1);
 		expect(cmdHandler).toHaveBeenCalledWith(
@@ -266,11 +243,11 @@ describe("Test 'broadcastLocal' command", () => {
 					b: [8, 12],
 					c: "testString",
 					hash: "0x7597",
-					traceHash: "0xab706",
+					traceHash: "0xab706"
 				},
 				eventName: "greeter.hello",
 				rawCommand:
-					"broadcastLocal greeter.hello --a 5 --a 6 --hash 0x7597 --b 8 --b 12 --traceHash 0xab706 --c testString",
+					"broadcastLocal greeter.hello --a 5 --a 6 --hash 0x7597 --b 8 --b 12 --traceHash 0xab706 --c testString"
 			},
 			"broadcast",
 			"locally with payload"

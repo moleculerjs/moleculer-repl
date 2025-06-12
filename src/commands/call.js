@@ -25,9 +25,7 @@ async function handler(broker, args) {
 		try {
 			payload = JSON.parse(args.jsonParams);
 		} catch (err) {
-			console.error(
-				kleur.red().bold(">> ERROR:", err.message, args.jsonParams)
-			);
+			console.error(kleur.red().bold(">> ERROR:", err.message, args.jsonParams));
 			console.error(kleur.red().bold(err.stack));
 			return;
 		}
@@ -37,7 +35,7 @@ async function handler(broker, args) {
 		const opts = convertArgs(args.options);
 		if (args.options.save) delete opts.save;
 
-		Object.keys(opts).map((key) => {
+		Object.keys(opts).map(key => {
 			if (key.startsWith("#")) meta[key.slice(1)] = opts[key];
 			else if (key.startsWith("$")) callOpts[key.slice(1)] = opts[key];
 			else {
@@ -85,7 +83,7 @@ async function handler(broker, args) {
 			({
 				params: payload,
 				meta,
-				options: callOpts,
+				options: callOpts
 			} = JSON.parse(fs.readFileSync(fName, "utf8")));
 			console.log(payload);
 		} else {
@@ -114,9 +112,9 @@ async function handler(broker, args) {
 		{
 			key: "local",
 			replaceKey: "nodeID",
-			value: args.nodeID,
-		},
-	].forEach((opt) => {
+			value: args.nodeID
+		}
+	].forEach(opt => {
 		if (callOpts[opt.key]) {
 			delete callOpts[opt.key];
 			opt.replaceKey ? (callOpts[opt.replaceKey] = opt.value) : undefined;
@@ -130,31 +128,23 @@ async function handler(broker, args) {
 		nodeID &&
 		!broker.registry
 			.getServiceList({})
-			.map((service) => service.nodeID)
+			.map(service => service.nodeID)
 			.includes(nodeID)
 	) {
-		console.error(
-			kleur.red().bold(`>> Node '${nodeID}' is not available.`)
-		);
+		console.error(kleur.red().bold(`>> Node '${nodeID}' is not available.`));
 		return;
 	}
 
 	meta.$repl = true;
 	console.log(
-		kleur
-			.yellow()
-			.bold(
-				`>> Call '${args.actionName}'${nodeID ? " on " + nodeID : ""}`
-			),
+		kleur.yellow().bold(`>> Call '${args.actionName}'${nodeID ? " on " + nodeID : ""}`),
 		isStream(payload)
 			? kleur.yellow().bold("with <Stream>.")
 			: kleur.yellow().bold("with params:"),
 		isStream(payload) ? "" : payload,
 		meta ? kleur.yellow().bold("with meta:") : "",
 		meta ? meta : "",
-		Object.keys(callOpts).length
-			? kleur.yellow().bold("with options:")
-			: "",
+		Object.keys(callOpts).length ? kleur.yellow().bold("with options:") : "",
 		Object.keys(callOpts).length ? callOpts : ""
 	);
 
@@ -162,14 +152,12 @@ async function handler(broker, args) {
 		const res = await broker.call(args.actionName, payload, {
 			meta,
 			nodeID,
-			...callOpts,
+			...callOpts
 		});
 
 		const diff = process.hrtime(startTime);
 		const duration = (diff[0] + diff[1] / 1e9) * 1000;
-		console.log(
-			kleur.cyan().bold(">> Execution time:" + humanize(duration))
-		);
+		console.log(kleur.cyan().bold(">> Execution time:" + humanize(duration)));
 
 		console.log(kleur.yellow().bold(">> Response:"));
 		if (isStream(res)) {
@@ -179,7 +167,7 @@ async function handler(broker, args) {
 				util.inspect(res, {
 					showHidden: false,
 					depth: 4,
-					colors: true,
+					colors: true
 				})
 			);
 		}
@@ -217,13 +205,13 @@ async function handler(broker, args) {
 							: value;
 
 						cb(null, message);
-					},
+					}
 				});
 
 				const stream = res.pipe(pass);
 
 				if (print) {
-					stream.on("data", (value) => console.log(value));
+					stream.on("data", value => console.log(value));
 				} else {
 					stream.pipe(fs.createWriteStream(fName));
 				}
@@ -247,11 +235,7 @@ async function handler(broker, args) {
 					"utf8"
 				);
 
-				console.log(
-					kleur
-						.magenta()
-						.bold(`>> Response has been saved to '${fName}' file.`)
-				);
+				console.log(kleur.magenta().bold(`>> Response has been saved to '${fName}' file.`));
 			}
 		}
 	} catch (err) {
@@ -262,7 +246,7 @@ async function handler(broker, args) {
 			util.inspect(err.data, {
 				showHidden: false,
 				depth: 4,
-				colors: true,
+				colors: true
 			})
 		);
 	}
@@ -289,13 +273,13 @@ function declaration(program, broker, cmdHandler) {
 		.option("--save [filename]", "Save response to file")
 		.allowUnknownOption(true)
 		.allowExcessArguments(true)
-		.hook("preAction", (thisCommand) => {
+		.hook("preAction", thisCommand => {
 			const parsedOpts = thisCommand.parseOptions(thisCommand.args);
 			const [actionName, jsonParams, meta] = parsedOpts.operands;
 
 			let parsedArgs = {
 				...parser(parsedOpts.unknown), // Other params
-				...thisCommand._optionValues, // Contains flag values
+				...thisCommand._optionValues // Contains flag values
 			};
 
 			const rawCommand = thisCommand.parent.rawArgs.slice(2).join(" ");
@@ -307,7 +291,7 @@ function declaration(program, broker, cmdHandler) {
 				nodeID: parsedArgs.$local ? broker.nodeID : undefined,
 				...(jsonParams !== undefined ? { jsonParams } : undefined),
 				...(meta !== undefined ? { meta } : undefined),
-				rawCommand,
+				rawCommand
 			};
 
 			// Clear the parsed values for next execution
@@ -331,13 +315,13 @@ function declaration(program, broker, cmdHandler) {
 		.option("--save [filename]", "Save response to file")
 		.allowUnknownOption(true)
 		.allowExcessArguments(true)
-		.hook("preAction", (thisCommand) => {
+		.hook("preAction", thisCommand => {
 			const parsedOpts = thisCommand.parseOptions(thisCommand.args);
 			const [nodeID, actionName, jsonParams, meta] = parsedOpts.operands;
 
 			let parsedArgs = {
 				...parser(parsedOpts.unknown), // Other params
-				...thisCommand._optionValues, // Contains flag values
+				...thisCommand._optionValues // Contains flag values
 			};
 
 			const rawCommand = thisCommand.parent.rawArgs.slice(2).join(" ");
@@ -349,7 +333,7 @@ function declaration(program, broker, cmdHandler) {
 				actionName,
 				...(jsonParams !== undefined ? { jsonParams } : undefined),
 				...(meta !== undefined ? { meta } : undefined),
-				rawCommand,
+				rawCommand
 			};
 
 			// Clear the parsed values for next execution

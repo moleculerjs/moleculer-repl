@@ -13,13 +13,13 @@ const { convertArgs } = require("../utils");
 async function handler(broker, args) {
 	let payload = {};
 	let meta = {
-		$repl: true,
+		$repl: true
 	};
 	let emitOpts = {};
 
 	const opts = convertArgs(args.options);
 
-	Object.keys(opts).map((key) => {
+	Object.keys(opts).map(key => {
 		if (key.startsWith("#")) meta[key.slice(1)] = opts[key];
 		else if (key.startsWith("$")) emitOpts[key.slice(1)] = opts[key];
 		else {
@@ -51,13 +51,13 @@ function declaration(program, broker, cmdHandler) {
 		.description("Emit an event")
 		.allowUnknownOption(true)
 		.allowExcessArguments(true)
-		.hook("preAction", (thisCommand) => {
+		.hook("preAction", thisCommand => {
 			const parsedOpts = thisCommand.parseOptions(thisCommand.args);
 			const [eventName] = parsedOpts.operands;
 
 			let parsedArgs = {
 				...parser(parsedOpts.unknown), // Other params
-				...thisCommand._optionValues, // Contains flag values
+				...thisCommand._optionValues // Contains flag values
 			};
 
 			const rawCommand = thisCommand.parent.rawArgs.slice(2).join(" ");
@@ -66,7 +66,7 @@ function declaration(program, broker, cmdHandler) {
 			thisCommand.params = {
 				options: parsedArgs,
 				eventName,
-				rawCommand,
+				rawCommand
 			};
 
 			// Clear the parsed values for next execution

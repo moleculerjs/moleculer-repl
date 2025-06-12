@@ -1,13 +1,17 @@
+"use strict";
+
+import { vi, describe, it, expect, beforeAll, afterEach } from "vitest";
+
 const { ServiceBroker } = require("moleculer");
 const REPL = require("../src");
 
 describe("Test custom commands", () => {
 	const broker = new ServiceBroker({
-		logger: false,
+		logger: false
 	});
 
 	// Mock the handler
-	const cmdHandler = jest.fn();
+	const cmdHandler = vi.fn();
 
 	const replServer = REPL(broker, {
 		customCommands: [
@@ -18,21 +22,21 @@ describe("Test custom commands", () => {
 				options: [
 					{
 						option: "-u, --uppercase",
-						description: "Uppercase the name",
+						description: "Uppercase the name"
 					},
 					{
 						option: "-p, --prefix <prefix>",
-						description: "Add prefix to the name",
-					},
+						description: "Add prefix to the name"
+					}
 				],
 				types: {
 					string: ["name"],
-					boolean: ["u", "uppercase"],
+					boolean: ["u", "uppercase"]
 				},
 				allowUnknownOptions: true,
-				action: cmdHandler,
-			},
-		],
+				action: cmdHandler
+			}
+		]
 	});
 
 	// Disable exit event listeners
@@ -55,13 +59,8 @@ describe("Test custom commands", () => {
 	it("should call 'hello' with flags", async () => {
 		expect(true).toBe(true);
 
-		const callbackMock = jest.fn();
-		replServer.eval(
-			"hello -u --prefix Mr. test",
-			undefined,
-			undefined,
-			callbackMock
-		);
+		const callbackMock = vi.fn();
+		replServer.eval("hello -u --prefix Mr. test", undefined, undefined, callbackMock);
 
 		expect(cmdHandler).toHaveBeenCalledTimes(1);
 		expect(cmdHandler).toHaveBeenCalledWith(
@@ -69,10 +68,10 @@ describe("Test custom commands", () => {
 			{
 				options: {
 					uppercase: true,
-					prefix: "Mr.",
+					prefix: "Mr."
 				},
 				name: "test",
-				rawCommand: "hello -u --prefix Mr. test",
+				rawCommand: "hello -u --prefix Mr. test"
 			},
 			expect.any(Object)
 		);
@@ -81,13 +80,8 @@ describe("Test custom commands", () => {
 	it("should call with 'hi' as alias with flags", async () => {
 		expect(true).toBe(true);
 
-		const callbackMock = jest.fn();
-		replServer.eval(
-			"hi -u --prefix Mr. test",
-			undefined,
-			undefined,
-			callbackMock
-		);
+		const callbackMock = vi.fn();
+		replServer.eval("hi -u --prefix Mr. test", undefined, undefined, callbackMock);
 
 		expect(cmdHandler).toHaveBeenCalledTimes(1);
 		expect(cmdHandler).toHaveBeenCalledWith(
@@ -95,10 +89,10 @@ describe("Test custom commands", () => {
 			{
 				options: {
 					uppercase: true,
-					prefix: "Mr.",
+					prefix: "Mr."
 				},
 				name: "test",
-				rawCommand: "hi -u --prefix Mr. test",
+				rawCommand: "hi -u --prefix Mr. test"
 			},
 			expect.any(Object)
 		);

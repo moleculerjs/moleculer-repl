@@ -5,12 +5,7 @@ const kleur = require("kleur");
 const _ = require("lodash");
 const { table, getBorderCharacters } = require("table");
 
-const {
-	match,
-	CIRCUIT_CLOSE,
-	CIRCUIT_HALF_OPEN,
-	CIRCUIT_OPEN,
-} = require("../utils");
+const { match, CIRCUIT_CLOSE, CIRCUIT_HALF_OPEN, CIRCUIT_OPEN } = require("../utils");
 
 /**
  * Command logic
@@ -22,7 +17,7 @@ async function handler(broker, args) {
 		onlyLocal: args.options.local,
 		onlyAvailable: !args.options.all,
 		skipInternal: args.options.skipinternal,
-		withEndpoints: args.options.details,
+		withEndpoints: args.options.details
 	});
 
 	const data = [
@@ -31,8 +26,8 @@ async function handler(broker, args) {
 			kleur.bold("Nodes"),
 			kleur.bold("State"),
 			kleur.bold("Cached"),
-			kleur.bold("Params"),
-		],
+			kleur.bold("Params")
+		]
 	];
 
 	let hLines = [];
@@ -41,67 +36,52 @@ async function handler(broker, args) {
 
 	let lastServiceName;
 
-	actions.forEach((item) => {
+	actions.forEach(item => {
 		const action = item.action;
 		const state = item.available;
-		const params =
-			action && action.params
-				? Object.keys(action.params).join(", ")
-				: "";
+		const params = action && action.params ? Object.keys(action.params).join(", ") : "";
 
-		if (args.options.filter && !match(item.name, args.options.filter))
-			return;
+		if (args.options.filter && !match(item.name, args.options.filter)) return;
 
 		const serviceName = item.name.split(".").slice(0, -1).join(".");
 
 		// Draw a separator line
-		if (lastServiceName && serviceName != lastServiceName)
-			hLines.push(data.length);
+		if (lastServiceName && serviceName != lastServiceName) hLines.push(data.length);
 		lastServiceName = serviceName;
 
 		if (action) {
 			data.push([
 				action.name,
 				(item.hasLocal ? "(*) " : "") + item.count,
-				state
-					? kleur.bgGreen().white("   OK   ")
-					: kleur.bgRed().white().bold(" FAILED "),
+				state ? kleur.bgGreen().white("   OK   ") : kleur.bgRed().white().bold(" FAILED "),
 				action.cache ? kleur.green("Yes") : kleur.gray("No"),
-				params,
+				params
 			]);
 		} else {
-			data.push([
-				item.name,
-				item.count,
-				kleur.bgRed().white().bold(" FAILED "),
-				"",
-				"",
-			]);
+			data.push([item.name, item.count, kleur.bgRed().white().bold(" FAILED "), "", ""]);
 		}
 
-		let getStateLabel = (state) => {
+		let getStateLabel = state => {
 			switch (state) {
-			case true:
-			case CIRCUIT_CLOSE:
-				return kleur.bgGreen().white("   OK   ");
-			case CIRCUIT_HALF_OPEN:
-				return kleur.bgYellow().black(" TRYING ");
-			case false:
-			case CIRCUIT_OPEN:
-				return kleur.bgRed().white(" FAILED ");
+				case true:
+				case CIRCUIT_CLOSE:
+					return kleur.bgGreen().white("   OK   ");
+				case CIRCUIT_HALF_OPEN:
+					return kleur.bgYellow().black(" TRYING ");
+				case false:
+				case CIRCUIT_OPEN:
+					return kleur.bgRed().white(" FAILED ");
 			}
 		};
 
 		if (args.options.details && item.endpoints) {
-			item.endpoints.forEach((endpoint) => {
+			item.endpoints.forEach(endpoint => {
 				data.push([
 					"",
-					endpoint.nodeID == broker.nodeID
-						? kleur.gray("<local>")
-						: endpoint.nodeID,
+					endpoint.nodeID == broker.nodeID ? kleur.gray("<local>") : endpoint.nodeID,
 					getStateLabel(endpoint.state),
 					"",
-					"",
+					""
 				]);
 			});
 			hLines.push(data.length);
@@ -109,19 +89,14 @@ async function handler(broker, args) {
 	});
 
 	const tableConf = {
-		border: _.mapValues(getBorderCharacters("honeywell"), (char) =>
-			kleur.gray(char)
-		),
+		border: _.mapValues(getBorderCharacters("honeywell"), char => kleur.gray(char)),
 		columns: {
 			1: { alignment: "right" },
 			3: { alignment: "center" },
-			5: { width: 20, wrapWord: true },
+			5: { width: 20, wrapWord: true }
 		},
 		drawHorizontalLine: (index, count) =>
-			index == 0 ||
-			index == 1 ||
-			index == count ||
-			hLines.indexOf(index) !== -1,
+			index == 0 || index == 1 || index == count || hLines.indexOf(index) !== -1
 	};
 
 	console.log(table(data, tableConf));
@@ -142,9 +117,9 @@ function declaration(program, broker, cmdHandler) {
 		.option("-f, --filter <match>", "filter actions (e.g.: 'users.*')")
 		.option("-i, --skipinternal", "skip internal actions")
 		.option("-l, --local", "only local actions")
-		.hook("preAction", (thisCommand) => {
+		.hook("preAction", thisCommand => {
 			let parsedArgs = {
-				...thisCommand._optionValues, // Contains flag values
+				...thisCommand._optionValues // Contains flag values
 			};
 
 			const rawCommand = thisCommand.parent.rawArgs.slice(2).join(" ");
@@ -152,7 +127,7 @@ function declaration(program, broker, cmdHandler) {
 			// Set the params
 			thisCommand.params = {
 				options: parsedArgs,
-				rawCommand,
+				rawCommand
 			};
 
 			// Clear the parsed values for next execution

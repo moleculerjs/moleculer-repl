@@ -1,5 +1,7 @@
 "use strict";
 
+import { vi, describe, it, expect, beforeAll, afterEach } from "vitest";
+
 const { ServiceBroker } = require("moleculer");
 const commander = require("commander");
 const { parseArgsStringToArgv } = require("string-argv");
@@ -12,7 +14,7 @@ describe("Test 'listener add' command", () => {
 	let broker;
 
 	// Mock the handler
-	const cmdHandler = jest.fn();
+	const cmdHandler = vi.fn();
 
 	beforeAll(() => {
 		program = new commander.Command();
@@ -25,7 +27,7 @@ describe("Test 'listener add' command", () => {
 		// Create broker
 		broker = new ServiceBroker({
 			nodeID: "repl-" + process.pid,
-			logger: false,
+			logger: false
 		});
 
 		// Register the command
@@ -39,17 +41,15 @@ describe("Test 'listener add' command", () => {
 	it("should call 'listener add' with group flag", async () => {
 		const command = "listener add user.created --group abcd";
 
-		await program.parseAsync(
-			parseArgsStringToArgv(command, "node", "REPL")
-		);
+		await program.parseAsync(parseArgsStringToArgv(command, "node", "REPL"));
 
 		expect(cmdHandler).toHaveBeenCalledTimes(1);
 		expect(cmdHandler).toHaveBeenCalledWith(expect.any(ServiceBroker), {
 			options: {
-				group: "abcd",
+				group: "abcd"
 			},
 			eventName: "user.created",
-			rawCommand: "listener add user.created --group abcd",
+			rawCommand: "listener add user.created --group abcd"
 		});
 	});
 });
@@ -59,7 +59,7 @@ describe("Test 'listener remove' command", () => {
 	let broker;
 
 	// Mock the handler
-	const cmdHandler = jest.fn();
+	const cmdHandler = vi.fn();
 
 	beforeAll(() => {
 		program = new commander.Command();
@@ -72,7 +72,7 @@ describe("Test 'listener remove' command", () => {
 		// Create broker
 		broker = new ServiceBroker({
 			nodeID: "repl-" + process.pid,
-			logger: false,
+			logger: false
 		});
 
 		// Register the command
@@ -86,15 +86,13 @@ describe("Test 'listener remove' command", () => {
 	it("should call 'listener remove'", async () => {
 		const command = "listener remove user.created";
 
-		await program.parseAsync(
-			parseArgsStringToArgv(command, "node", "REPL")
-		);
+		await program.parseAsync(parseArgsStringToArgv(command, "node", "REPL"));
 
 		expect(cmdHandler).toHaveBeenCalledTimes(1);
 		expect(cmdHandler).toHaveBeenCalledWith(expect.any(ServiceBroker), {
 			options: {},
 			eventName: "user.created",
-			rawCommand: "listener remove user.created",
+			rawCommand: "listener remove user.created"
 		});
 	});
 });
@@ -104,7 +102,7 @@ describe("Test 'listener list' command", () => {
 	let broker;
 
 	// Mock the handler
-	const cmdHandler = jest.fn();
+	const cmdHandler = vi.fn();
 
 	beforeAll(() => {
 		program = new commander.Command();
@@ -117,7 +115,7 @@ describe("Test 'listener list' command", () => {
 		// Create broker
 		broker = new ServiceBroker({
 			nodeID: "repl-" + process.pid,
-			logger: false,
+			logger: false
 		});
 
 		// Register the command
@@ -131,14 +129,12 @@ describe("Test 'listener list' command", () => {
 	it("should call 'listener list'", async () => {
 		const command = "listener list";
 
-		await program.parseAsync(
-			parseArgsStringToArgv(command, "node", "REPL")
-		);
+		await program.parseAsync(parseArgsStringToArgv(command, "node", "REPL"));
 
 		expect(cmdHandler).toHaveBeenCalledTimes(1);
 		expect(cmdHandler).toHaveBeenCalledWith(expect.any(ServiceBroker), {
 			options: {},
-			rawCommand: "listener list",
+			rawCommand: "listener list"
 		});
 	});
 });

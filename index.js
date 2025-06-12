@@ -1,6 +1,6 @@
 /*
  * moleculer-repl
- * Copyright (c) 2018 MoleculerJS (https://github.com/moleculerjs/moleculer-repl)
+ * Copyright (c) 2025 MoleculerJS (https://github.com/moleculerjs/moleculer-repl)
  * MIT Licensed
  */
 

@@ -20,11 +20,7 @@ async function cacheKeysHandler(broker, args) {
 
 	if (!_.isFunction(broker.cacher.getCacheKeys)) {
 		console.log(
-			kleur
-				.yellow()
-				.bold(
-					"Cacher is not compatible. Missing 'getCacheKeys' method."
-				)
+			kleur.yellow().bold("Cacher is not compatible. Missing 'getCacheKeys' method.")
 		);
 		// return done();
 		return;
@@ -32,36 +28,30 @@ async function cacheKeysHandler(broker, args) {
 
 	broker.cacher
 		.getCacheKeys()
-		.then((entries) => {
+		.then(entries => {
 			const data = [
 				[
-					kleur.bold("Key"),
+					kleur.bold("Key")
 					//kleur.bold("Expires at"),
-				],
+				]
 			];
 
 			entries.sort((a, b) => a.key.localeCompare(b.key));
 
 			//let hLines = [];
 
-			entries.forEach((item) => {
-				if (
-					args.options.filter &&
-					!match(item.key, args.options.filter)
-				)
-					return;
+			entries.forEach(item => {
+				if (args.options.filter && !match(item.key, args.options.filter)) return;
 
 				data.push([
-					item.key,
+					item.key
 					//item.expiresAt
 				]);
 			});
 
 			const tableConf = {
-				border: _.mapValues(getBorderCharacters("honeywell"), (char) =>
-					kleur.gray(char)
-				),
-				columns: {},
+				border: _.mapValues(getBorderCharacters("honeywell"), char => kleur.gray(char)),
+				columns: {}
 				//drawHorizontalLine: (index, count) => index == 0 || index == 1 || index == count || hLines.indexOf(index) !== -1
 			};
 
@@ -69,7 +59,7 @@ async function cacheKeysHandler(broker, args) {
 
 			// done();
 		})
-		.catch((err) => {
+		.catch(err => {
 			console.error(err);
 			// done();
 		});
@@ -96,7 +86,7 @@ async function cacheClearHandler(broker, args) {
 				);
 				// done();
 			})
-			.catch((err) => {
+			.catch(err => {
 				console.error(err);
 				// done();
 			});
@@ -114,12 +104,7 @@ async function cacheClearHandler(broker, args) {
  * @param {Function} cmdCacheKeysHandler Handler that shows the keys
  * @param {Function} cmdCacheClearHandler Handler that clears the cache
  */
-function declaration(
-	program,
-	broker,
-	cmdCacheKeysHandler,
-	cmdCacheClearHandler
-) {
+function declaration(program, broker, cmdCacheKeysHandler, cmdCacheClearHandler) {
 	const cacheCMD = program.command("cache").description("Manage cache");
 
 	// Register cache keys subcommand
@@ -129,19 +114,17 @@ function declaration(
 		.option("-f, --filter <match>", "filter keys")
 		.allowUnknownOption(true)
 		.allowExcessArguments(true)
-		.hook("preAction", (thisCommand) => {
+		.hook("preAction", thisCommand => {
 			let parsedArgs = {
-				...thisCommand._optionValues, // Contains flag values
+				...thisCommand._optionValues // Contains flag values
 			};
 
-			const rawCommand = thisCommand.parent.parent.rawArgs
-				.slice(2)
-				.join(" ");
+			const rawCommand = thisCommand.parent.parent.rawArgs.slice(2).join(" ");
 
 			// Set the params
 			thisCommand.params = {
 				options: parsedArgs,
-				rawCommand,
+				rawCommand
 			};
 
 			// Clear the parsed values for next execution
@@ -158,24 +141,22 @@ function declaration(
 		.description("Clear cache entries")
 		.allowUnknownOption(true)
 		.allowExcessArguments(true)
-		.hook("preAction", (thisCommand) => {
+		.hook("preAction", thisCommand => {
 			const parsedOpts = thisCommand.parseOptions(thisCommand.args);
 			const [pattern] = parsedOpts.operands;
 
 			let parsedArgs = {
 				...parser(parsedOpts.unknown), // Other params
-				...thisCommand._optionValues, // Contains flag values
+				...thisCommand._optionValues // Contains flag values
 			};
 
-			const rawCommand = thisCommand.parent.parent.rawArgs
-				.slice(2)
-				.join(" ");
+			const rawCommand = thisCommand.parent.parent.rawArgs.slice(2).join(" ");
 
 			// Set the params
 			thisCommand.params = {
 				options: parsedArgs,
 				pattern,
-				rawCommand,
+				rawCommand
 			};
 
 			// Clear the parsed values for next execution

@@ -16,7 +16,7 @@ const { match } = require("../utils");
 async function handler(broker, args) {
 	const nodes = broker.registry.getNodeList({
 		onlyAvailable: false,
-		withServices: true,
+		withServices: true
 	});
 
 	if (args.options.save) {
@@ -25,19 +25,13 @@ async function handler(broker, args) {
 		);
 		const nodes = broker.registry.getNodeRawList();
 		fs.writeFileSync(fName, JSON.stringify(nodes, null, 4), "utf8");
-		console.log(
-			kleur
-				.magenta()
-				.bold(`>> Node list has been saved to '${fName}' file.`)
-		);
+		console.log(kleur.magenta().bold(`>> Node list has been saved to '${fName}' file.`));
 		return;
 	}
 
 	if (args.options.raw) {
 		const nodes = broker.registry.getNodeRawList();
-		console.log(
-			util.inspect(nodes, { showHidden: false, depth: 4, colors: true })
-		);
+		console.log(util.inspect(nodes, { showHidden: false, depth: 4, colors: true }));
 		return;
 	}
 
@@ -50,14 +44,14 @@ async function handler(broker, args) {
 		kleur.bold("Client"),
 		kleur.bold("IP"),
 		kleur.bold("State"),
-		kleur.bold("CPU"),
+		kleur.bold("CPU")
 	]);
 
 	let hLines = [];
 
 	nodes.sort((a, b) => a.id.localeCompare(b.id));
 
-	nodes.forEach((node) => {
+	nodes.forEach(node => {
 		if (!args.options.all && !node.available) return;
 
 		if (args.options.filter && !match(node.id, args.options.filter)) return;
@@ -65,8 +59,7 @@ async function handler(broker, args) {
 		let ip = "?";
 		if (node.ipList) {
 			if (node.ipList.length == 1) ip = node.ipList[0];
-			else if (node.ipList.length > 1)
-				ip = node.ipList[0] + `  (+${node.ipList.length - 1})`;
+			else if (node.ipList.length > 1) ip = node.ipList[0] + `  (+${node.ipList.length - 1})`;
 		}
 
 		let cpu = "?";
@@ -77,7 +70,7 @@ async function handler(broker, args) {
 				.concat(Array(c).fill("■"), Array(width - c).fill("."), [
 					"] ",
 					node.cpu.toFixed(0),
-					"%",
+					"%"
 				])
 				.join("");
 		}
@@ -91,42 +84,27 @@ async function handler(broker, args) {
 			node.available
 				? kleur.bgGreen().black(" ONLINE ")
 				: kleur.bgRed().white().bold(" OFFLINE "),
-			cpu,
+			cpu
 		]);
 
-		if (
-			args.options.details &&
-			node.services &&
-			Object.keys(node.services).length > 0
-		) {
-			_.forIn(node.services, (service) => {
-				data.push([
-					"",
-					service.name,
-					service.version || "-",
-					"",
-					"",
-					"",
-					"",
-				]);
+		if (args.options.details && node.services && Object.keys(node.services).length > 0) {
+			_.forIn(node.services, service => {
+				data.push(["", service.name, service.version || "-", "", "", "", ""]);
 			});
 			hLines.push(data.length);
 		}
 	});
 
 	const tableConf = {
-		border: _.mapValues(getBorderCharacters("honeywell"), (char) => {
+		border: _.mapValues(getBorderCharacters("honeywell"), char => {
 			return kleur.gray(char);
 		}),
 		columns: {
 			2: { alignment: "right" },
-			5: { alignment: "right" },
+			5: { alignment: "right" }
 		},
 		drawHorizontalLine: (index, count) =>
-			index == 0 ||
-			index == 1 ||
-			index == count ||
-			hLines.indexOf(index) !== -1,
+			index == 0 || index == 1 || index == count || hLines.indexOf(index) !== -1
 	};
 
 	console.log(table(data, tableConf));
@@ -147,9 +125,9 @@ function declaration(program, broker, cmdHandler) {
 		.option("-f, --filter <match>", "filter nodes (e.g.: 'node-*')")
 		.option("--raw", "print service registry to JSON")
 		.option("--save [filename]", "save service registry to a JSON file")
-		.hook("preAction", (thisCommand) => {
+		.hook("preAction", thisCommand => {
 			let parsedArgs = {
-				...thisCommand._optionValues, // Contains flag values
+				...thisCommand._optionValues // Contains flag values
 			};
 
 			const rawCommand = thisCommand.parent.rawArgs.slice(2).join(" ");
@@ -157,7 +135,7 @@ function declaration(program, broker, cmdHandler) {
 			// Set the params
 			thisCommand.params = {
 				options: parsedArgs,
-				rawCommand,
+				rawCommand
 			};
 
 			// Clear the parsed values for next execution

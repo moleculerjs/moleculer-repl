@@ -14,11 +14,11 @@ function versionedServicesAutocomplete(broker) {
 		onlyAvailable: true,
 		skipInternal: true,
 		withActions: true,
-		withEvents: true,
+		withEvents: true
 	});
 
 	// Return only the names
-	return services.map((service) => service.fullName);
+	return services.map(service => service.fullName);
 }
 
 /**
@@ -31,27 +31,23 @@ function nodeIdActionNameAutocomplete(broker) {
 	// Flatten to a single list
 	const completions = _.uniq(
 		_.compact(
-			broker.registry
-				.getNodeList({ onlyAvailable: true, withServices: true })
-				.map((node) => {
-					// return node && node.id;
+			broker.registry.getNodeList({ onlyAvailable: true, withServices: true }).map(node => {
+				// return node && node.id;
 
-					// Get actions of the node
-					let actionList = node.services.map((svc) => {
-						return Object.values(svc.actions).map((action) => {
-							return action.name;
-						});
+				// Get actions of the node
+				let actionList = node.services.map(svc => {
+					return Object.values(svc.actions).map(action => {
+						return action.name;
 					});
+				});
 
-					actionList = _.flatten(actionList);
+				actionList = _.flatten(actionList);
 
-					// Create "<nodeID> <action name> command for autocomplete
-					actionList = actionList.map(
-						(actionName) => `${node.id} ${actionName}`
-					);
+				// Create "<nodeID> <action name> command for autocomplete
+				actionList = actionList.map(actionName => `${node.id} ${actionName}`);
 
-					return actionList;
-				})
+				return actionList;
+			})
 		)
 	);
 
@@ -69,7 +65,7 @@ function actionNameAutocomplete(broker) {
 		_.compact(
 			broker.registry
 				.getActionList({})
-				.map((item) => (item && item.action ? item.action.name : null))
+				.map(item => (item && item.action ? item.action.name : null))
 		)
 	);
 }
@@ -85,7 +81,7 @@ function eventNameAutocomplete(broker) {
 		_.compact(
 			broker.registry
 				.getEventList({})
-				.map((item) => (item && item.event ? item.event.name : null))
+				.map(item => (item && item.event ? item.event.name : null))
 		)
 	);
 }
@@ -96,10 +92,7 @@ function eventNameAutocomplete(broker) {
  * @returns {String[]} Available commands
  */
 function getAvailableCommands(program) {
-	let availableCommands = program.commands.map((entry) => [
-		entry._name,
-		...entry._aliases,
-	]);
+	let availableCommands = program.commands.map(entry => [entry._name, ...entry._aliases]);
 	availableCommands = _.flatten(availableCommands);
 
 	return availableCommands;
@@ -126,7 +119,7 @@ function autocompleteHandler(line, broker, program) {
 	// Check if command value is complete
 	if (!availableCommands.includes(command)) {
 		// Unknown or incomplete command. Try to provide a suggestion
-		const hits = availableCommands.filter((c) => c.startsWith(command));
+		const hits = availableCommands.filter(c => c.startsWith(command));
 
 		// Show all completions if none found
 		return [hits.length ? hits : availableCommands, line];
@@ -165,9 +158,9 @@ function autocompleteHandler(line, broker, program) {
 		}
 	}
 
-	completions = completions.map((entry) => `${command} ${entry}`);
+	completions = completions.map(entry => `${command} ${entry}`);
 	// Match the command + action/event name against partial "line" value
-	let hits = completions.filter((c) => c.startsWith(line));
+	let hits = completions.filter(c => c.startsWith(line));
 	return [hits.length ? hits : completions, line];
 }
 

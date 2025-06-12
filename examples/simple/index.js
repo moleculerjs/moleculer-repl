@@ -17,30 +17,28 @@ const broker = new ServiceBroker({
 			options: [
 				{
 					option: "-u, --uppercase",
-					description: "Uppercase the name",
+					description: "Uppercase the name"
 				},
 				{
 					option: "-p, --prefix <prefix>",
-					description: "Add prefix to the name",
-				},
+					description: "Add prefix to the name"
+				}
 			],
 			types: {
 				string: ["name"],
-				boolean: ["u", "uppercase"],
+				boolean: ["u", "uppercase"]
 			},
 			//validate(args) {},
 			//help(args) {},
 			//allowUnknownOptions: true,
 			action(broker, args /*, helpers*/) {
-				let name = args.options.uppercase
-					? args.name.toUpperCase()
-					: args.name;
+				let name = args.options.uppercase ? args.name.toUpperCase() : args.name;
 				if (args.options.prefix) name = args.options.prefix + name;
 
 				return broker.call("greeter.hello", { name }).then(console.log);
-			},
-		},
-	],
+			}
+		}
+	]
 });
 
 broker.createService({
@@ -50,12 +48,12 @@ broker.createService({
 			cache: true,
 			handler(ctx) {
 				return "Hello " + ctx.params.name;
-			},
+			}
 		},
 		welcome(ctx) {
 			return {
 				params: ctx.params,
-				welcomedAt: Date.now(),
+				welcomedAt: Date.now()
 			};
 		},
 		silent() {
@@ -64,35 +62,26 @@ broker.createService({
 		echo(ctx) {
 			return {
 				params: ctx.params,
-				meta: ctx.meta,
+				meta: ctx.meta
 			};
 		},
 		objectStream() {
-			return Readable.from(
-				[{ hello: "world" }, { peace: "for everyone" }],
-				{ objectMode: true }
-			);
+			return Readable.from([{ hello: "world" }, { peace: "for everyone" }], {
+				objectMode: true
+			});
 		},
 		binaryStream() {
 			return Readable.from([Buffer.from("hello"), Buffer.from("world")], {
-				objectMode: false,
+				objectMode: false
 			});
-		},
+		}
 	},
 	events: {
 		"user.created"(ctx) {
-			this.logger.info(
-				"User created event received!",
-				ctx.params,
-				ctx.meta
-			);
+			this.logger.info("User created event received!", ctx.params, ctx.meta);
 		},
 		"user.updated"(ctx) {
-			this.logger.info(
-				"User updated even received!",
-				ctx.params,
-				ctx.meta
-			);
+			this.logger.info("User updated even received!", ctx.params, ctx.meta);
 		},
 		"order.created": {
 			group: "order",
@@ -104,16 +93,16 @@ broker.createService({
 				withActions: { type: "boolean", optional: true },
 				withEvents: { type: "boolean", optional: true },
 				onlyAvailable: { type: "boolean", optional: true },
-				grouping: { type: "boolean", optional: true },
+				grouping: { type: "boolean", optional: true }
 			},
 			handler(payload) {
 				this.logger.info("User created even received!", payload);
-			},
+			}
 		},
 		"$local-event"(payload) {
 			this.logger.info("Local event received!", payload);
-		},
-	},
+		}
+	}
 });
 
 broker.createService({
@@ -122,13 +111,13 @@ broker.createService({
 		add: {
 			params: {
 				a: "number",
-				b: "number",
+				b: "number"
 			},
 			handler(ctx) {
 				return Number(ctx.params.a) + Number(ctx.params.b);
-			},
-		},
-	},
+			}
+		}
+	}
 });
 
 broker.createService({
@@ -136,13 +125,13 @@ broker.createService({
 	actions: {
 		echo(ctx) {
 			return ctx.params;
-		},
-	},
+		}
+	}
 });
 
 broker.start().then(() =>
 	REPL(broker, {
 		delimiter: "moleculer λ",
-		customCommands: broker.options.replCommands,
+		customCommands: broker.options.replCommands
 	})
 );

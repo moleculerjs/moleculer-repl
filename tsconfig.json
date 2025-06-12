@@ -5,7 +5,8 @@
         "checkJs": true,
         "declaration": true,
         "declarationDir": "types",
-        "outDir": "dist"
+        "outDir": "dist",
+		"lib": ["ES2020"]
     },
     "include": ["**.js"],
     "exclude": ["node_modules", ".eslintrc.js", "prettier.config.js", "types"]

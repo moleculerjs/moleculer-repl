@@ -7,9 +7,9 @@ const commander = require("commander");
 const { parseArgsStringToArgv } = require("string-argv");
 
 // Load the command declaration
-let { declaration } = require("../src/commands/cls");
+let { declaration } = require("../../src/commands/actions");
 
-describe("Test 'cls' command", () => {
+describe("Test 'actions' command", () => {
 	let program;
 	let broker;
 
@@ -38,15 +38,20 @@ describe("Test 'cls' command", () => {
 		cmdHandler.mockClear();
 	});
 
-	it("should call 'cls'", async () => {
-		const command = "cls";
+	it("should call 'actions' with flags", async () => {
+		const command = "actions -l --skipinternal -d -f greeter.*";
 
 		await program.parseAsync(parseArgsStringToArgv(command, "node", "REPL"));
 
 		expect(cmdHandler).toHaveBeenCalledTimes(1);
 		expect(cmdHandler).toHaveBeenCalledWith(expect.any(ServiceBroker), {
-			options: {},
-			rawCommand: "cls"
+			options: {
+				details: true,
+				skipinternal: true,
+				local: true,
+				filter: "greeter.*"
+			},
+			rawCommand: "actions -l --skipinternal -d -f greeter.*"
 		});
 	});
 });

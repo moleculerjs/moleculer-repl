@@ -7,7 +7,7 @@ const commander = require("commander");
 const { parseArgsStringToArgv } = require("string-argv");
 
 // Load the command declaration
-let { declaration } = require("../src/commands/broadcast");
+let { declaration } = require("../../src/commands/broadcast");
 
 describe("Test 'broadcast' command", () => {
 	let program;

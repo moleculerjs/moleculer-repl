@@ -7,9 +7,9 @@ const commander = require("commander");
 const { parseArgsStringToArgv } = require("string-argv");
 
 // Load the command declaration
-let { declaration } = require("../src/commands/listener");
+let { declaration } = require("../../src/commands/load");
 
-describe("Test 'listener add' command", () => {
+describe("Test 'load' command", () => {
 	let program;
 	let broker;
 
@@ -31,73 +31,28 @@ describe("Test 'listener add' command", () => {
 		});
 
 		// Register the command
-		declaration(program, broker, cmdHandler, undefined, undefined);
+		declaration(program, broker, cmdHandler, undefined);
 	});
 
 	afterEach(() => {
 		cmdHandler.mockClear();
 	});
 
-	it("should call 'listener add' with group flag", async () => {
-		const command = "listener add user.created --group abcd";
-
-		await program.parseAsync(parseArgsStringToArgv(command, "node", "REPL"));
-
-		expect(cmdHandler).toHaveBeenCalledTimes(1);
-		expect(cmdHandler).toHaveBeenCalledWith(expect.any(ServiceBroker), {
-			options: {
-				group: "abcd"
-			},
-			eventName: "user.created",
-			rawCommand: "listener add user.created --group abcd"
-		});
-	});
-});
-
-describe("Test 'listener remove' command", () => {
-	let program;
-	let broker;
-
-	// Mock the handler
-	const cmdHandler = vi.fn();
-
-	beforeAll(() => {
-		program = new commander.Command();
-		program.exitOverride();
-		program.allowUnknownOption(true);
-
-		program.showHelpAfterError(true);
-		program.showSuggestionAfterError(true);
-
-		// Create broker
-		broker = new ServiceBroker({
-			nodeID: "repl-" + process.pid,
-			logger: false
-		});
-
-		// Register the command
-		declaration(program, broker, undefined, cmdHandler, undefined);
-	});
-
-	afterEach(() => {
-		cmdHandler.mockClear();
-	});
-
-	it("should call 'listener remove'", async () => {
-		const command = "listener remove user.created";
+	it("should 'load' service", async () => {
+		const command = "load abcd.service.js";
 
 		await program.parseAsync(parseArgsStringToArgv(command, "node", "REPL"));
 
 		expect(cmdHandler).toHaveBeenCalledTimes(1);
 		expect(cmdHandler).toHaveBeenCalledWith(expect.any(ServiceBroker), {
 			options: {},
-			eventName: "user.created",
-			rawCommand: "listener remove user.created"
+			servicePath: "abcd.service.js",
+			rawCommand: "load abcd.service.js"
 		});
 	});
 });
 
-describe("Test 'listener list' command", () => {
+describe("Test 'loadFolder' command", () => {
 	let program;
 	let broker;
 
@@ -119,22 +74,23 @@ describe("Test 'listener list' command", () => {
 		});
 
 		// Register the command
-		declaration(program, broker, undefined, undefined, cmdHandler);
+		declaration(program, broker, undefined, cmdHandler);
 	});
 
 	afterEach(() => {
 		cmdHandler.mockClear();
 	});
 
-	it("should call 'listener list'", async () => {
-		const command = "listener list";
+	it("should 'loadFolder' with pattern", async () => {
+		const command = "loadFolder ./sevices";
 
 		await program.parseAsync(parseArgsStringToArgv(command, "node", "REPL"));
 
 		expect(cmdHandler).toHaveBeenCalledTimes(1);
 		expect(cmdHandler).toHaveBeenCalledWith(expect.any(ServiceBroker), {
 			options: {},
-			rawCommand: "listener list"
+			serviceFolder: "./sevices",
+			rawCommand: "loadFolder ./sevices"
 		});
 	});
 });

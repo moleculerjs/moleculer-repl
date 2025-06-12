@@ -7,9 +7,9 @@ const commander = require("commander");
 const { parseArgsStringToArgv } = require("string-argv");
 
 // Load the command declaration
-let { declaration } = require("../src/commands/bench");
+let { declaration } = require("../../src/commands/clear");
 
-describe("Test 'bench' command", () => {
+describe("Test 'clear' command", () => {
 	let program;
 	let broker;
 
@@ -38,16 +38,16 @@ describe("Test 'bench' command", () => {
 		cmdHandler.mockClear();
 	});
 
-	it("should call 'bench' with flags", async () => {
-		const command = "bench --time 30 greeter.welcome --num 5 --nodeID abcd";
+	it("should call 'clear' with pattern", async () => {
+		const command = "clear abcde";
 
 		await program.parseAsync(parseArgsStringToArgv(command, "node", "REPL"));
 
 		expect(cmdHandler).toHaveBeenCalledTimes(1);
 		expect(cmdHandler).toHaveBeenCalledWith(expect.any(ServiceBroker), {
-			options: { num: 5, time: 30, nodeID: "abcd" },
-			action: "greeter.welcome",
-			rawCommand: "bench --time 30 greeter.welcome --num 5 --nodeID abcd"
+			options: {},
+			pattern: "abcde",
+			rawCommand: "clear abcde"
 		});
 	});
 });

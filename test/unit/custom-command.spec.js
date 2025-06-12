@@ -3,7 +3,7 @@
 import { vi, describe, it, expect, beforeAll, afterEach, afterAll } from "vitest";
 
 const { ServiceBroker } = require("moleculer");
-const REPL = require("../src");
+const REPL = require("../../src");
 
 describe("Test custom commands", () => {
 	const broker = new ServiceBroker({

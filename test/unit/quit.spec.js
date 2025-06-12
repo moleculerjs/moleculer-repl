@@ -7,9 +7,9 @@ const commander = require("commander");
 const { parseArgsStringToArgv } = require("string-argv");
 
 // Load the command declaration
-let { declaration } = require("../src/commands/nodes");
+let { declaration } = require("../../src/commands/quit");
 
-describe("Test 'nodes' command", () => {
+describe("Test 'quit' command", () => {
 	let program;
 	let broker;
 
@@ -38,21 +38,15 @@ describe("Test 'nodes' command", () => {
 		cmdHandler.mockClear();
 	});
 
-	it("should call 'nodes' with flags", async () => {
-		const command = "nodes -a -d --raw --filter node-* --save abc.json";
+	it("should 'quit' the console", async () => {
+		const command = "quit";
 
 		await program.parseAsync(parseArgsStringToArgv(command, "node", "REPL"));
 
 		expect(cmdHandler).toHaveBeenCalledTimes(1);
 		expect(cmdHandler).toHaveBeenCalledWith(expect.any(ServiceBroker), {
-			options: {
-				all: true,
-				details: true,
-				filter: "node-*",
-				raw: true,
-				save: "abc.json"
-			},
-			rawCommand: "nodes -a -d --raw --filter node-* --save abc.json"
+			options: {},
+			rawCommand: "quit"
 		});
 	});
 });

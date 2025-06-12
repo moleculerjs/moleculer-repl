@@ -7,7 +7,7 @@ const commander = require("commander");
 const { parseArgsStringToArgv } = require("string-argv");
 
 // Load the command declaration
-let { declaration } = require("../src/commands/env");
+let { declaration } = require("../../src/commands/env");
 
 describe("Test 'env' command", () => {
 	let program;

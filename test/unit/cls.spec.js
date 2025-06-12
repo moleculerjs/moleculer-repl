@@ -7,9 +7,9 @@ const commander = require("commander");
 const { parseArgsStringToArgv } = require("string-argv");
 
 // Load the command declaration
-let { declaration } = require("../src/commands/metrics");
+let { declaration } = require("../../src/commands/cls");
 
-describe("Test 'metrics' command", () => {
+describe("Test 'cls' command", () => {
 	let program;
 	let broker;
 
@@ -38,15 +38,15 @@ describe("Test 'metrics' command", () => {
 		cmdHandler.mockClear();
 	});
 
-	it("should call 'metrics' with flags", async () => {
-		const command = "metrics -f moleculer.**";
+	it("should call 'cls'", async () => {
+		const command = "cls";
 
 		await program.parseAsync(parseArgsStringToArgv(command, "node", "REPL"));
 
 		expect(cmdHandler).toHaveBeenCalledTimes(1);
 		expect(cmdHandler).toHaveBeenCalledWith(expect.any(ServiceBroker), {
-			options: { filter: "moleculer.**" },
-			rawCommand: "metrics -f moleculer.**"
+			options: {},
+			rawCommand: "cls"
 		});
 	});
 });

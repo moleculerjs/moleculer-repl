@@ -7,9 +7,9 @@ const commander = require("commander");
 const { parseArgsStringToArgv } = require("string-argv");
 
 // Load the command declaration
-let { declaration } = require("../src/commands/clear");
+let { declaration } = require("../../src/commands/nodes");
 
-describe("Test 'clear' command", () => {
+describe("Test 'nodes' command", () => {
 	let program;
 	let broker;
 
@@ -38,16 +38,21 @@ describe("Test 'clear' command", () => {
 		cmdHandler.mockClear();
 	});
 
-	it("should call 'clear' with pattern", async () => {
-		const command = "clear abcde";
+	it("should call 'nodes' with flags", async () => {
+		const command = "nodes -a -d --raw --filter node-* --save abc.json";
 
 		await program.parseAsync(parseArgsStringToArgv(command, "node", "REPL"));
 
 		expect(cmdHandler).toHaveBeenCalledTimes(1);
 		expect(cmdHandler).toHaveBeenCalledWith(expect.any(ServiceBroker), {
-			options: {},
-			pattern: "abcde",
-			rawCommand: "clear abcde"
+			options: {
+				all: true,
+				details: true,
+				filter: "node-*",
+				raw: true,
+				save: "abc.json"
+			},
+			rawCommand: "nodes -a -d --raw --filter node-* --save abc.json"
 		});
 	});
 });

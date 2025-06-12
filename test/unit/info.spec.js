@@ -7,9 +7,9 @@ const commander = require("commander");
 const { parseArgsStringToArgv } = require("string-argv");
 
 // Load the command declaration
-let { declaration } = require("../src/commands/events");
+let { declaration } = require("../../src/commands/info");
 
-describe("Test 'events' command", () => {
+describe("Test 'info' command", () => {
 	let program;
 	let broker;
 
@@ -38,20 +38,15 @@ describe("Test 'events' command", () => {
 		cmdHandler.mockClear();
 	});
 
-	it("should call 'events' with flags", async () => {
-		const command = "events -a -d -f greeter.* --skipinternal";
+	it("should call 'info'", async () => {
+		const command = "info";
 
 		await program.parseAsync(parseArgsStringToArgv(command, "node", "REPL"));
 
 		expect(cmdHandler).toHaveBeenCalledTimes(1);
 		expect(cmdHandler).toHaveBeenCalledWith(expect.any(ServiceBroker), {
-			options: {
-				all: true,
-				details: true,
-				filter: "greeter.*",
-				skipinternal: true
-			},
-			rawCommand: "events -a -d -f greeter.* --skipinternal"
+			options: {},
+			rawCommand: "info"
 		});
 	});
 });

@@ -9,7 +9,7 @@ const commander = require("commander");
 const { parseArgsStringToArgv } = require("string-argv");
 
 // Load the command declaration
-let { declaration, handler } = require("../src/commands/call");
+let { declaration, handler } = require("../../src/commands/call");
 
 describe("Test 'call' command", () => {
 	let program;

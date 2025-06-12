@@ -7,9 +7,9 @@ const commander = require("commander");
 const { parseArgsStringToArgv } = require("string-argv");
 
 // Load the command declaration
-let { declaration } = require("../src/commands/destroy");
+let { declaration } = require("../../src/commands/metrics");
 
-describe("Test 'cache-clear' command", () => {
+describe("Test 'metrics' command", () => {
 	let program;
 	let broker;
 
@@ -38,16 +38,15 @@ describe("Test 'cache-clear' command", () => {
 		cmdHandler.mockClear();
 	});
 
-	it("should 'destroy' greeter service", async () => {
-		const command = "destroy v1.greeter";
+	it("should call 'metrics' with flags", async () => {
+		const command = "metrics -f moleculer.**";
 
 		await program.parseAsync(parseArgsStringToArgv(command, "node", "REPL"));
 
 		expect(cmdHandler).toHaveBeenCalledTimes(1);
 		expect(cmdHandler).toHaveBeenCalledWith(expect.any(ServiceBroker), {
-			options: {},
-			serviceName: "v1.greeter",
-			rawCommand: "destroy v1.greeter"
+			options: { filter: "moleculer.**" },
+			rawCommand: "metrics -f moleculer.**"
 		});
 	});
 });

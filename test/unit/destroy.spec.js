@@ -7,9 +7,9 @@ const commander = require("commander");
 const { parseArgsStringToArgv } = require("string-argv");
 
 // Load the command declaration
-let { declaration } = require("../src/commands/quit");
+let { declaration } = require("../../src/commands/destroy");
 
-describe("Test 'quit' command", () => {
+describe("Test 'cache-clear' command", () => {
 	let program;
 	let broker;
 
@@ -38,15 +38,16 @@ describe("Test 'quit' command", () => {
 		cmdHandler.mockClear();
 	});
 
-	it("should 'quit' the console", async () => {
-		const command = "quit";
+	it("should 'destroy' greeter service", async () => {
+		const command = "destroy v1.greeter";
 
 		await program.parseAsync(parseArgsStringToArgv(command, "node", "REPL"));
 
 		expect(cmdHandler).toHaveBeenCalledTimes(1);
 		expect(cmdHandler).toHaveBeenCalledWith(expect.any(ServiceBroker), {
 			options: {},
-			rawCommand: "quit"
+			serviceName: "v1.greeter",
+			rawCommand: "destroy v1.greeter"
 		});
 	});
 });

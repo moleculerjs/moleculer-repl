@@ -7,9 +7,9 @@ const commander = require("commander");
 const { parseArgsStringToArgv } = require("string-argv");
 
 // Load the command declaration
-let { declaration } = require("../src/commands/actions");
+let { declaration } = require("../../src/commands/bench");
 
-describe("Test 'actions' command", () => {
+describe("Test 'bench' command", () => {
 	let program;
 	let broker;
 
@@ -38,20 +38,16 @@ describe("Test 'actions' command", () => {
 		cmdHandler.mockClear();
 	});
 
-	it("should call 'actions' with flags", async () => {
-		const command = "actions -l --skipinternal -d -f greeter.*";
+	it("should call 'bench' with flags", async () => {
+		const command = "bench --time 30 greeter.welcome --num 5 --nodeID abcd";
 
 		await program.parseAsync(parseArgsStringToArgv(command, "node", "REPL"));
 
 		expect(cmdHandler).toHaveBeenCalledTimes(1);
 		expect(cmdHandler).toHaveBeenCalledWith(expect.any(ServiceBroker), {
-			options: {
-				details: true,
-				skipinternal: true,
-				local: true,
-				filter: "greeter.*"
-			},
-			rawCommand: "actions -l --skipinternal -d -f greeter.*"
+			options: { num: 5, time: 30, nodeID: "abcd" },
+			action: "greeter.welcome",
+			rawCommand: "bench --time 30 greeter.welcome --num 5 --nodeID abcd"
 		});
 	});
 });

@@ -17,9 +17,14 @@ describe("E2E test", () => {
 	});
 
 	async function waitFor(condition) {
-		await vi.waitFor(() => stdout.includes(condition) || Promise.reject(new Error()), {
-			timeout: 5000
-		});
+		if (typeof condition === "string") {
+			condition = [condition];
+		}
+		for (const cond of condition) {
+			await vi.waitFor(() => stdout.includes(cond) || Promise.reject(new Error()), {
+				timeout: 5000
+			});
+		}
 		stdout = "";
 	}
 

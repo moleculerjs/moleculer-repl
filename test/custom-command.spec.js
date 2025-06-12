@@ -1,6 +1,6 @@
 "use strict";
 
-import { vi, describe, it, expect, beforeAll, afterEach } from "vitest";
+import { vi, describe, it, expect, beforeAll, afterEach, afterAll } from "vitest";
 
 const { ServiceBroker } = require("moleculer");
 const REPL = require("../src");

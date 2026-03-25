@@ -2,7 +2,6 @@ const { defineConfig } = require("eslint/config");
 
 const globals = require("globals");
 const node = require("eslint-plugin-node");
-const promise = require("eslint-plugin-promise");
 //const security = require("eslint-plugin-security");
 const prettier = require("eslint-plugin-prettier");
 const js = require("@eslint/js");
@@ -34,7 +33,6 @@ module.exports = defineConfig([
 
 		plugins: {
 			node,
-			promise,
 			prettier
 			//security,
 		},

@@ -8,8 +8,10 @@ const REPL = require("../../src");
 const broker = new ServiceBroker({
 	nodeID: "repl-" + process.pid,
 
-	// Custom REPL command
-	replCommands: [
+	// Custom REPL options
+	replOptions: {
+		delimiter: "moleculer λ",
+		customCommands: [
 		{
 			command: "hello <name>",
 			description: "Call the greeter.hello service with name",
@@ -38,7 +40,8 @@ const broker = new ServiceBroker({
 				return broker.call("greeter.hello", { name }).then(console.log);
 			}
 		}
-	]
+		]
+	}
 });
 
 broker.createService({
@@ -95,12 +98,12 @@ broker.createService({
 				onlyAvailable: { type: "boolean", optional: true },
 				grouping: { type: "boolean", optional: true }
 			},
-			handler(payload) {
-				this.logger.info("User created even received!", payload);
+			handler(ctx) {
+				this.logger.info("Order created event received!", ctx.params, ctx.meta);
 			}
 		},
-		"$local-event"(payload) {
-			this.logger.info("Local event received!", payload);
+		"$local-event"(ctx) {
+			this.logger.info("Local event received!", ctx.params);
 		}
 	}
 });
@@ -129,9 +132,4 @@ broker.createService({
 	}
 });
 
-broker.start().then(() =>
-	REPL(broker, {
-		delimiter: "moleculer λ",
-		customCommands: broker.options.replCommands
-	})
-);
+broker.start().then(() => REPL(broker, broker.options.replOptions));

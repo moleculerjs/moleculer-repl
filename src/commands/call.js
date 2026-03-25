@@ -101,7 +101,7 @@ async function handler(broker, args) {
 		}
 		if (fs.existsSync(fName)) {
 			console.log(kleur.magenta(`>> Load stream from '${fName}' file.`));
-			payload = fs.createReadStream(fName);
+			callOpts.stream = fs.createReadStream(fName);
 		} else {
 			console.log(kleur.red(">> File not found:", fName));
 		}
@@ -136,12 +136,13 @@ async function handler(broker, args) {
 	}
 
 	meta.$repl = true;
+	const hasStream = isStream(callOpts.stream);
 	console.log(
 		kleur.yellow().bold(`>> Call '${args.actionName}'${nodeID ? " on " + nodeID : ""}`),
-		isStream(payload)
+		hasStream
 			? kleur.yellow().bold("with <Stream>.")
 			: kleur.yellow().bold("with params:"),
-		isStream(payload) ? "" : payload,
+		hasStream ? "" : payload,
 		meta ? kleur.yellow().bold("with meta:") : "",
 		meta ? meta : "",
 		Object.keys(callOpts).length ? kleur.yellow().bold("with options:") : "",

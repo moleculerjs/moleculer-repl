@@ -6,8 +6,9 @@
         "declaration": true,
         "declarationDir": "types",
         "outDir": "dist",
-		"lib": ["ES2020"]
+        "lib": ["ES2022"],
+        "skipLibCheck": true
     },
     "include": ["**.js"],
-    "exclude": ["node_modules", ".eslintrc.js", "prettier.config.js", "types"]
+    "exclude": ["node_modules", "types", "vitest.config.js"]
 }

@@ -155,7 +155,7 @@ function registerCustomCommands(broker, program, def) {
 			def.parse.call(parser, thisCommand);
 		});
 	} else {
-		cmd.hook("preAction", thisCommand => {
+		cmd.hook("preAction", /** @param {any} thisCommand */ (thisCommand) => {
 			const parsedOpts = thisCommand.parseOptions(thisCommand.args);
 
 			let values = {};
@@ -192,11 +192,11 @@ function registerCustomCommands(broker, program, def) {
 
 	cmd.action(async function () {
 		// Clear the parsed values for next execution
-		this._optionValues = {};
+		/** @type {any} */ (this)._optionValues = {};
 
 		const helpers = { cmd, table, kleur, clui, getBorderCharacters };
 
-		return def.action(broker, this.params, helpers);
+		return def.action(broker, /** @type {any} */ (this).params, helpers);
 	});
 }
 

@@ -7,7 +7,6 @@ export default defineConfig({
 			reporter: ["text", "json", "html"],
 			include: ["src/**/*.js"],
 			exclude: ["node_modules/", "test/"],
-			all: true,
 			reportsDirectory: "./coverage",
 			clean: true
 		}

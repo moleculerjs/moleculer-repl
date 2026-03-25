@@ -25,33 +25,27 @@ function versionedServicesAutocomplete(broker) {
  * Returns the list of nodes and their actions in the following format "<nodeID> <actionName>"
  *
  * @param {import("moleculer").ServiceBroker} broker
- * @returns {Array<String>}
+ * @returns {string[]}
  */
 function nodeIdActionNameAutocomplete(broker) {
-	// Flatten to a single list
-	const completions = _.uniq(
-		_.compact(
-			broker.registry.getNodeList({ onlyAvailable: true, withServices: true }).map(node => {
-				// return node && node.id;
-
-				// Get actions of the node
-				let actionList = node.services.map(svc => {
-					return Object.values(svc.actions).map(action => {
-						return action.name;
-					});
+	/** @type {string[][]} */
+	const nested = _.compact(
+		broker.registry.getNodeList({ onlyAvailable: true, withServices: true }).map(node => {
+			// Get actions of the node
+			let actionList = node.services.map(svc => {
+				return Object.values(svc.actions).map(action => {
+					return action.name;
 				});
+			});
 
-				actionList = _.flatten(actionList);
+			actionList = _.flatten(actionList);
 
-				// Create "<nodeID> <action name> command for autocomplete
-				actionList = actionList.map(actionName => `${node.id} ${actionName}`);
-
-				return actionList;
-			})
-		)
+			// Create "<nodeID> <action name> command for autocomplete
+			return actionList.map(actionName => `${node.id} ${actionName}`);
+		})
 	);
 
-	return _.flatten(completions);
+	return _.uniq(_.flatten(nested));
 }
 
 /**
@@ -92,10 +86,8 @@ function eventNameAutocomplete(broker) {
  * @returns {String[]} Available commands
  */
 function getAvailableCommands(program) {
-	let availableCommands = program.commands.map(entry => [entry._name, ...entry._aliases]);
-	availableCommands = _.flatten(availableCommands);
-
-	return availableCommands;
+	const nested = program.commands.map(entry => [entry.name(), ...entry.aliases()]);
+	return /** @type {string[]} */ (_.flatten(nested));
 }
 
 /**

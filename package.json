@@ -25,9 +25,9 @@
   "license": "MIT",
   "devDependencies": {
     "eslint": "^8.24.0",
-    "jest": "^27.4.7",
+    "jest": "^30.3.0",
     "moleculer": "^0.14.23",
-    "nodemon": "^2.0.20"
+    "nodemon": "^3.1.14"
   },
   "engines": {
     "node": ">= 12.x.x"
@@ -35,7 +35,7 @@
   "dependencies": {
     "clui": "^0.3.6",
     "commander": "^9.4.1",
-    "glob": "^7.1.7",
+    "glob": "^13.0.6",
     "kleur": "^4.1.5",
     "lodash": "^4.17.21",
     "ora": "^5.4.1",

@@ -101,7 +101,15 @@ async function handler(broker, args) {
 		}
 		if (fs.existsSync(fName)) {
 			console.log(kleur.magenta(`>> Load stream from '${fName}' file.`));
-			callOpts.stream = fs.createReadStream(fName);
+			const fileStream = fs.createReadStream(fName);
+			// Moleculer 0.15+: stream goes in calling options
+			// Moleculer 0.14: stream goes as payload
+			const majorMinor = (broker.MOLECULER_VERSION || "0.14.0").split(".").map(Number);
+			if (majorMinor[0] > 0 || majorMinor[1] >= 15) {
+				callOpts.stream = fileStream;
+			} else {
+				payload = fileStream;
+			}
 		} else {
 			console.log(kleur.red(">> File not found:", fName));
 		}
@@ -136,7 +144,7 @@ async function handler(broker, args) {
 	}
 
 	meta.$repl = true;
-	const hasStream = isStream(callOpts.stream);
+	const hasStream = isStream(callOpts.stream) || isStream(payload);
 	console.log(
 		kleur.yellow().bold(`>> Call '${args.actionName}'${nodeID ? " on " + nodeID : ""}`),
 		hasStream

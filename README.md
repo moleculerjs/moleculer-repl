@@ -21,7 +21,7 @@ The `moleculer-repl` is an interactive developer console for [Moleculer](https:/
 
 ## Requirements
 - Node.js >= 22
-- Moleculer >= 0.15.0
+- Moleculer >= 0.14.12 (0.15.0 compatible)
 
 ## Install
 ```

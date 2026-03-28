@@ -5,19 +5,27 @@ import Stream from "node:stream";
 describe("E2E test", () => {
 	const rs = new Stream.Readable({ read() {} });
 	let stdout = "";
-	beforeAll(async () => {
-		new Promise(async () => {
-			for await (const line of execa({
-				input: rs
-			})`node test/e2e/broker.js`) {
+	let subprocess;
+
+	beforeAll(() => {
+		subprocess = execa({ input: rs })`node test/e2e/broker.js`;
+		(async () => {
+			for await (const line of subprocess) {
 				console.log(line);
 				stdout += line + "\n";
 			}
-		});
+		})();
 	});
 
-	afterAll(() => {
+	afterAll(async () => {
 		console.log("STDOUT:\n", stdout);
+		rs.push("exit\n");
+		rs.push(null);
+		try {
+			await subprocess;
+		} catch {
+			// Process may exit with non-zero code
+		}
 	});
 
 	async function waitFor(condition) {
@@ -76,7 +84,7 @@ describe("E2E test", () => {
 	// TODO: listener                                                   Adds or removes event listeners
 	// TODO: load <servicePath>                                         Load a service from file
 	// TODO: loadFolder <serviceFolder> [fileMask]                      Load all services from folder
-	// TODO: metrics [options]                                          List metrics
+	// TODO: metrics [options]                                           List metrics
 	// TODO: nodes [options]                                            List of nodes
 	// TODO: exit|q                                                     Exit application
 	// TODO: services [options]                                         List of services

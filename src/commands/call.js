@@ -104,8 +104,11 @@ async function handler(broker, args) {
 			const fileStream = fs.createReadStream(fName);
 			// Moleculer 0.15+: stream goes in calling options
 			// Moleculer 0.14: stream goes as payload
-			const majorMinor = (broker.MOLECULER_VERSION || "0.14.0").split(".").map(Number);
-			if (majorMinor[0] > 0 || majorMinor[1] >= 15) {
+			const version = String(broker.MOLECULER_VERSION || "0.14.0").replace(/^v/i, "");
+			const parts = version.split(".");
+			const major = parseInt(parts[0], 10) || 0;
+			const minor = parseInt(parts[1], 10) || 0;
+			if (major > 0 || minor >= 15) {
 				callOpts.stream = fileStream;
 			} else {
 				payload = fileStream;

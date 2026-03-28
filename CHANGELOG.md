@@ -1,3 +1,26 @@
+<a name="0.8.0"></a>
+# 0.8.0 (2026-03-28)
+
+## Breaking changes
+- require Node.js >= 22
+- drop `glob` dependency in favor of `fast-glob`
+
+## New features
+- support Moleculer 0.15 compatibility (new streaming API, updated service registry calls)
+- support both Moleculer 0.14 and 0.15 streaming in `call` command
+- add e2e tests with real ServiceBroker instances
+- add NPM publish workflow with trusted publisher (provenance)
+
+## Changes
+- migrate test framework from Jest to Vitest
+- upgrade ESLint to v10 with flat config
+- upgrade TypeScript to v6, fix all type errors
+- upgrade all dependencies to latest versions
+- remove `eslint-plugin-promise` (not ESLint 10 compatible)
+- code style cleanup (arrow functions, trailing commas, modern JS patterns)
+- update copyright year to 2026
+
+--------------------------------------------------
 <a name="0.7.4"></a>
 # 0.7.4 (2023-09-09)
 

@@ -1,6 +1,6 @@
 "use strict";
 
-const _ 		= require("lodash");
+const _ = require("lodash");
 
 function convertArgs(args) {
 	let res = {};
@@ -10,16 +10,11 @@ function convertArgs(args) {
 			key = key.slice(0, -2);
 		}
 
-		if (Array.isArray(value))
-			res[key] = value;
-		else if (typeof(value) == "object")
-			res[key] = convertArgs(value);
-		else if (value === "true")
-			res[key] = true;
-		else if (value === "false")
-			res[key] = false;
-		else
-			res[key] = value;
+		if (Array.isArray(value)) res[key] = value;
+		else if (typeof value == "object") res[key] = convertArgs(value);
+		else if (value === "true") res[key] = true;
+		else if (value === "false") res[key] = false;
+		else res[key] = value;
 	});
 	return res;
 }
@@ -36,7 +31,6 @@ const RegexCache = new Map();
 function match(text, pattern) {
 	// Simple patterns
 	if (pattern.indexOf("?") == -1) {
-
 		// Exact match (eg. "prefix.event")
 		const firstStarPosition = pattern.indexOf("*");
 		if (firstStarPosition == -1) {
@@ -84,18 +78,14 @@ function match(text, pattern) {
 
 		pattern = "^" + pattern + "$";
 
-		// eslint-disable-next-line security/detect-non-literal-regexp
 		regex = new RegExp(pattern, "");
 		RegexCache.set(origPattern, regex);
 	}
 	return regex.test(text);
 }
 
-// Credits: https://github.com/sindresorhus/is-stream
 const isStream = stream =>
-	stream !== null &&
-	typeof stream === "object" &&
-	typeof stream.pipe === "function";
+	stream !== null && typeof stream === "object" && typeof stream.pipe === "function";
 
 isStream.writable = stream =>
 	isStream(stream) &&
@@ -109,28 +99,40 @@ isStream.readable = stream =>
 	typeof stream._read === "function" &&
 	typeof stream._readableState === "object";
 
-isStream.duplex = stream =>
-	isStream.writable(stream) &&
-	isStream.readable(stream);
+isStream.duplex = stream => isStream.writable(stream) && isStream.readable(stream);
 
-isStream.transform = stream =>
-	isStream.duplex(stream) &&
-	typeof stream._transform === "function";
+isStream.transform = stream => isStream.duplex(stream) && typeof stream._transform === "function";
+
+function prettyBytes(bytes, si = false) {
+	const thresh = si ? 1000 : 1024;
+	if (Math.abs(bytes) < thresh) {
+		return bytes + " B";
+	}
+	const units = si
+		? ["kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"]
+		: ["KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"];
+	let u = -1;
+	do {
+		bytes /= thresh;
+		++u;
+	} while (Math.abs(bytes) >= thresh && u < units.length - 1);
+	return bytes.toFixed(1) + " " + units[u];
+}
 
 module.exports = {
 	formatNumber(value, decimals = 0, sign = false) {
 		let res = Number(value.toFixed(decimals)).toLocaleString();
-		if (sign && value > 0.0)
-			res = "+" + res;
+		if (sign && value > 0.0) res = "+" + res;
 		return res;
 	},
 
 	convertArgs,
 	match,
+	prettyBytes,
 
 	isStream,
 
 	CIRCUIT_CLOSE: "close",
 	CIRCUIT_HALF_OPEN: "half_open",
-	CIRCUIT_OPEN: "open",
+	CIRCUIT_OPEN: "open"
 };

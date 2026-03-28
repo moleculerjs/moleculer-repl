@@ -1,18 +1,20 @@
 "use strict";
 
+import { vi, describe, it, expect, beforeAll, afterEach } from "vitest";
+
 const { ServiceBroker } = require("moleculer");
 const commander = require("commander");
 const { parseArgsStringToArgv } = require("string-argv");
 
 // Load the command declaration
-let { declaration } = require("../src/commands/cls");
+let { declaration } = require("../../src/commands/clear");
 
-describe("Test 'cls' command", () => {
+describe("Test 'clear' command", () => {
 	let program;
 	let broker;
 
 	// Mock the handler
-	const cmdHandler = jest.fn();
+	const cmdHandler = vi.fn();
 
 	beforeAll(() => {
 		program = new commander.Command();
@@ -25,7 +27,7 @@ describe("Test 'cls' command", () => {
 		// Create broker
 		broker = new ServiceBroker({
 			nodeID: "repl-" + process.pid,
-			logger: false,
+			logger: false
 		});
 
 		// Register the command
@@ -36,17 +38,16 @@ describe("Test 'cls' command", () => {
 		cmdHandler.mockClear();
 	});
 
-	it("should call 'cls'", async () => {
-		const command = "cls";
+	it("should call 'clear' with pattern", async () => {
+		const command = "clear abcde";
 
-		await program.parseAsync(
-			parseArgsStringToArgv(command, "node", "REPL")
-		);
+		await program.parseAsync(parseArgsStringToArgv(command, "node", "REPL"));
 
 		expect(cmdHandler).toHaveBeenCalledTimes(1);
 		expect(cmdHandler).toHaveBeenCalledWith(expect.any(ServiceBroker), {
 			options: {},
-			rawCommand: "cls",
+			pattern: "abcde",
+			rawCommand: "clear abcde"
 		});
 	});
 });

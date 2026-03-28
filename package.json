@@ -1,48 +1,64 @@
 {
-  "name": "moleculer-repl",
-  "version": "0.7.4",
-  "description": "REPL module for Moleculer",
-  "main": "index.js",
-  "scripts": {
-    "dev": "nodemon examples/index.js",
-    "check": "tsc --noEmit true",
-    "types": "tsc --emitDeclarationOnly true --noEmitOnError false",
-    "lint": "eslint --ext=.js src test",
-    "deps": "npm-check -u",
-    "test": "jest --coverage"
-  },
-  "keywords": [
-    "microservices",
-    "microservice",
-    "moleculer"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/moleculerjs/moleculer-repl.git"
-  },
-  "types": "./types/index.d.ts",
-  "author": "MoleculerJS",
-  "license": "MIT",
-  "devDependencies": {
-    "eslint": "^8.24.0",
-    "jest": "^27.4.7",
-    "moleculer": "^0.14.23",
-    "nodemon": "^2.0.20"
-  },
-  "engines": {
-    "node": ">= 12.x.x"
-  },
-  "dependencies": {
-    "clui": "^0.3.6",
-    "commander": "^9.4.1",
-    "glob": "^7.1.7",
-    "kleur": "^4.1.5",
-    "lodash": "^4.17.21",
-    "ora": "^5.4.1",
-    "pretty-bytes": "^5.6.0",
-    "string-argv": "^0.3.1",
-    "table": "^6.8.0",
-    "tiny-human-time": "^1.2.0",
-    "yargs-parser": "^21.1.1"
-  }
+	"name": "moleculer-repl",
+	"version": "0.7.4",
+	"description": "REPL module for Moleculer",
+	"main": "index.js",
+	"scripts": {
+		"dev": "nodemon examples/index.js",
+		"check": "tsc --noEmit true",
+		"types": "tsc --emitDeclarationOnly true --noEmitOnError false",
+		"lint": "eslint",
+		"lint:fix": "eslint --fix",
+		"deps": "ncu -i",
+		"ci": "vitest",
+		"test": "vitest --run --coverage"
+	},
+	"keywords": [
+		"microservices",
+		"microservice",
+		"moleculer"
+	],
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/moleculerjs/moleculer-repl.git"
+	},
+	"types": "./types/index.d.ts",
+	"author": "MoleculerJS",
+	"license": "MIT",
+	"peerDependencies": {
+		"moleculer": "^0.14.12 || ^0.15.0"
+	},
+	"devDependencies": {
+		"@eslint/eslintrc": "^3.3.5",
+		"@eslint/js": "^10.0.1",
+		"@types/node": "^25.5.0",
+		"@vitest/coverage-v8": "^4.1.1",
+		"eslint": "^10.1.0",
+		"eslint-config-prettier": "^10.1.8",
+		"eslint-plugin-node": "^11.1.0",
+		"eslint-plugin-prettier": "^5.5.5",
+		"eslint-plugin-security": "^4.0.0",
+		"execa": "^9.6.1",
+		"globals": "^17.4.0",
+		"moleculer": "^0.15.0",
+		"nodemon": "^3.1.14",
+		"npm-check-updates": "^19.6.5",
+		"prettier": "^3.8.1",
+		"typescript": "^6.0.2",
+		"vitest": "^4.1.1"
+	},
+	"engines": {
+		"node": ">= 22.x.x"
+	},
+	"dependencies": {
+		"clui": "^0.3.6",
+		"commander": "^14.0.3",
+		"fast-glob": "^3.3.3",
+		"kleur": "^4.1.5",
+		"lodash": "^4.17.23",
+		"string-argv": "^0.3.2",
+		"table": "^6.9.0",
+		"tiny-human-time": "^1.2.0",
+		"yargs-parser": "^21.0.0"
+	}
 }

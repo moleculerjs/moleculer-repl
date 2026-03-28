@@ -10,11 +10,7 @@ const kleur = require("kleur");
  */
 async function handler(broker, args) {
 	console.warn(
-		kleur
-			.yellow()
-			.bold(
-				"The 'clear' command is deprecated. Use the 'cache clear' instead."
-			)
+		kleur.yellow().bold("The 'clear' command is deprecated. Use the 'cache clear' instead.")
 	);
 
 	if (broker.cacher) {
@@ -48,13 +44,13 @@ function declaration(program, broker, cmdHandler) {
 		.description("Clear cache entries")
 		.allowUnknownOption(true)
 		.allowExcessArguments(true)
-		.hook("preAction", (thisCommand) => {
+		.hook("preAction", thisCommand => {
 			const parsedOpts = thisCommand.parseOptions(thisCommand.args);
 			const [pattern] = parsedOpts.operands;
 
 			let parsedArgs = {
 				...parser(parsedOpts.unknown), // Other params
-				...thisCommand._optionValues, // Contains flag values
+				...thisCommand._optionValues // Contains flag values
 			};
 
 			const rawCommand = thisCommand.parent.rawArgs.slice(2).join(" ");
@@ -63,7 +59,7 @@ function declaration(program, broker, cmdHandler) {
 			thisCommand.params = {
 				options: parsedArgs,
 				pattern,
-				rawCommand,
+				rawCommand
 			};
 
 			// Clear the parsed values for next execution

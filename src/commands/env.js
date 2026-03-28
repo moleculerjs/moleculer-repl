@@ -8,9 +8,7 @@ const util = require("util");
  * @param {Object} args Parsed arguments
  */
 async function handler(broker, args) {
-	console.log(
-		util.inspect(process.env, { showHidden: false, depth: 4, colors: true })
-	);
+	console.log(util.inspect(process.env, { showHidden: false, depth: 4, colors: true }));
 }
 
 /**
@@ -23,7 +21,7 @@ function declaration(program, broker, cmdHandler) {
 	program
 		.command("env")
 		.description("List of environment variables")
-		.hook("preAction", (thisCommand) => {
+		.hook("preAction", thisCommand => {
 			// Command without params. Keep for consistency sake
 			let parsedArgs = {};
 
@@ -32,7 +30,7 @@ function declaration(program, broker, cmdHandler) {
 			// Set the params
 			thisCommand.params = {
 				options: parsedArgs,
-				rawCommand,
+				rawCommand
 			};
 
 			// Clear the parsed values for next execution

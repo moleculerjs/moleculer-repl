@@ -10,12 +10,7 @@ function labelsToStr(labels) {
 
 	return (
 		kleur.gray("{") +
-		keys
-			.map(
-				(key) =>
-					`${kleur.gray(key)}: ${kleur.magenta("" + labels[key])}`
-			)
-			.join(", ") +
+		keys.map(key => `${kleur.gray(key)}: ${kleur.magenta("" + labels[key])}`).join(", ") +
 		kleur.gray("}")
 	);
 }
@@ -38,64 +33,43 @@ async function handler(broker, args) {
 			// Histogram
 			return ["min", "mean", "max"]
 				.map(
-					(key) =>
+					key =>
 						`${kleur.gray(key)}: ${kleur
 							.green()
 							.bold("" + Number(item[key]).toFixed(2))}`
 				)
 				.join(", ");
 		}
-		if (_.isString(item.value))
-			return kleur.yellow().bold(`"${item.value}"`);
+		if (_.isString(item.value)) return kleur.yellow().bold(`"${item.value}"`);
 		return kleur.green().bold(item.value);
 	};
 
 	const data = [
-		[
-			kleur.bold("Name"),
-			kleur.bold("Type"),
-			kleur.bold("Labels"),
-			kleur.bold("Value"),
-		],
+		[kleur.bold("Name"), kleur.bold("Type"), kleur.bold("Labels"), kleur.bold("Value")]
 	];
 
 	let hLines = [];
 
 	snapshot.sort((a, b) => a.name.localeCompare(b.name));
 
-	snapshot.forEach((metric) => {
+	snapshot.forEach(metric => {
 		if (metric.values.size == 0) {
-			data.push([
-				metric.name,
-				metric.type,
-				"-",
-				kleur.gray("<no values>"),
-			]);
+			data.push([metric.name, metric.type, "-", kleur.gray("<no values>")]);
 			return;
 		}
 
-		metric.values.forEach((item) => {
+		metric.values.forEach(item => {
 			const labelStr = labelsToStr(item.labels);
-			data.push([
-				metric.name,
-				metric.type,
-				labelStr,
-				getMetricValue(metric, item),
-			]);
+			data.push([metric.name, metric.type, labelStr, getMetricValue(metric, item)]);
 		});
 		hLines.push(data.length);
 	});
 
 	const tableConf = {
-		border: _.mapValues(getBorderCharacters("honeywell"), (char) =>
-			kleur.gray(char)
-		),
+		border: _.mapValues(getBorderCharacters("honeywell"), char => kleur.gray(char)),
 		columns: {},
 		drawHorizontalLine: (index, count) =>
-			index == 0 ||
-			index == 1 ||
-			index == count ||
-			hLines.indexOf(index) !== -1,
+			index == 0 || index == 1 || index == count || hLines.indexOf(index) !== -1
 	};
 
 	console.log(table(data, tableConf));
@@ -112,9 +86,9 @@ function declaration(program, broker, cmdHandler) {
 		.command("metrics")
 		.description("List metrics")
 		.option("-f, --filter <match>", "filter metrics (e.g.: 'moleculer.**')")
-		.hook("preAction", (thisCommand) => {
+		.hook("preAction", thisCommand => {
 			let parsedArgs = {
-				...thisCommand._optionValues, // Contains flag values
+				...thisCommand._optionValues // Contains flag values
 			};
 
 			const rawCommand = thisCommand.parent.rawArgs.slice(2).join(" ");
@@ -122,7 +96,7 @@ function declaration(program, broker, cmdHandler) {
 			// Set the params
 			thisCommand.params = {
 				options: parsedArgs,
-				rawCommand,
+				rawCommand
 			};
 
 			// Clear the parsed values for next execution

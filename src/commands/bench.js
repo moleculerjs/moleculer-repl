@@ -3,21 +3,10 @@
 const { parser } = require("../args-parser");
 const kleur = require("kleur");
 const humanize = require("tiny-human-time").short;
-const ora = require("ora");
 const _ = require("lodash");
 const { formatNumber } = require("../utils");
 
 const { flagParseInt } = require("../flag-processing");
-
-function createSpinner(text) {
-	return ora({
-		text,
-		spinner: {
-			interval: 500,
-			frames: [".  ", ".. ", "...", " ..", "  .", "   "],
-		},
-	});
-}
 
 /**
  * Command logic
@@ -30,16 +19,12 @@ async function handler(broker, args) {
 	let time = args.options.time != null ? Number(args.options.time) : null;
 	if (!iterate && !time) time = 5;
 
-	const spinner = createSpinner("Running benchmark...");
-
 	//console.log(args);
 	if (typeof args.jsonParams == "string") {
 		try {
 			payload = JSON.parse(args.jsonParams);
 		} catch (err) {
-			console.error(
-				kleur.red().bold(">> ERROR:", err.message, args.jsonParams)
-			);
+			console.error(kleur.red().bold(">> ERROR:", err.message, args.jsonParams));
 			console.error(kleur.red().bold(err.stack));
 			// done();
 			return;
@@ -50,7 +35,7 @@ async function handler(broker, args) {
 	if (typeof args.meta === "string") {
 		try {
 			meta = JSON.parse(args.meta);
-		} catch (err) {
+		} catch {
 			console.error(kleur.red().bold("Can't parse [meta]"), args.meta);
 			// done();
 			return;
@@ -77,33 +62,21 @@ async function handler(broker, args) {
 		const errStr =
 			errorCount > 0
 				? kleur
-						.red()
-						.bold(
-							`${formatNumber(
-								errorCount
-							)} error(s) ${formatNumber(
-								(errorCount / resCount) * 100
-							)}%`
-						)
+					.red()
+					.bold(
+						`${formatNumber(errorCount)} error(s) ${formatNumber(
+							(errorCount / resCount) * 100
+						)}%`
+					)
 				: kleur.grey("0 error");
 
 		console.log(kleur.green().bold("\nBenchmark result:\n"));
 		console.log(
-			kleur.bold(
-				`  ${formatNumber(resCount)} requests in ${humanize(
-					duration
-				)}, ${errStr}`
-			)
+			kleur.bold(`  ${formatNumber(resCount)} requests in ${humanize(duration)}, ${errStr}`)
 		);
-		console.log(
-			"\n  Requests/sec:",
-			kleur.bold(formatNumber((resCount / duration) * 1000))
-		);
+		console.log("\n  Requests/sec:", kleur.bold(formatNumber((resCount / duration) * 1000)));
 		console.log("\n  Latency:");
-		console.log(
-			"    Avg:",
-			kleur.bold(_.padStart(humanize(sumTime / resCount), 10))
-		);
+		console.log("    Avg:", kleur.bold(_.padStart(humanize(sumTime / resCount), 10)));
 		console.log("    Min:", kleur.bold(_.padStart(humanize(minTime), 10)));
 		console.log("    Max:", kleur.bold(_.padStart(humanize(maxTime), 10)));
 		console.log();
@@ -123,8 +96,6 @@ async function handler(broker, args) {
 		if (maxTime == null || duration > maxTime) maxTime = duration;
 
 		if (timeout || (iterate && resCount >= iterate)) {
-			spinner.stop();
-
 			const diff = process.hrtime(startTotalTime);
 			const duration = (diff[0] + diff[1] / 1e9) * 1000;
 			printResult(duration);
@@ -148,11 +119,11 @@ async function handler(broker, args) {
 
 		return broker
 			.call(args.action, payload, callingOpts)
-			.then((res) => {
+			.then(res => {
 				handleResponse(startTime);
 				return res;
 			})
-			.catch((err) => {
+			.catch(err => {
 				handleResponse(startTime, err);
 				//console.error(kleur.red().bold(">> ERROR:", err.message));
 				//console.error(kleur.red().bold(err.stack));
@@ -165,18 +136,12 @@ async function handler(broker, args) {
 			.yellow()
 			.bold(
 				`>> Call '${args.action}'${
-					args.options.nodeID
-						? " on '" + args.options.nodeID + "'"
-						: ""
+					args.options.nodeID ? " on '" + args.options.nodeID + "'" : ""
 				} with params:`
 			),
 		payload
 	);
-	spinner.start(
-		iterate
-			? `Running x ${iterate} times...`
-			: `Running ${time} second(s)...`
-	);
+	console.log(iterate ? `Running x ${iterate} times...` : `Running ${time} second(s)...`);
 
 	doRequest();
 }
@@ -196,13 +161,13 @@ function declaration(program, broker, cmdHandler) {
 		.option("--nodeID <nodeID>", "NodeID (direct call)")
 		.allowUnknownOption(true)
 		.allowExcessArguments(true)
-		.hook("preAction", (thisCommand) => {
+		.hook("preAction", thisCommand => {
 			const parsedOpts = thisCommand.parseOptions(thisCommand.args);
 			const [action, jsonParams] = parsedOpts.operands;
 
 			let parsedArgs = {
 				...parser(parsedOpts.unknown), // Other params
-				...thisCommand._optionValues, // Contains flag values
+				...thisCommand._optionValues // Contains flag values
 			};
 
 			const rawCommand = thisCommand.parent.rawArgs.slice(2).join(" ");
@@ -212,7 +177,7 @@ function declaration(program, broker, cmdHandler) {
 				options: parsedArgs,
 				action,
 				...(jsonParams !== undefined ? { jsonParams } : undefined),
-				rawCommand,
+				rawCommand
 			};
 
 			// Clear the parsed values for next execution

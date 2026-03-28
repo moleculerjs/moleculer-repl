@@ -19,7 +19,7 @@ function declaration(program, broker, cmdHandler) {
 	program
 		.command("cls")
 		.description("Clear console")
-		.hook("preAction", (thisCommand) => {
+		.hook("preAction", thisCommand => {
 			// Command without params. Keep for consistency sake
 			let parsedArgs = {};
 
@@ -28,7 +28,7 @@ function declaration(program, broker, cmdHandler) {
 			// Set the params
 			thisCommand.params = {
 				options: parsedArgs,
-				rawCommand,
+				rawCommand
 			};
 
 			// Clear the parsed values for next execution

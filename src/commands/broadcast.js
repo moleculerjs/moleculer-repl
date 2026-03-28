@@ -13,13 +13,13 @@ const { convertArgs } = require("../utils");
 async function handler(broker, args, methodName, infoString) {
 	let payload = {};
 	let meta = {
-		$repl: true,
+		$repl: true
 	};
 	let broadcastOpts = {};
 
 	const opts = convertArgs(args.options);
 
-	Object.keys(opts).map((key) => {
+	Object.keys(opts).map(key => {
 		if (key.startsWith("#")) meta[key.slice(1)] = opts[key];
 		else if (key.startsWith("$")) broadcastOpts[key.slice(1)] = opts[key];
 		else {
@@ -51,13 +51,13 @@ function declaration(program, broker, cmdHandler) {
 		.description("Broadcast an event")
 		.allowUnknownOption(true)
 		.allowExcessArguments(true)
-		.hook("preAction", (thisCommand) => {
+		.hook("preAction", thisCommand => {
 			const parsedOpts = thisCommand.parseOptions(thisCommand.args);
 			const [eventName] = parsedOpts.operands;
 
 			let parsedArgs = {
 				...parser(parsedOpts.unknown), // Other params
-				...thisCommand._optionValues, // Contains flag values
+				...thisCommand._optionValues // Contains flag values
 			};
 
 			const rawCommand = thisCommand.parent.rawArgs.slice(2).join(" ");
@@ -66,7 +66,7 @@ function declaration(program, broker, cmdHandler) {
 			thisCommand.params = {
 				options: parsedArgs,
 				eventName,
-				rawCommand,
+				rawCommand
 			};
 
 			// Clear the parsed values for next execution
@@ -83,13 +83,13 @@ function declaration(program, broker, cmdHandler) {
 		.description("Broadcast an event locally")
 		.allowUnknownOption(true)
 		.allowExcessArguments(true)
-		.hook("preAction", (thisCommand) => {
+		.hook("preAction", thisCommand => {
 			const parsedOpts = thisCommand.parseOptions(thisCommand.args);
 			const [eventName] = parsedOpts.operands;
 
 			let parsedArgs = {
 				...parser(parsedOpts.unknown), // Other params
-				...thisCommand._optionValues, // Contains flag values
+				...thisCommand._optionValues // Contains flag values
 			};
 
 			const rawCommand = thisCommand.parent.rawArgs.slice(2).join(" ");
@@ -98,7 +98,7 @@ function declaration(program, broker, cmdHandler) {
 			thisCommand.params = {
 				options: parsedArgs,
 				eventName,
-				rawCommand,
+				rawCommand
 			};
 
 			// Clear the parsed values for next execution
@@ -106,12 +106,7 @@ function declaration(program, broker, cmdHandler) {
 		})
 		.action(async function () {
 			// Get the params
-			await cmdHandler(
-				broker,
-				this.params,
-				"broadcast",
-				"locally with payload"
-			);
+			await cmdHandler(broker, this.params, "broadcast", "locally with payload");
 		});
 }
 

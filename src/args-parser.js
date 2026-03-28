@@ -34,10 +34,10 @@ function parser(args) {
 	});
 
 	// Remove the dashes
-	hexKeys = hexKeys.map((key) => key.replace("--", ""));
+	hexKeys = hexKeys.map(key => key.replace("--", ""));
 
 	const parsedArgs = parse(args, {
-		string: hexKeys, // Tell yargs-parser to keep hexKeys values as string
+		string: hexKeys // Tell yargs-parser to keep hexKeys values as string
 	});
 
 	delete parsedArgs._;

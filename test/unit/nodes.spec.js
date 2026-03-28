@@ -1,18 +1,20 @@
 "use strict";
 
+import { vi, describe, it, expect, beforeAll, afterEach } from "vitest";
+
 const { ServiceBroker } = require("moleculer");
 const commander = require("commander");
 const { parseArgsStringToArgv } = require("string-argv");
 
 // Load the command declaration
-let { declaration } = require("../src/commands/events");
+let { declaration } = require("../../src/commands/nodes");
 
-describe("Test 'events' command", () => {
+describe("Test 'nodes' command", () => {
 	let program;
 	let broker;
 
 	// Mock the handler
-	const cmdHandler = jest.fn();
+	const cmdHandler = vi.fn();
 
 	beforeAll(() => {
 		program = new commander.Command();
@@ -25,7 +27,7 @@ describe("Test 'events' command", () => {
 		// Create broker
 		broker = new ServiceBroker({
 			nodeID: "repl-" + process.pid,
-			logger: false,
+			logger: false
 		});
 
 		// Register the command
@@ -36,22 +38,21 @@ describe("Test 'events' command", () => {
 		cmdHandler.mockClear();
 	});
 
-	it("should call 'events' with flags", async () => {
-		const command = "events -a -d -f greeter.* --skipinternal";
+	it("should call 'nodes' with flags", async () => {
+		const command = "nodes -a -d --raw --filter node-* --save abc.json";
 
-		await program.parseAsync(
-			parseArgsStringToArgv(command, "node", "REPL")
-		);
+		await program.parseAsync(parseArgsStringToArgv(command, "node", "REPL"));
 
 		expect(cmdHandler).toHaveBeenCalledTimes(1);
 		expect(cmdHandler).toHaveBeenCalledWith(expect.any(ServiceBroker), {
 			options: {
 				all: true,
 				details: true,
-				filter: "greeter.*",
-				skipinternal: true,
+				filter: "node-*",
+				raw: true,
+				save: "abc.json"
 			},
-			rawCommand: "events -a -d -f greeter.* --skipinternal",
+			rawCommand: "nodes -a -d --raw --filter node-* --save abc.json"
 		});
 	});
 });

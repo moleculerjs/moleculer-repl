@@ -1,18 +1,20 @@
 "use strict";
 
+import { vi, describe, it, expect, beforeAll, afterEach } from "vitest";
+
 const { ServiceBroker } = require("moleculer");
 const commander = require("commander");
 const { parseArgsStringToArgv } = require("string-argv");
 
 // Load the command declaration
-let { declaration } = require("../src/commands/load");
+let { declaration } = require("../../src/commands/cache");
 
-describe("Test 'load' command", () => {
+describe("Test 'cache keys' command", () => {
 	let program;
 	let broker;
 
 	// Mock the handler
-	const cmdHandler = jest.fn();
+	const cmdHandler = vi.fn();
 
 	beforeAll(() => {
 		program = new commander.Command();
@@ -25,7 +27,7 @@ describe("Test 'load' command", () => {
 		// Create broker
 		broker = new ServiceBroker({
 			nodeID: "repl-" + process.pid,
-			logger: false,
+			logger: false
 		});
 
 		// Register the command
@@ -36,28 +38,37 @@ describe("Test 'load' command", () => {
 		cmdHandler.mockClear();
 	});
 
-	it("should 'load' service", async () => {
-		const command = "load abcd.service.js";
+	it("should call 'cache keys' without filter", async () => {
+		const command = "cache keys";
 
-		await program.parseAsync(
-			parseArgsStringToArgv(command, "node", "REPL")
-		);
+		await program.parseAsync(parseArgsStringToArgv(command, "node", "REPL"));
 
 		expect(cmdHandler).toHaveBeenCalledTimes(1);
 		expect(cmdHandler).toHaveBeenCalledWith(expect.any(ServiceBroker), {
 			options: {},
-			servicePath: "abcd.service.js",
-			rawCommand: "load abcd.service.js",
+			rawCommand: "cache keys"
+		});
+	});
+
+	it("should call 'cache keys' with filter", async () => {
+		const command = "cache keys -f abcd";
+
+		await program.parseAsync(parseArgsStringToArgv(command, "node", "REPL"));
+
+		expect(cmdHandler).toHaveBeenCalledTimes(1);
+		expect(cmdHandler).toHaveBeenCalledWith(expect.any(ServiceBroker), {
+			options: { filter: "abcd" },
+			rawCommand: "cache keys -f abcd"
 		});
 	});
 });
 
-describe("Test 'loadFolder' command", () => {
+describe("Test 'cache clear' command", () => {
 	let program;
 	let broker;
 
 	// Mock the handler
-	const cmdHandler = jest.fn();
+	const cmdHandler = vi.fn();
 
 	beforeAll(() => {
 		program = new commander.Command();
@@ -70,7 +81,7 @@ describe("Test 'loadFolder' command", () => {
 		// Create broker
 		broker = new ServiceBroker({
 			nodeID: "repl-" + process.pid,
-			logger: false,
+			logger: false
 		});
 
 		// Register the command
@@ -81,18 +92,16 @@ describe("Test 'loadFolder' command", () => {
 		cmdHandler.mockClear();
 	});
 
-	it("should 'loadFolder' with pattern", async () => {
-		const command = "loadFolder ./sevices";
+	it("should call 'cache clear' with pattern", async () => {
+		const command = "cache clear abcde";
 
-		await program.parseAsync(
-			parseArgsStringToArgv(command, "node", "REPL")
-		);
+		await program.parseAsync(parseArgsStringToArgv(command, "node", "REPL"));
 
 		expect(cmdHandler).toHaveBeenCalledTimes(1);
 		expect(cmdHandler).toHaveBeenCalledWith(expect.any(ServiceBroker), {
 			options: {},
-			serviceFolder: "./sevices",
-			rawCommand: "loadFolder ./sevices",
+			pattern: "abcde",
+			rawCommand: "cache clear abcde"
 		});
 	});
 });

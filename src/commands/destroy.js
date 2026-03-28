@@ -40,13 +40,13 @@ function declaration(program, broker, cmdHandler) {
 	program
 		.command("destroy <serviceName>")
 		.description("Destroy a local service")
-		.hook("preAction", (thisCommand) => {
+		.hook("preAction", thisCommand => {
 			const parsedOpts = thisCommand.parseOptions(thisCommand.args);
 			const [serviceName] = parsedOpts.operands;
 
 			let parsedArgs = {
 				...parser(parsedOpts.unknown), // Other params
-				...thisCommand._optionValues, // Contains flag values
+				...thisCommand._optionValues // Contains flag values
 			};
 
 			const rawCommand = thisCommand.parent.rawArgs.slice(2).join(" ");
@@ -55,7 +55,7 @@ function declaration(program, broker, cmdHandler) {
 			thisCommand.params = {
 				options: parsedArgs,
 				serviceName,
-				rawCommand,
+				rawCommand
 			};
 
 			// Clear the parsed values for next execution

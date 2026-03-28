@@ -16,7 +16,7 @@ async function handler(broker, args) {
 		onlyAvailable: !args.options.all,
 		skipInternal: args.options.skipinternal,
 		withActions: true,
-		withEvents: true,
+		withEvents: true
 	});
 
 	const data = [
@@ -26,21 +26,18 @@ async function handler(broker, args) {
 			kleur.bold("State"),
 			kleur.bold("Actions"),
 			kleur.bold("Events"),
-			kleur.bold("Nodes"),
-		],
+			kleur.bold("Nodes")
+		]
 	];
 
 	let list = [];
 	let hLines = [];
 
-	services.forEach((svc) => {
-		let item = list.find(
-			(o) => o.name == svc.name && o.version == svc.version
-		);
+	services.forEach(svc => {
+		let item = list.find(o => o.name == svc.name && o.version == svc.version);
 		if (item) {
 			item.nodes.push({ nodeID: svc.nodeID, available: svc.available });
-			if (!item.available && svc.available)
-				item.available = svc.available;
+			if (!item.available && svc.available) item.available = svc.available;
 		} else {
 			item = _.pick(svc, ["name", "version"]);
 			item.nodes = [{ nodeID: svc.nodeID, available: svc.available }];
@@ -53,20 +50,17 @@ async function handler(broker, args) {
 
 	list.sort((a, b) => a.name.localeCompare(b.name));
 
-	list.forEach((item) => {
+	list.forEach(item => {
 		const hasLocal = item.nodes.indexOf(broker.nodeID) !== -1;
 		const nodeCount = item.nodes.length;
 		const fullName =
 			item.fullName != null
 				? item.fullName
-				: (typeof item.version == "number"
-						? "v" + item.version
-						: item.version) +
-				  "." +
-				  item.name;
+				: (typeof item.version == "number" ? "v" + item.version : item.version) +
+					"." +
+					item.name;
 
-		if (args.options.filter && !match(fullName, args.options.filter))
-			return;
+		if (args.options.filter && !match(fullName, args.options.filter)) return;
 
 		data.push([
 			item.name,
@@ -76,7 +70,7 @@ async function handler(broker, args) {
 				: kleur.bgRed().white().bold(" FAILED "),
 			item.actionCount,
 			item.eventCount,
-			(hasLocal ? "(*) " : "") + nodeCount,
+			(hasLocal ? "(*) " : "") + nodeCount
 		]);
 
 		if (args.options.details && item.nodes) {
@@ -89,7 +83,7 @@ async function handler(broker, args) {
 						: kleur.bgRed().white().bold(" FAILED "),
 					"",
 					"",
-					nodeID == broker.nodeID ? kleur.gray("<local>") : nodeID,
+					nodeID == broker.nodeID ? kleur.gray("<local>") : nodeID
 				]);
 			});
 			hLines.push(data.length);
@@ -97,20 +91,15 @@ async function handler(broker, args) {
 	});
 
 	const tableConf = {
-		border: _.mapValues(getBorderCharacters("honeywell"), (char) =>
-			kleur.gray(char)
-		),
+		border: _.mapValues(getBorderCharacters("honeywell"), char => kleur.gray(char)),
 		columns: {
 			1: { alignment: "right" },
 			2: { alignment: "right" },
 			3: { alignment: "right" },
-			4: { alignment: "right" },
+			4: { alignment: "right" }
 		},
 		drawHorizontalLine: (index, count) =>
-			index == 0 ||
-			index == 1 ||
-			index == count ||
-			hLines.indexOf(index) !== -1,
+			index == 0 || index == 1 || index == count || hLines.indexOf(index) !== -1
 	};
 
 	console.log(table(data, tableConf));
@@ -131,14 +120,14 @@ function declaration(program, broker, cmdHandler) {
 		.option("-f, --filter <match>", "filter services (e.g.: 'user*')")
 		.option("-i, --skipinternal", "skip internal services")
 		.option("-l, --local", "only local services")
-		.hook("preAction", (thisCommand) => {
+		.hook("preAction", thisCommand => {
 			// Parse the args that commander.js managed to process
 			let parsedArgs = { ...thisCommand._optionValues };
 
 			// Set the params
 			thisCommand.params = {
 				options: parsedArgs,
-				rawCommand: thisCommand.args.join(" "),
+				rawCommand: thisCommand.args.join(" ")
 			};
 
 			// Clear the parsed values for next execution

@@ -15,7 +15,7 @@ async function handler(broker, args) {
 		onlyLocal: args.options.local,
 		onlyAvailable: !args.options.all,
 		skipInternal: args.options.skipinternal,
-		withEndpoints: args.options.details,
+		withEndpoints: args.options.details
 	});
 	const data = [
 		[
@@ -23,21 +23,19 @@ async function handler(broker, args) {
 			kleur.bold("Group"),
 			kleur.bold("State"),
 			kleur.bold("Nodes"),
-			kleur.bold("Params"),
-		],
+			kleur.bold("Params")
+		]
 	];
 
 	events.sort((a, b) => a.name.localeCompare(b.name));
 
 	let hLines = [];
 
-	events.forEach((item) => {
+	events.forEach(item => {
 		const event = item.event;
-		const params =
-			event && event.params ? Object.keys(event.params).join(", ") : "";
+		const params = event && event.params ? Object.keys(event.params).join(", ") : "";
 
-		if (args.options.filter && !match(item.name, args.options.filter))
-			return;
+		if (args.options.filter && !match(item.name, args.options.filter)) return;
 
 		if (event) {
 			data.push([
@@ -47,7 +45,7 @@ async function handler(broker, args) {
 					? kleur.bgGreen().white("   OK   ")
 					: kleur.bgRed().white().bold(" FAILED "),
 				(item.hasLocal ? "(*) " : "") + item.count,
-				params,
+				params
 			]);
 		} else {
 			data.push([
@@ -56,21 +54,19 @@ async function handler(broker, args) {
 				item.available
 					? kleur.bgGreen().white("   OK   ")
 					: kleur.bgRed().white().bold(" FAILED "),
-				item.count,
+				item.count
 			]);
 		}
 
 		if (args.options.details && item.endpoints) {
-			item.endpoints.forEach((endpoint) => {
+			item.endpoints.forEach(endpoint => {
 				data.push([
 					"",
 					"",
 					endpoint.available
 						? kleur.bgGreen().white("   OK   ")
 						: kleur.bgRed().white().bold(" FAILED "),
-					endpoint.nodeID == broker.nodeID
-						? kleur.gray("<local>")
-						: endpoint.nodeID,
+					endpoint.nodeID == broker.nodeID ? kleur.gray("<local>") : endpoint.nodeID
 				]);
 			});
 			hLines.push(data.length);
@@ -78,17 +74,12 @@ async function handler(broker, args) {
 	});
 
 	const tableConf = {
-		border: _.mapValues(getBorderCharacters("honeywell"), (char) =>
-			kleur.gray(char)
-		),
+		border: _.mapValues(getBorderCharacters("honeywell"), char => kleur.gray(char)),
 		columns: {
-			1: { alignment: "right" },
+			1: { alignment: "right" }
 		},
 		drawHorizontalLine: (index, count) =>
-			index == 0 ||
-			index == 1 ||
-			index == count ||
-			hLines.indexOf(index) !== -1,
+			index == 0 || index == 1 || index == count || hLines.indexOf(index) !== -1
 	};
 
 	console.log(table(data, tableConf));
@@ -106,15 +97,12 @@ function declaration(program, broker, cmdHandler) {
 		.description("List of event listeners")
 		.option("-a, --all", "list all (offline) event listeners")
 		.option("-d, --details", "print endpoints")
-		.option(
-			"-f, --filter <match>",
-			"filter event listeners (e.g.: 'user.*')"
-		)
+		.option("-f, --filter <match>", "filter event listeners (e.g.: 'user.*')")
 		.option("-i, --skipinternal", "skip internal event listeners")
 		.option("-l, --local", "only local event listeners")
-		.hook("preAction", (thisCommand) => {
+		.hook("preAction", thisCommand => {
 			let parsedArgs = {
-				...thisCommand._optionValues, // Contains flag values
+				...thisCommand._optionValues // Contains flag values
 			};
 
 			const rawCommand = thisCommand.parent.rawArgs.slice(2).join(" ");
@@ -122,7 +110,7 @@ function declaration(program, broker, cmdHandler) {
 			// Set the params
 			thisCommand.params = {
 				options: parsedArgs,
-				rawCommand,
+				rawCommand
 			};
 
 			// Clear the parsed values for next execution

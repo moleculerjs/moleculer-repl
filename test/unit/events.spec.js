@@ -1,18 +1,20 @@
 "use strict";
 
+import { vi, describe, it, expect, beforeAll, afterEach } from "vitest";
+
 const { ServiceBroker } = require("moleculer");
 const commander = require("commander");
 const { parseArgsStringToArgv } = require("string-argv");
 
 // Load the command declaration
-let { declaration } = require("../src/commands/destroy");
+let { declaration } = require("../../src/commands/events");
 
-describe("Test 'cache-clear' command", () => {
+describe("Test 'events' command", () => {
 	let program;
 	let broker;
 
 	// Mock the handler
-	const cmdHandler = jest.fn();
+	const cmdHandler = vi.fn();
 
 	beforeAll(() => {
 		program = new commander.Command();
@@ -25,7 +27,7 @@ describe("Test 'cache-clear' command", () => {
 		// Create broker
 		broker = new ServiceBroker({
 			nodeID: "repl-" + process.pid,
-			logger: false,
+			logger: false
 		});
 
 		// Register the command
@@ -36,18 +38,20 @@ describe("Test 'cache-clear' command", () => {
 		cmdHandler.mockClear();
 	});
 
-	it("should 'destroy' greeter service", async () => {
-		const command = "destroy v1.greeter";
+	it("should call 'events' with flags", async () => {
+		const command = "events -a -d -f greeter.* --skipinternal";
 
-		await program.parseAsync(
-			parseArgsStringToArgv(command, "node", "REPL")
-		);
+		await program.parseAsync(parseArgsStringToArgv(command, "node", "REPL"));
 
 		expect(cmdHandler).toHaveBeenCalledTimes(1);
 		expect(cmdHandler).toHaveBeenCalledWith(expect.any(ServiceBroker), {
-			options: {},
-			serviceName: "v1.greeter",
-			rawCommand: "destroy v1.greeter",
+			options: {
+				all: true,
+				details: true,
+				filter: "greeter.*",
+				skipinternal: true
+			},
+			rawCommand: "events -a -d -f greeter.* --skipinternal"
 		});
 	});
 });

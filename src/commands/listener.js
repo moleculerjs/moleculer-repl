@@ -19,7 +19,7 @@ const SERVICE_NAME = "$repl-event-listener";
 const originalServiceSchema = {
 	name: SERVICE_NAME,
 
-	events: {},
+	events: {}
 };
 
 /**
@@ -32,7 +32,7 @@ const originalServiceSchema = {
 function updateSchema(listenerList, broker) {
 	const serviceSchema = _.cloneDeep(originalServiceSchema);
 
-	listenerList.forEach((entry) => {
+	listenerList.forEach(entry => {
 		serviceSchema.events[entry.eventName] = {
 			...(entry.group !== undefined ? { group: entry.group } : undefined),
 			handler(ctx) {
@@ -43,7 +43,7 @@ function updateSchema(listenerList, broker) {
 					ctx.meta ? "with meta:" : "",
 					ctx.meta ? ctx.meta : ""
 				);
-			},
+			}
 		};
 	});
 
@@ -59,9 +59,7 @@ async function addListener(broker, args) {
 	// 1. Add listener to list
 	listenerList.push({
 		eventName: args.eventName,
-		...(args.options.group !== undefined
-			? { group: args.options.group }
-			: undefined),
+		...(args.options.group !== undefined ? { group: args.options.group } : undefined)
 	});
 
 	// 2. Stop the service
@@ -83,9 +81,7 @@ async function addListener(broker, args) {
 		console.log(
 			kleur.yellow().bold("REPL started listening to event:"),
 			args.eventName,
-			args.options.group
-				? kleur.yellow().bold("belonging to group:")
-				: "",
+			args.options.group ? kleur.yellow().bold("belonging to group:") : "",
 			args.options.group ? args.options.group : ""
 		);
 	} catch (error) {
@@ -101,13 +97,9 @@ async function addListener(broker, args) {
  */
 async function removeListener(broker, args) {
 	// 1. Find event listener
-	const index = listenerList
-		.map((entry) => entry.eventName)
-		.indexOf(args.eventName);
+	const index = listenerList.map(entry => entry.eventName).indexOf(args.eventName);
 	if (index === -1) {
-		console.error(
-			kleur.red(`>> ERROR: Event listener '${args.eventName}' not found`)
-		);
+		console.error(kleur.red(`>> ERROR: Event listener '${args.eventName}' not found`));
 		return;
 	}
 
@@ -117,10 +109,7 @@ async function removeListener(broker, args) {
 	// 3. Stop the service
 	try {
 		await broker.destroyService(SERVICE_NAME);
-		console.log(
-			kleur.yellow().bold("REPL stopped listening to:"),
-			args.eventName
-		);
+		console.log(kleur.yellow().bold("REPL stopped listening to:"), args.eventName);
 	} catch (error) {
 		if (error.type !== "SERVICE_NOT_FOUND") {
 			console.error(kleur.red(">> ERROR:", error.message));
@@ -160,13 +149,7 @@ async function listListeners(broker, args) {
  * @param {Function} cmdRemoveListener Handler that removes a listener
  * @param {Function} cmdListListeners Handler that shows all listeners
  */
-function declaration(
-	program,
-	broker,
-	cmdAddListener,
-	cmdRemoveListener,
-	cmdListListeners
-) {
+function declaration(program, broker, cmdAddListener, cmdRemoveListener, cmdListListeners) {
 	const eventListenerCMD = program
 		.command("listener")
 		.description("Adds or removes event listeners");
@@ -176,23 +159,21 @@ function declaration(
 		.command("add <eventName>")
 		.description("Add event listener")
 		.option("--group [groupName]", "Group of event listener")
-		.hook("preAction", (thisCommand) => {
+		.hook("preAction", thisCommand => {
 			const parsedOpts = thisCommand.parseOptions(thisCommand.args);
 			const [eventName] = parsedOpts.operands;
 
 			let parsedArgs = {
-				...thisCommand._optionValues, // Contains flag values
+				...thisCommand._optionValues // Contains flag values
 			};
 
-			const rawCommand = thisCommand.parent.parent.rawArgs
-				.slice(2)
-				.join(" ");
+			const rawCommand = thisCommand.parent.parent.rawArgs.slice(2).join(" ");
 
 			// Set the params
 			thisCommand.params = {
 				options: parsedArgs,
 				eventName,
-				rawCommand,
+				rawCommand
 			};
 
 			// Clear the parsed values for next execution
@@ -209,21 +190,19 @@ function declaration(
 		.description("Remove event listener")
 		.allowUnknownOption(true)
 		.allowExcessArguments(true)
-		.hook("preAction", (thisCommand) => {
+		.hook("preAction", thisCommand => {
 			const parsedOpts = thisCommand.parseOptions(thisCommand.args);
 			const [eventName] = parsedOpts.operands;
 
 			let parsedArgs = {};
 
-			const rawCommand = thisCommand.parent.parent.rawArgs
-				.slice(2)
-				.join(" ");
+			const rawCommand = thisCommand.parent.parent.rawArgs.slice(2).join(" ");
 
 			// Set the params
 			thisCommand.params = {
 				options: parsedArgs,
 				eventName,
-				rawCommand,
+				rawCommand
 			};
 
 			// Clear the parsed values for next execution
@@ -238,18 +217,16 @@ function declaration(
 	eventListenerCMD
 		.command("list")
 		.description("List events that REPL is listening to")
-		.hook("preAction", (thisCommand) => {
+		.hook("preAction", thisCommand => {
 			// Command without params. Keep for consistency sake
 			let parsedArgs = {};
 
-			const rawCommand = thisCommand.parent.parent.rawArgs
-				.slice(2)
-				.join(" ");
+			const rawCommand = thisCommand.parent.parent.rawArgs.slice(2).join(" ");
 
 			// Set the params
 			thisCommand.params = {
 				options: parsedArgs,
-				rawCommand,
+				rawCommand
 			};
 
 			// Clear the parsed values for next execution
@@ -276,5 +253,5 @@ module.exports = {
 	declaration,
 	addListener,
 	removeListener,
-	listListeners,
+	listListeners
 };
